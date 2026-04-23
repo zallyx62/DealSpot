@@ -1,332 +1,1085 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DealSpot</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#080D1A"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="description" content="Radar Bons Plans — Économise au quotidien"/>
+<title>Radar Bons Plans</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #080D1A;
+  --surface: #0F1623;
+  --card: #161F30;
+  --card2: #1C2840;
+  --border: #243048;
+  --border2: #2E3D5C;
+  --accent: #F59E0B;
+  --accent2: #FCD34D;
+  --accent-dim: rgba(245,158,11,0.12);
+  --green: #10B981;
+  --green-dim: rgba(16,185,129,0.12);
+  --red: #EF4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --blue: #3B82F6;
+  --blue-dim: rgba(59,130,246,0.12);
+  --purple: #8B5CF6;
+  --text: #F1F5F9;
+  --text2: #94A3B8;
+  --text3: #64748B;
+  --nav-h: 68px;
+  --top-h: 56px;
+  --r: 14px;
+  --r2: 20px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:var(--bg);color:var(--text)}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background-color: #f4f6f8;
-      color: #1f2933;
-    }
+/* TOPBAR */
+#topbar{
+  flex-shrink:0;height:var(--top-h);display:flex;align-items:center;
+  padding:0 16px;background:var(--surface);
+  border-bottom:1px solid var(--border);
+  position:relative;z-index:10;
+}
+.tb-logo{display:flex;align-items:center;gap:8px;flex:1}
+.tb-logo .dot{width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tb-logo span{font-size:15px;font-weight:700;letter-spacing:-0.3px}
+.tb-logo span em{color:var(--accent);font-style:normal}
+.tb-right{display:flex;align-items:center;gap:8px}
+.offline-badge{
+  display:flex;align-items:center;gap:4px;padding:3px 8px;
+  background:var(--green-dim);border:1px solid var(--green);
+  border-radius:20px;font-size:11px;font-weight:600;color:var(--green);
+  transition:all .3s;
+}
+.offline-badge.offline{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.offline-badge .dot-pulse{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border2);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
 
-    header {
-      background: white;
-      padding: 18px 16px 6px 16px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: 700;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
+/* MAIN SCROLL AREA */
+#main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+#main::-webkit-scrollbar{display:none}
 
-    .nav {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      padding: 12px;
-      background: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      flex-wrap: wrap;
-    }
+/* BOTTOM NAV */
+#nav{
+  flex-shrink:0;height:var(--nav-h);display:flex;
+  background:var(--surface);border-top:1px solid var(--border);
+  position:relative;z-index:10;padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;transition:all .2s;padding:6px 0;position:relative;
+}
+.nav-item svg{width:22px;height:22px;stroke:var(--text3);stroke-width:1.8;fill:none;transition:all .2s}
+.nav-item span{font-size:10px;font-weight:500;color:var(--text3);transition:all .2s}
+.nav-item.active svg{stroke:var(--accent)}
+.nav-item.active span{color:var(--accent)}
+.nav-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--accent);border-radius:0 0 4px 4px}
+.nav-item.center-btn{flex:0 0 72px}
+.nav-center{
+  width:48px;height:48px;border-radius:16px;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 4px 20px rgba(245,158,11,0.4);transition:transform .15s;
+}
+.nav-center:active{transform:scale(0.93)}
+.nav-center svg{width:22px;height:22px;stroke:#000;stroke-width:2.5;fill:none}
 
-    .nav button {
-      border: none;
-      padding: 10px 16px;
-      border-radius: 20px;
-      background: #e5e7eb;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+/* TABS */
+.tab{display:none;padding:16px 16px calc(16px + var(--nav-h))}
+.tab.active{display:block}
 
-    .nav button.active {
-      background: #2563eb;
-      color: white;
-    }
+/* SECTION HEADERS */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-head h2{font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.sec-head a{font-size:12px;color:var(--accent);font-weight:600;cursor:pointer}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-dim);color:var(--green)}
+.badge-amber{background:var(--accent-dim);color:var(--accent)}
+.badge-blue{background:var(--blue-dim);color:var(--blue)}
+.badge-red{background:var(--red-dim);color:var(--red)}
+.badge-purple{background:rgba(139,92,246,0.12);color:var(--purple)}
 
-    .search-container {
-      padding: 14px;
-    }
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.card2{background:var(--card2);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:10px}
 
-    .search-box {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1px solid #d1d5db;
-      font-size: 15px;
-      outline: none;
-    }
+/* ========== MODULE 1 : RADAR ========== */
+.filter-bar{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px}
+.filter-bar::-webkit-scrollbar{display:none}
+.chip{
+  flex-shrink:0;padding:6px 12px;border-radius:20px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);color:var(--text2);
+  transition:all .2s;
+}
+.chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.deal-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r2);padding:14px;margin-bottom:10px;
+  transition:border-color .2s;
+}
+.deal-card:active{border-color:var(--border2)}
+.deal-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.deal-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.deal-info{flex:1}
+.deal-title{font-size:14px;font-weight:700;margin-bottom:2px;line-height:1.3}
+.deal-meta{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.deal-meta span{display:flex;align-items:center;gap:2px}
+.deal-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
+.deal-actions{display:flex;gap:6px}
+.action-btn{
+  display:flex;align-items:center;gap:4px;padding:6px 10px;
+  border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
+  border:1px solid var(--border);background:var(--card2);color:var(--text2);
+  transition:all .2s;
+}
+.action-btn.liked{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.action-btn.saved{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.deal-time{font-size:11px;color:var(--text3)}
 
-    .page {
-      display: none;
-      padding: 10px 14px 30px 14px;
-    }
+/* ========== MODULE 2 : CARTE ========== */
+.map-hero{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r2);overflow:hidden;margin-bottom:14px;
+}
+.map-placeholder{
+  height:160px;background:linear-gradient(135deg,#0F2027,#203A43,#2C5364);
+  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+}
+.map-dots{position:absolute;inset:0}
+.map-dot{position:absolute;width:8px;height:8px;border-radius:50%;animation:map-ping 2s infinite}
+.map-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid currentColor;animation:map-ring 2s infinite;opacity:0}
+@keyframes map-ping{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+@keyframes map-ring{0%{transform:scale(0.8);opacity:.8}100%{transform:scale(2);opacity:0}}
+.map-label{
+  background:rgba(8,13,26,0.8);backdrop-filter:blur(8px);
+  border:1px solid var(--border);border-radius:10px;padding:8px 12px;text-align:center;
+}
+.map-label p{font-size:13px;font-weight:600;margin-bottom:2px}
+.map-label span{font-size:11px;color:var(--text2)}
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.cat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:12px 8px;text-align:center;cursor:pointer;
+  transition:all .2s;
+}
+.cat-card.active{border-color:var(--accent);background:var(--accent-dim)}
+.cat-card .icon{font-size:24px;margin-bottom:4px}
+.cat-card span{font-size:11px;font-weight:600;color:var(--text2);display:block}
+.cat-card.active span{color:var(--accent)}
+.place-item{
+  display:flex;align-items:center;gap:12px;padding:12px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:all .2s;
+}
+.place-item:active{border-color:var(--border2)}
+.place-dot{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.place-info{flex:1}
+.place-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.place-addr{font-size:11px;color:var(--text2)}
+.place-dist{font-size:11px;font-weight:600;color:var(--accent)}
 
-    .page.active {
-      display: block;
-    }
+/* ========== MODULE 3 : PRIX ========== */
+.price-hero{
+  background:linear-gradient(135deg,var(--card) 0%,var(--card2) 100%);
+  border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:14px;
+}
+.price-hero-title{font-size:13px;color:var(--text2);margin-bottom:4px}
+.price-hero-val{font-size:32px;font-weight:800;color:var(--accent);letter-spacing:-1px}
+.price-hero-val span{font-size:14px;font-weight:500;color:var(--text2)}
+.price-hero-row{display:flex;gap:12px;margin-top:12px}
+.price-stat{flex:1;background:rgba(0,0,0,0.2);border-radius:10px;padding:10px;text-align:center}
+.price-stat .val{font-size:16px;font-weight:700}
+.price-stat .lbl{font-size:10px;color:var(--text2);margin-top:2px}
+.price-item{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px;margin-bottom:8px;
+}
+.price-item-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.price-item-icon{width:40px;height:40px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px}
+.price-item-info{flex:1}
+.price-item-name{font-size:13px;font-weight:700}
+.price-item-shop{font-size:11px;color:var(--text2)}
+.price-item-price{font-size:18px;font-weight:800}
+.price-trend{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600}
+.price-trend.up{color:var(--red)}
+.price-trend.down{color:var(--green)}
+.price-trend.same{color:var(--text3)}
+.mini-chart{display:flex;align-items:flex-end;gap:3px;height:32px;margin-top:8px}
+.mini-bar{flex:1;border-radius:3px 3px 0 0;transition:height .3s;min-height:4px}
 
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-      margin-bottom: 14px;
-    }
+/* ========== MODULE 4 : MISSIONS ========== */
+.xp-bar-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:14px}
+.xp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.xp-level{display:flex;align-items:center;gap:8px}
+.level-badge{
+  width:36px;height:36px;border-radius:10px;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;color:#000;
+}
+.xp-name{font-size:14px;font-weight:700}
+.xp-sub{font-size:11px;color:var(--text2)}
+.xp-pts{font-size:24px;font-weight:800;color:var(--accent)}
+.xp-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:8px}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width 1s cubic-bezier(.34,1.56,.64,1)}
+.mission-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px;margin-bottom:8px;
+  transition:all .2s;cursor:pointer;
+}
+.mission-card.done{opacity:.5;pointer-events:none}
+.mission-card.done .mc-title::after{content:' ✓';color:var(--green)}
+.mc-head{display:flex;align-items:flex-start;gap:10px}
+.mc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.mc-body{flex:1}
+.mc-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.mc-desc{font-size:11px;color:var(--text2);margin-bottom:8px}
+.mc-progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.mc-fill{height:100%;border-radius:3px;transition:width .5s}
+.mc-reward{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.mc-xp{font-size:12px;font-weight:700;color:var(--accent)}
+.mc-cta{font-size:11px;color:var(--blue);font-weight:600}
+.streak-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+.streak-day{
+  aspect-ratio:1;border-radius:8px;background:var(--card);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3);
+  font-weight:600;flex-direction:column;gap:1px;
+}
+.streak-day.done{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.streak-day .day-dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
+.streak-day.done .day-dot{background:var(--accent)}
 
-    .badge {
-      display: inline-block;
-      background: #dc2626;
-      color: white;
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
+/* ========== MODULE 5 : ANTI-FLEMME ========== */
+.anti-hero{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r2);padding:24px;text-align:center;margin-bottom:16px;
+}
+.anti-face{font-size:64px;margin-bottom:12px;display:block;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.anti-hero h2{font-size:20px;font-weight:800;margin-bottom:6px}
+.anti-hero p{font-size:13px;color:var(--text2);max-width:260px;margin:0 auto 20px}
+.anti-btn{
+  width:100%;padding:16px;border-radius:14px;font-size:16px;font-weight:700;
+  font-family:'Sora',sans-serif;cursor:pointer;border:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#000;transition:transform .15s;
+}
+.anti-btn:active{transform:scale(0.97)}
+.anti-response{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r2);padding:20px;margin-bottom:12px;
+  animation:slide-up .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes slide-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.anti-response .emoji{font-size:40px;margin-bottom:8px}
+.anti-response h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.anti-response p{font-size:13px;color:var(--text2);line-height:1.5}
+.anti-tip{
+  background:var(--green-dim);border:1px solid var(--green);
+  border-radius:var(--r);padding:12px 14px;margin-bottom:8px;
+  font-size:12px;color:var(--text);
+}
+.anti-tip strong{color:var(--green)}
+.counter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.counter-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
+.counter-val{font-size:28px;font-weight:800;color:var(--accent)}
+.counter-lbl{font-size:11px;color:var(--text2);margin-top:2px}
 
-    .title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
+/* ========== MODAL ========== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
+  z-index:100;display:none;align-items:flex-end;padding:0;
+  animation:fade-in .2s;
+}
+.modal-overlay.open{display:flex}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+.modal{
+  width:100%;max-height:90vh;background:var(--surface);border-radius:24px 24px 0 0;
+  border-top:1px solid var(--border);padding:20px 16px;
+  animation:slide-modal .3s cubic-bezier(.34,1.56,.64,1);
+  overflow-y:auto;
+}
+@keyframes slide-modal{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 16px}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:16px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-input{
+  width:100%;padding:12px;background:var(--card);border:1px solid var(--border);
+  border-radius:10px;font-size:14px;color:var(--text);font-family:'Sora',sans-serif;
+  outline:none;transition:border-color .2s;
+}
+.form-input:focus{border-color:var(--accent)}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.type-chip{
+  padding:10px 6px;border-radius:10px;text-align:center;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);transition:all .2s;
+}
+.type-chip .tc-icon{font-size:20px}
+.type-chip .tc-label{font-size:11px;color:var(--text2);display:block;margin-top:3px;font-weight:600}
+.type-chip.sel{border-color:var(--accent);background:var(--accent-dim)}
+.type-chip.sel .tc-label{color:var(--accent)}
+.submit-btn{
+  width:100%;padding:14px;border-radius:12px;font-size:14px;font-weight:700;
+  font-family:'Sora',sans-serif;cursor:pointer;border:none;margin-top:8px;
+  background:var(--accent);color:#000;transition:opacity .2s;
+}
+.submit-btn:active{opacity:.8}
 
-    .city {
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty .emoji{font-size:40px;margin-bottom:8px}
+.empty p{font-size:13px}
 
-    .form input, .form button {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
-      font-size: 14px;
-    }
+/* TOAST */
+#toast{
+  position:fixed;bottom:calc(var(--nav-h) + 16px);left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--card2);border:1px solid var(--border2);border-radius:12px;
+  padding:10px 16px;font-size:13px;font-weight:600;z-index:200;
+  opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-    .form button {
-      background: #2563eb;
-      color: white;
-      font-weight: 600;
-      border: none;
-    }
-
-  </style>
+/* SCROLLBAR HIDDEN */
+.tab::-webkit-scrollbar{display:none}
+</style>
 </head>
-
 <body>
+<div id="app">
 
-  <header>DealSpot</header>
-
-  <div class="nav">
-    <button class="active" onclick="showPage('top', this)">🏆 Top</button>
-    <button onclick="showPage('liste', this)">📋 Liste</button>
-    <button onclick="showPage('ajouter', this)">➕ Ajouter</button>
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="tb-logo">
+      <div class="dot">🎯</div>
+      <span>Radar <em>Bons Plans</em></span>
+    </div>
+    <div class="tb-right">
+      <div class="offline-badge" id="netBadge">
+        <div class="dot-pulse"></div>
+        <span id="netLabel">En ligne</span>
+      </div>
+      <div class="icon-btn" onclick="openModal('addModal')">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+    </div>
   </div>
 
-  <div class="search-container">
-    <input
-      type="text"
-      class="search-box"
-      placeholder="🔍 Rechercher un bon plan..."
-    />
-  </div>
+  <!-- MAIN -->
+  <div id="main">
 
-  <!-- PAGE TOP -->
-  <div id="top" class="page active">
+    <!-- TAB 1: RADAR -->
+    <div class="tab active" id="tab-radar">
+      <div class="sec-head">
+        <h2>🎯 Radar</h2>
+        <span class="badge badge-green" id="dealCount">0 actifs</span>
+      </div>
+      <div class="filter-bar" id="filterBar">
+        <div class="chip active" data-filter="all" onclick="filterDeals(this,'all')">Tout</div>
+        <div class="chip" data-filter="promo" onclick="filterDeals(this,'promo')">🏷️ Promo</div>
+        <div class="chip" data-filter="gratuit" onclick="filterDeals(this,'gratuit')">🎁 Gratuit</div>
+        <div class="chip" data-filter="event" onclick="filterDeals(this,'event')">📅 Événement</div>
+        <div class="chip" data-filter="food" onclick="filterDeals(this,'food')">🍕 Nourriture</div>
+        <div class="chip" data-filter="service" onclick="filterDeals(this,'service')">🔧 Service</div>
+      </div>
+      <div id="dealList"></div>
+    </div>
 
-    <div id="dealsContainer"></div>
+    <!-- TAB 2: CARTE -->
+    <div class="tab" id="tab-carte">
+      <div class="sec-head"><h2>🗺️ Lieux Utiles</h2></div>
+      <div class="map-hero">
+        <div class="map-placeholder">
+          <div class="map-dots" id="mapDots"></div>
+          <div class="map-label">
+            <p>📍 Autour de vous</p>
+            <span>Activez la localisation pour plus de précision</span>
+          </div>
+        </div>
+        <div style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border)">
+          <span style="font-size:12px;color:var(--text2)" id="placeCountLabel">Chargement…</span>
+          <span class="badge badge-blue" onclick="openModal('addPlaceModal')" style="cursor:pointer">+ Ajouter</span>
+        </div>
+      </div>
+      <div class="category-grid" id="catGrid"></div>
+      <div id="placeList"></div>
+    </div>
 
-  </div>
+    <!-- TAB 3: PRIX -->
+    <div class="tab" id="tab-prix">
+      <div class="sec-head"><h2>💰 Mémoire de Prix</h2></div>
+      <div class="price-hero">
+        <div class="price-hero-title">Économies détectées ce mois</div>
+        <div class="price-hero-val"><span id="savingsTotal">0</span> <span>€ économisés</span></div>
+        <div class="price-hero-row">
+          <div class="price-stat">
+            <div class="val" id="priceProdCount">0</div>
+            <div class="lbl">Produits suivis</div>
+          </div>
+          <div class="price-stat">
+            <div class="val" id="priceAlertCount" style="color:var(--red)">0</div>
+            <div class="lbl">Hausses détectées</div>
+          </div>
+          <div class="price-stat">
+            <div class="val" id="priceDipCount" style="color:var(--green)">0</div>
+            <div class="lbl">Baisses détectées</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-head">
+        <h2 style="font-size:15px">Produits suivis</h2>
+        <span class="badge badge-amber" onclick="openModal('addPriceModal')" style="cursor:pointer">+ Ajouter</span>
+      </div>
+      <div id="priceList"></div>
+    </div>
 
-  <!-- PAGE LISTE -->
-  <div id="liste" class="page">
-
-    <div id="dealsList"></div>
-
-  </div>
-
-  <!-- PAGE AJOUTER -->
-  <div id="ajouter" class="page">
-
-    <div class="card">
-
-      <div class="title">Ajouter un bon plan</div>
-
-      <div class="form">
-
-        <input id="dealName" type="text" placeholder="Nom du bon plan" />
-
-        <input id="dealCity" type="text" placeholder="Ville" />
-
-        <input id="dealDiscount" type="text" placeholder="Réduction (ex: -30%)" />
-
-        <button onclick="addDeal()">Ajouter</button>
-
+    <!-- TAB 4: MISSIONS -->
+    <div class="tab" id="tab-missions">
+      <div class="xp-bar-wrap">
+        <div class="xp-header">
+          <div class="xp-level">
+            <div class="level-badge" id="levelBadge">1</div>
+            <div>
+              <div class="xp-name" id="levelName">Débutant Éco</div>
+              <div class="xp-sub" id="xpSub">0 / 100 XP</div>
+            </div>
+          </div>
+          <div class="xp-pts" id="totalXP">0 XP</div>
+        </div>
+        <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
       </div>
 
+      <div class="sec-head" style="margin-bottom:8px">
+        <h2 style="font-size:14px;color:var(--text2)">🔥 Série de jours</h2>
+      </div>
+      <div class="streak-row" id="streakRow"></div>
+
+      <div class="sec-head">
+        <h2>🏆 Missions du Jour</h2>
+        <span class="badge badge-amber" id="missionsDone">0/3</span>
+      </div>
+      <div id="missionList"></div>
+    </div>
+
+    <!-- TAB 5: ANTI-FLEMME -->
+    <div class="tab" id="tab-anti">
+      <div class="counter-row">
+        <div class="counter-card">
+          <div class="counter-val" id="antiCount">0</div>
+          <div class="counter-lbl">Fois utilisé</div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-val" style="color:var(--green)" id="antiSaved">0 €</div>
+          <div class="counter-lbl">Potentiellement économisés</div>
+        </div>
+      </div>
+
+      <div class="anti-hero">
+        <span class="anti-face" id="antiFace">😩</span>
+        <h2>T'as la flemme ?</h2>
+        <p>Appuie sur le bouton et on te donne une mini-action à faire maintenant.</p>
+        <button class="anti-btn" onclick="triggerAnti()">Je n'ai pas envie 😪</button>
+      </div>
+      <div id="antiResponse"></div>
     </div>
 
   </div>
 
-  <script>
+  <!-- BOTTOM NAV -->
+  <div id="nav">
+    <div class="nav-item active" onclick="switchTab('radar',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="11"/></svg>
+      <span>Radar</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('carte',this)">
+      <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      <span>Carte</span>
+    </div>
+    <div class="nav-item center-btn" onclick="openModal('addModal')">
+      <div class="nav-center">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+    </div>
+    <div class="nav-item" onclick="switchTab('missions',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span>Missions</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('anti',this)">
+      <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span>Anti-Flemme</span>
+    </div>
+  </div>
 
-    function showPage(pageId, button) {
+</div>
 
-      let pages = document.querySelectorAll('.page');
-      pages.forEach(p => p.classList.remove('active'));
+<!-- MODAL: ADD DEAL -->
+<div class="modal-overlay" id="addModal" onclick="closeModalIfBg(event,'addModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Signaler un Bon Plan</h3>
+    <div class="form-group">
+      <label>Type de bon plan</label>
+      <div class="type-grid" id="dealTypeGrid">
+        <div class="type-chip sel" data-type="promo" onclick="selType(this)"><div class="tc-icon">🏷️</div><span class="tc-label">Promo</span></div>
+        <div class="type-chip" data-type="gratuit" onclick="selType(this)"><div class="tc-icon">🎁</div><span class="tc-label">Gratuit</span></div>
+        <div class="type-chip" data-type="event" onclick="selType(this)"><div class="tc-icon">📅</div><span class="tc-label">Événement</span></div>
+        <div class="type-chip" data-type="food" onclick="selType(this)"><div class="tc-icon">🍕</div><span class="tc-label">Nourriture</span></div>
+        <div class="type-chip" data-type="service" onclick="selType(this)"><div class="tc-icon">🔧</div><span class="tc-label">Service</span></div>
+        <div class="type-chip" data-type="autre" onclick="selType(this)"><div class="tc-icon">💡</div><span class="tc-label">Autre</span></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Titre du bon plan</label>
+      <input class="form-input" id="dealTitle" placeholder="Ex: 30% chez Monoprix jusqu'à vendredi"/>
+    </div>
+    <div class="form-group">
+      <label>Lieu / adresse</label>
+      <input class="form-input" id="dealPlace" placeholder="Ex: Monoprix République, Paris"/>
+    </div>
+    <div class="form-group">
+      <label>Description (optionnel)</label>
+      <input class="form-input" id="dealDesc" placeholder="Infos supplémentaires…"/>
+    </div>
+    <button class="submit-btn" onclick="submitDeal()">Publier le bon plan 🎯</button>
+  </div>
+</div>
 
-      document.getElementById(pageId).classList.add('active');
+<!-- MODAL: ADD PLACE -->
+<div class="modal-overlay" id="addPlaceModal" onclick="closeModalIfBg(event,'addPlaceModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Ajouter un Lieu Utile</h3>
+    <div class="form-group">
+      <label>Catégorie</label>
+      <div class="type-grid" id="placeTypeGrid">
+        <div class="type-chip sel" data-type="wc" onclick="selPlaceType(this)"><div class="tc-icon">🚻</div><span class="tc-label">Toilettes</span></div>
+        <div class="type-chip" data-type="eau" onclick="selPlaceType(this)"><div class="tc-icon">💧</div><span class="tc-label">Fontaine</span></div>
+        <div class="type-chip" data-type="wifi" onclick="selPlaceType(this)"><div class="tc-icon">📶</div><span class="tc-label">Wi-Fi</span></div>
+        <div class="type-chip" data-type="prise" onclick="selPlaceType(this)"><div class="tc-icon">🔌</div><span class="tc-label">Prise</span></div>
+        <div class="type-chip" data-type="parking" onclick="selPlaceType(this)"><div class="tc-icon">🅿️</div><span class="tc-label">Parking</span></div>
+        <div class="type-chip" data-type="autre" onclick="selPlaceType(this)"><div class="tc-icon">📍</div><span class="tc-label">Autre</span></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Nom du lieu</label>
+      <input class="form-input" id="placeName" placeholder="Ex: Fontaine Trocadéro"/>
+    </div>
+    <div class="form-group">
+      <label>Adresse</label>
+      <input class="form-input" id="placeAddr" placeholder="Ex: Place du Trocadéro, Paris"/>
+    </div>
+    <button class="submit-btn" onclick="submitPlace()">Ajouter le lieu 📍</button>
+  </div>
+</div>
 
-      let buttons = document.querySelectorAll('.nav button');
-      buttons.forEach(b => b.classList.remove('active'));
+<!-- MODAL: ADD PRICE -->
+<div class="modal-overlay" id="addPriceModal" onclick="closeModalIfBg(event,'addPriceModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Enregistrer un Prix</h3>
+    <div class="form-group">
+      <label>Produit</label>
+      <input class="form-input" id="prodName" placeholder="Ex: Lait demi-écrémé 1L"/>
+    </div>
+    <div class="form-group">
+      <label>Magasin</label>
+      <input class="form-input" id="prodShop" placeholder="Ex: Lidl République"/>
+    </div>
+    <div class="form-group">
+      <label>Prix actuel (€)</label>
+      <input class="form-input" id="prodPrice" type="number" step="0.01" placeholder="1.09"/>
+    </div>
+    <div class="form-group">
+      <label>Émoji produit (optionnel)</label>
+      <input class="form-input" id="prodEmoji" placeholder="🥛" maxlength="2"/>
+    </div>
+    <button class="submit-btn" onclick="submitPrice()">Enregistrer le prix 💰</button>
+  </div>
+</div>
 
-      button.classList.add('active');
+<div id="toast">✓ Enregistré</div>
 
-    }
+<script>
+// ============================================================
+// STATE & STORAGE
+// ============================================================
+const S = {
+  deals: [],
+  places: [],
+  prices: [],
+  xp: 0,
+  streak: [],
+  missions: [],
+  antiCount: 0,
+  antiSaved: 0,
+  missionsDone: [],
+};
 
-    function loadDeals() {
+function save(key){ localStorage.setItem('rbp_'+key, JSON.stringify(S[key])); }
+function load(key,def){ const d=localStorage.getItem('rbp_'+key); return d?JSON.parse(d):def; }
 
-      let deals = JSON.parse(localStorage.getItem('deals')) || [];
+function initState(){
+  S.deals = load('deals', defaultDeals());
+  S.places = load('places', defaultPlaces());
+  S.prices = load('prices', defaultPrices());
+  S.xp = load('xp', 0);
+  S.streak = load('streak', []);
+  S.missionsDone = load('missionsDone', []);
+  S.antiCount = load('antiCount', 0);
+  S.antiSaved = load('antiSaved', 0);
+  S.missions = dailyMissions();
+}
 
-      let container = document.getElementById('dealsContainer');
-      let list = document.getElementById('dealsList');
+function defaultDeals(){
+  return [
+    {id:1,type:'promo',title:'50% sur les yaourts Danone',place:'Carrefour Market Nation',desc:'Valable jusqu\'au dimanche soir',likes:12,saved:false,liked:false,time:'Il y a 23 min'},
+    {id:2,type:'gratuit',title:'Pain offert à l\'achat d\'une soupe',place:'Brioche Dorée Châtelet',desc:'Présenter l\'appli en caisse',likes:28,saved:true,liked:false,time:'Il y a 1h'},
+    {id:3,type:'event',title:'Concert gratuit — Jazz en plein air',place:'Parc Montsouris, Paris',desc:'Demain de 15h à 18h, accès libre',likes:47,saved:false,liked:true,time:'Il y a 2h'},
+    {id:4,type:'food',title:'Invendus du marché à prix libre',place:'Marché d\'Aligre, Paris 12e',desc:'Chaque dimanche après 13h',likes:33,saved:false,liked:false,time:'Il y a 3h'},
+    {id:5,type:'promo',title:'2ème café offert avant 10h',place:'Columbus Café Saint-Lazare',desc:'Avec la carte fidélité',likes:9,saved:false,liked:false,time:'Il y a 5h'},
+  ];
+}
 
-      container.innerHTML = '';
-      list.innerHTML = '';
+function defaultPlaces(){
+  return [
+    {id:1,type:'wc',name:'Toilettes Publiques',addr:'Place de la République, Paris',dist:'120 m'},
+    {id:2,type:'eau',name:'Fontaine Wallace',addr:'Bd Beaumarchais, Paris 3e',dist:'200 m'},
+    {id:3,type:'wifi',name:'Wi-Fi Mairie du 11e',addr:'Place Léon Blum, Paris',dist:'350 m'},
+    {id:4,type:'prise',name:'Prises — McDonald\'s',addr:'Bd Voltaire, Paris 11e',dist:'400 m'},
+    {id:5,type:'parking',name:'Parking gratuit — Dimanche',addr:'Rue Oberkampf, Paris',dist:'500 m'},
+    {id:6,type:'eau',name:'Fontaine réfrigérée Gare de Lyon',addr:'Place Louis Armand, Paris 12e',dist:'800 m'},
+  ];
+}
 
-      deals.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+function defaultPrices(){
+  return [
+    {id:1,name:'Lait demi-écrémé 1L',shop:'Lidl',emoji:'🥛',history:[{v:0.89,d:'15 mars'},{v:0.95,d:'1 avr.'},{v:0.99,d:'18 avr.'},{v:0.99,d:'Aujourd\'hui'}]},
+    {id:2,name:'Pain de mie Harrys',shop:'Franprix',emoji:'🍞',history:[{v:2.10,d:'1 mars'},{v:2.10,d:'15 mars'},{v:1.95,d:'5 avr.'},{v:1.95,d:'Aujourd\'hui'}]},
+    {id:3,name:'Eau minérale 1.5L Évian',shop:'Monoprix',emoji:'💧',history:[{v:0.80,d:'1 mars'},{v:0.85,d:'20 mars'},{v:0.90,d:'10 avr.'},{v:0.95,d:'Aujourd\'hui'}]},
+  ];
+}
 
-      deals.forEach((deal, index) => {
+function dailyMissions(){
+  return [
+    {id:'m1',icon:'🏷️',color:'#F59E0B',title:'Signale un bon plan',desc:'Aide la communauté à économiser',xp:25,progress:0,goal:1,cta:'Signaler maintenant'},
+    {id:'m2',icon:'💰',color:'#10B981',title:'Enregistre un prix',desc:'Note le prix d\'un produit du quotidien',xp:20,progress:0,goal:1,cta:'Enregistrer'},
+    {id:'m3',icon:'🗺️',color:'#3B82F6',title:'Ajoute un lieu utile',desc:'Fontaine, Wi-Fi, toilettes…',xp:15,progress:0,goal:1,cta:'Ajouter un lieu'},
+  ];
+}
 
-        let html = `
+// ============================================================
+// TABS
+// ============================================================
+let currentTab = 'radar';
+function switchTab(name, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  currentTab = name;
+  if(name==='radar') renderDeals();
+  if(name==='carte') renderPlaces();
+  if(name==='prix') renderPrices();
+  if(name==='missions') renderMissions();
+  if(name==='anti') renderAnti();
+}
 
-          <div class="card">
-            <div class="badge">${deal.discount}</div>
-            <div class="title">${deal.name}</div>
-            <div class="city">${deal.city}</div>
-            <button onclick="likeDeal(${index})">👍 ${deal.likes || 0}</button>
-            <button onclick="commentDeal(${index})">💬 Commenter</button>
-            <div class="comments">${(deal.comments || []).map(c => `<div class='comment'>${c}</div>`).join('')}</div>(${index})">👍 ${deal.likes || 0}</button>
+// ============================================================
+// MODULE 1: RADAR
+// ============================================================
+const typeConfig = {
+  promo:{icon:'🏷️',color:'#F59E0B',bg:'rgba(245,158,11,0.15)'},
+  gratuit:{icon:'🎁',color:'#10B981',bg:'rgba(16,185,129,0.15)'},
+  event:{icon:'📅',color:'#3B82F6',bg:'rgba(59,130,246,0.15)'},
+  food:{icon:'🍕',color:'#EF4444',bg:'rgba(239,68,68,0.15)'},
+  service:{icon:'🔧',color:'#8B5CF6',bg:'rgba(139,92,246,0.15)'},
+  autre:{icon:'💡',color:'#94A3B8',bg:'rgba(148,163,184,0.15)'},
+};
+
+let currentFilter = 'all';
+function filterDeals(el, f){
+  currentFilter = f;
+  document.querySelectorAll('#filterBar .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderDeals();
+}
+
+function renderDeals(){
+  const list = document.getElementById('dealList');
+  const filtered = currentFilter==='all' ? S.deals : S.deals.filter(d=>d.type===currentFilter);
+  document.getElementById('dealCount').textContent = S.deals.length+' actifs';
+  if(!filtered.length){ list.innerHTML = `<div class="empty"><div class="emoji">🔍</div><p>Aucun bon plan dans cette catégorie</p></div>`; return; }
+  list.innerHTML = filtered.map(d => {
+    const t = typeConfig[d.type]||typeConfig.autre;
+    return `<div class="deal-card">
+      <div class="deal-header">
+        <div class="deal-icon" style="background:${t.bg}">${t.icon}</div>
+        <div class="deal-info">
+          <div class="deal-title">${d.title}</div>
+          <div class="deal-meta">
+            <span>📍 ${d.place}</span>
           </div>
-
-        `;
-
-        container.innerHTML += html;
-        list.innerHTML += html;
-
-      });
-
-      let deals = JSON.parse(localStorage.getItem('deals')) || [];
-
-      let container = document.getElementById('dealsContainer');
-      let list = document.getElementById('dealsList');
-
-      container.innerHTML = '';
-      list.innerHTML = '';
-
-      deals.forEach(deal => {
-
-        let html = `
-
-          <div class="card">
-            <div class="badge">${deal.discount}</div>
-            <div class="title">${deal.name}</div>
-            <div class="city">${deal.city}</div>
+          ${d.desc?`<div style="font-size:11px;color:var(--text2);margin-top:3px">${d.desc}</div>`:''}
+        </div>
+      </div>
+      <div class="deal-footer">
+        <div class="deal-actions">
+          <div class="action-btn ${d.liked?'liked':''}" onclick="likeDeal(${d.id})">
+            ❤️ ${d.likes}
           </div>
+          <div class="action-btn ${d.saved?'saved':''}" onclick="saveDeal(${d.id})">
+            ${d.saved?'🔖 Sauvegardé':'🔖 Sauvegarder'}
+          </div>
+        </div>
+        <span class="deal-time">${d.time}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-        `;
+function likeDeal(id){
+  const d = S.deals.find(x=>x.id===id);
+  if(!d) return;
+  d.liked = !d.liked;
+  d.likes += d.liked ? 1 : -1;
+  save('deals'); renderDeals();
+}
+function saveDeal(id){
+  const d = S.deals.find(x=>x.id===id);
+  if(!d) return;
+  d.saved = !d.saved;
+  save('deals'); renderDeals();
+  toast(d.saved ? '🔖 Bon plan sauvegardé !' : 'Supprimé des sauvegardes');
+}
 
-        container.innerHTML += html;
-        list.innerHTML += html;
+let selDealType = 'promo';
+function selType(el){
+  document.querySelectorAll('#dealTypeGrid .type-chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  selDealType = el.dataset.type;
+}
+function submitDeal(){
+  const title = document.getElementById('dealTitle').value.trim();
+  const place = document.getElementById('dealPlace').value.trim();
+  if(!title || !place){ toast('❌ Titre et lieu requis'); return; }
+  const d = {
+    id: Date.now(), type: selDealType,
+    title, place, desc: document.getElementById('dealDesc').value.trim(),
+    likes:0, saved:false, liked:false, time:'À l\'instant'
+  };
+  S.deals.unshift(d);
+  save('deals');
+  closeModal('addModal');
+  document.getElementById('dealTitle').value='';
+  document.getElementById('dealPlace').value='';
+  document.getElementById('dealDesc').value='';
+  switchTab('radar', document.querySelector('.nav-item'));
+  renderDeals();
+  toast('🎯 Bon plan publié !');
+  completeMission('m1');
+}
 
-      });
+// ============================================================
+// MODULE 2: CARTE
+// ============================================================
+const catConfig = {
+  wc:{icon:'🚻',label:'Toilettes',color:'#3B82F6'},
+  eau:{icon:'💧',label:'Fontaines',color:'#06B6D4'},
+  wifi:{icon:'📶',label:'Wi-Fi',color:'#8B5CF6'},
+  prise:{icon:'🔌',label:'Prises',color:'#F59E0B'},
+  parking:{icon:'🅿️',label:'Parking',color:'#10B981'},
+  autre:{icon:'📍',label:'Autre',color:'#94A3B8'},
+};
 
+let currentCat = 'all';
+function renderPlaces(){
+  // Map dots
+  const dots = document.getElementById('mapDots');
+  const cols = ['#F59E0B','#10B981','#3B82F6','#EF4444','#8B5CF6'];
+  dots.innerHTML = Array.from({length:8},(_,i) => {
+    const x = 10+Math.random()*80, y = 10+Math.random()*80, c = cols[i%cols.length];
+    return `<div class="map-dot" style="left:${x}%;top:${y}%;background:${c};color:${c};animation-delay:${i*0.4}s"></div>`;
+  }).join('');
+
+  // Category grid
+  const cats = ['all',...Object.keys(catConfig)];
+  document.getElementById('catGrid').innerHTML = `
+    <div class="cat-card ${currentCat==='all'?'active':''}" onclick="filterPlaces(this,'all')">
+      <div class="icon">🗺️</div><span>Tout</span>
+    </div>
+    ${Object.entries(catConfig).map(([k,v])=>`
+    <div class="cat-card ${currentCat===k?'active':''}" onclick="filterPlaces(this,'${k}')">
+      <div class="icon">${v.icon}</div><span>${v.label}</span>
+    </div>`).join('')}`;
+
+  const filtered = currentCat==='all' ? S.places : S.places.filter(p=>p.type===currentCat);
+  document.getElementById('placeCountLabel').textContent = `${filtered.length} lieu(x) référencé(s)`;
+  const list = document.getElementById('placeList');
+  if(!filtered.length){ list.innerHTML=`<div class="empty"><div class="emoji">📍</div><p>Aucun lieu dans cette catégorie</p></div>`; return; }
+  list.innerHTML = filtered.map(p=>{
+    const c = catConfig[p.type]||catConfig.autre;
+    return `<div class="place-item">
+      <div class="place-dot" style="background:rgba(${hexToRgb(c.color)},0.15)">${c.icon}</div>
+      <div class="place-info">
+        <div class="place-name">${p.name}</div>
+        <div class="place-addr">📍 ${p.addr}</div>
+      </div>
+      <div class="place-dist">${p.dist}</div>
+    </div>`;
+  }).join('');
+}
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+function filterPlaces(el, cat){
+  currentCat = cat;
+  renderPlaces();
+}
+
+let selPlType = 'wc';
+function selPlaceType(el){
+  document.querySelectorAll('#placeTypeGrid .type-chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  selPlType = el.dataset.type;
+}
+function submitPlace(){
+  const name = document.getElementById('placeName').value.trim();
+  const addr = document.getElementById('placeAddr').value.trim();
+  if(!name||!addr){ toast('❌ Nom et adresse requis'); return; }
+  S.places.unshift({id:Date.now(),type:selPlType,name,addr,dist:'Près de vous'});
+  save('places');
+  closeModal('addPlaceModal');
+  document.getElementById('placeName').value='';
+  document.getElementById('placeAddr').value='';
+  renderPlaces();
+  toast('📍 Lieu ajouté !');
+  completeMission('m3');
+}
+
+// ============================================================
+// MODULE 3: PRIX
+// ============================================================
+function renderPrices(){
+  let totalUp=0, totalDown=0, savings=0;
+  S.prices.forEach(p=>{
+    const h = p.history;
+    if(h.length>=2){
+      const last=h[h.length-1].v, prev=h[h.length-2].v;
+      if(last>prev) totalUp++;
+      else if(last<prev){ totalDown++; savings+=+(prev-last).toFixed(2); }
     }
+  });
+  document.getElementById('priceProdCount').textContent = S.prices.length;
+  document.getElementById('priceAlertCount').textContent = totalUp;
+  document.getElementById('priceDipCount').textContent = totalDown;
+  document.getElementById('savingsTotal').textContent = savings.toFixed(2);
 
-    function addDeal() {
+  const list = document.getElementById('priceList');
+  if(!S.prices.length){ list.innerHTML=`<div class="empty"><div class="emoji">📦</div><p>Aucun produit suivi.<br>Ajoutez-en un pour commencer !</p></div>`; return; }
+  list.innerHTML = S.prices.map(p=>{
+    const h = p.history;
+    const curr = h[h.length-1].v;
+    const prev = h.length>=2 ? h[h.length-2].v : curr;
+    const diff = curr - prev;
+    const trendClass = diff>0?'up':diff<0?'down':'same';
+    const trendIcon = diff>0?'▲ ':diff<0?'▼ ':'= ';
+    const maxV = Math.max(...h.map(x=>x.v));
+    const bars = h.map(x=>{
+      const pct = Math.round((x.v/maxV)*100);
+      const col = x===h[h.length-1] ? 'var(--accent)' : 'var(--border2)';
+      return `<div class="mini-bar" style="height:${pct}%;background:${col}" title="${x.v}€ — ${x.d}"></div>`;
+    }).join('');
+    return `<div class="price-item">
+      <div class="price-item-head">
+        <div class="price-item-icon">${p.emoji||'📦'}</div>
+        <div class="price-item-info">
+          <div class="price-item-name">${p.name}</div>
+          <div class="price-item-shop">${p.shop}</div>
+        </div>
+        <div>
+          <div class="price-item-price" style="color:${diff>0?'var(--red)':diff<0?'var(--green)':'var(--text)'}">${curr.toFixed(2)} €</div>
+          <div class="price-trend ${trendClass}">${trendIcon}${Math.abs(diff).toFixed(2)} €</div>
+        </div>
+      </div>
+      <div class="mini-chart">${bars}</div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+        <span style="font-size:11px;color:var(--text3)">${h[h.length-1].d}</span>
+        <span class="badge ${diff>0?'badge-red':diff<0?'badge-green':'badge-amber'}">${diff>0?'⚠️ Hausse':diff<0?'✅ Baisse':'Stable'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-      let name = document.getElementById('dealName').value;
-      let city = document.getElementById('dealCity').value;
-      let discount = document.getElementById('dealDiscount').value;
+function submitPrice(){
+  const name = document.getElementById('prodName').value.trim();
+  const shop = document.getElementById('prodShop').value.trim();
+  const priceVal = parseFloat(document.getElementById('prodPrice').value);
+  const emoji = document.getElementById('prodEmoji').value||'📦';
+  if(!name||!shop||isNaN(priceVal)){ toast('❌ Remplis tous les champs'); return; }
+  const today = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  S.prices.push({id:Date.now(),name,shop,emoji,history:[{v:priceVal,d:today}]});
+  save('prices'); closeModal('addPriceModal');
+  ['prodName','prodShop','prodPrice','prodEmoji'].forEach(id=>document.getElementById(id).value='');
+  renderPrices(); toast('💰 Prix enregistré !');
+  completeMission('m2');
+}
 
-      if (!name || !city || !discount) {
-        alert('Remplis tous les champs');
-        return;
-      }
+// ============================================================
+// MODULE 4: MISSIONS
+// ============================================================
+const levels = [
+  {name:'Débutant Éco',xp:100},{name:'Chasseur de Promos',xp:250},
+  {name:'Maître des Bons Plans',xp:500},{name:'Économiste Pro',xp:1000},
+  {name:'Légende des Économies',xp:9999},
+];
 
-      let deals = JSON.parse(localStorage.getItem('deals')) || [];
+function renderMissions(){
+  let lvl=0;
+  while(lvl<levels.length-1 && S.xp>=levels[lvl].xp) lvl++;
+  const base = lvl>0?levels[lvl-1].xp:0;
+  const next = levels[lvl].xp;
+  const pct = Math.min(100,Math.round(((S.xp-base)/(next-base))*100));
+  document.getElementById('levelBadge').textContent = lvl+1;
+  document.getElementById('levelName').textContent = levels[lvl].name;
+  document.getElementById('totalXP').textContent = S.xp+' XP';
+  document.getElementById('xpSub').textContent = `${S.xp} / ${next} XP`;
+  document.getElementById('xpFill').style.width = pct+'%';
 
-      deals.push({
-        name: name,
-        city: city,
-        discount: discount,
-        likes: 0
-      });
-        name: name,
-        city: city,
-        discount: discount
-      });
+  // Streak
+  const days = ['L','M','M','J','V','S','D'];
+  const today = new Date().getDay();
+  document.getElementById('streakRow').innerHTML = days.map((d,i)=>{
+    const done = S.streak.includes(i);
+    return `<div class="streak-day ${done?'done':''}"><span>${d}</span><div class="day-dot"></div></div>`;
+  }).join('');
 
-      localStorage.setItem('deals', JSON.stringify(deals));
+  // Missions
+  const done = S.missionsDone;
+  document.getElementById('missionsDone').textContent = `${done.length}/3`;
+  document.getElementById('missionList').innerHTML = S.missions.map(m=>{
+    const isDone = done.includes(m.id);
+    const fillColors = {m1:'var(--accent)',m2:'var(--green)',m3:'var(--blue)'};
+    return `<div class="mission-card ${isDone?'done':''}" onclick="completeMission('${m.id}')">
+      <div class="mc-head">
+        <div class="mc-icon" style="background:${m.color}22">${m.icon}</div>
+        <div class="mc-body">
+          <div class="mc-title">${m.title}</div>
+          <div class="mc-desc">${m.desc}</div>
+          <div class="mc-progress">
+            <div class="mc-fill" style="width:${isDone?100:0}%;background:${fillColors[m.id]||'var(--accent)'}"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mc-reward">
+        <span class="mc-xp">+${m.xp} XP</span>
+        ${!isDone?`<span class="mc-cta">${m.cta} →</span>`:`<span class="badge badge-green">Complétée ✓</span>`}
+      </div>
+    </div>`;
+  }).join('');
+}
 
-      document.getElementById('dealName').value = '';
-      document.getElementById('dealCity').value = '';
-      document.getElementById('dealDiscount').value = '';
+function completeMission(id){
+  if(S.missionsDone.includes(id)) return;
+  S.missionsDone.push(id);
+  save('missionsDone');
+  const m = S.missions.find(x=>x.id===id);
+  if(m){
+    S.xp += m.xp;
+    save('xp');
+    toast(`🏆 +${m.xp} XP — Mission accomplie !`);
+  }
+  // Mark today in streak
+  const day = new Date().getDay();
+  if(!S.streak.includes(day)){ S.streak.push(day); save('streak'); }
+  if(currentTab==='missions') renderMissions();
+}
 
-      function commentDeal(index) {
+// ============================================================
+// MODULE 5: ANTI-FLEMME
+// ============================================================
+const antiResponses = [
+  {emoji:'💪',title:'Micro-action (2 min)',text:'Ouvre ton appli de banque et note une dépense que tu pourrais éviter cette semaine. Juste une.'},
+  {emoji:'🎯',title:'Ton défi de maintenant',text:'Cherche un bon plan près de chez toi et signale-le sur le Radar. Tu aidera quelqu\'un aujourd\'hui.'},
+  {emoji:'🧠',title:'Astuce rapide',text:'Avant ton prochain achat, demande-toi : "Est-ce que j\'en aurai encore besoin dans 48h ?" Si tu hésites, attends.'},
+  {emoji:'🚶',title:'Bouge un peu',text:'Lève-toi, fais 20 pas. Ton cerveau se réactivera et la flemme passera. C\'est prouvé par les neurosciences.'},
+  {emoji:'💡',title:'Rappel utile',text:'Tu peux économiser jusqu\'à 200€/mois en évitant 3 petits achats impulsifs. C\'est 2400€ par an.'},
+  {emoji:'🔌',title:'Vérifie tes prises',text:'Note un lieu avec une prise électrique gratuite près de chez toi. Ça peut te sauver la mise un jour.'},
+  {emoji:'🎮',title:'Petite mission',text:'Complète une mission du jour. Même la plus petite. Tu gagneras des XP et tu te sentiras mieux après.'},
+  {emoji:'🛒',title:'Anti-impulsion',text:'Ferme tous les onglets d\'achats ouverts. Reviens dans 24h. Si tu veux encore acheter, c\'est que c\'est utile.'},
+];
+let lastAnti = -1;
+function triggerAnti(){
+  let idx;
+  do { idx = Math.floor(Math.random()*antiResponses.length); } while(idx===lastAnti);
+  lastAnti = idx;
+  const r = antiResponses[idx];
+  S.antiCount++;
+  S.antiSaved = +(S.antiSaved + 2.5).toFixed(1);
+  save('antiCount'); save('antiSaved');
+  document.getElementById('antiCount').textContent = S.antiCount;
+  document.getElementById('antiSaved').textContent = S.antiSaved+'€';
+  document.getElementById('antiFace').textContent = r.emoji;
+  const div = document.getElementById('antiResponse');
+  div.innerHTML = `<div class="anti-response">
+    <div class="emoji">${r.emoji}</div>
+    <h3>${r.title}</h3>
+    <p>${r.text}</p>
+  </div>
+  <div class="anti-tip"><strong>💡 Rappel :</strong> Chaque "pas envie" surmonté, c\'est en moyenne 2,50€ économisés. Continue !</div>`;
+}
+function renderAnti(){
+  document.getElementById('antiCount').textContent = S.antiCount;
+  document.getElementById('antiSaved').textContent = S.antiSaved+'€';
+}
 
-      let deals = JSON.parse(localStorage.getItem('deals')) || [];
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function closeModalIfBg(e,id){ if(e.target.classList.contains('modal-overlay')) closeModal(id); }
 
-      let text = prompt("Votre commentaire :");
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2500);
+}
 
-      if (!text) return;
+// ============================================================
+// OFFLINE DETECTION
+// ============================================================
+function updateNet(){
+  const online = navigator.onLine;
+  const badge = document.getElementById('netBadge');
+  const label = document.getElementById('netLabel');
+  badge.className = 'offline-badge' + (online?'':' offline');
+  label.textContent = online ? 'En ligne' : 'Hors ligne';
+}
+window.addEventListener('online', updateNet);
+window.addEventListener('offline', updateNet);
 
-      if (!deals[index].comments) {
-        deals[index].comments = [];
-      }
+// ============================================================
+// INIT
+// ============================================================
+initState();
+updateNet();
+renderDeals();
 
-      deals[index].comments.push(text);
-
-      localStorage.setItem('deals', JSON.stringify(deals));
-
-      loadDeals();
-
-    }
-
-    function likeDeal(index) {
-
-      let deals = JSON.parse(localStorage.getItem('deals')) || [];
-
-      if (!deals[index].likes) {
-        deals[index].likes = 0;
-      }
-
-      deals[index].likes += 1;
-
-      localStorage.setItem('deals', JSON.stringify(deals));
-
-      loadDeals();
-
-    }
-
-    loadDeals();
-
-      alert('Deal enregistré');
-
-    }
-
-    loadDeals();
-
-  </script>
-
+// Auto-render current tab helpers
+document.getElementById('tab-carte').addEventListener('transitionend', ()=>{});
+</script>
 </body>
 </html>
