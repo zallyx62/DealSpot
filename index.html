@@ -1,8 +1,11 @@
-<!DOCTYPE html><html lang="fr">
+<!DOCTYPE html>
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DealSpot</title>  <style>
+  <title>DealSpot</title>
+
+  <style>
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -20,12 +23,6 @@
       position: sticky;
       top: 0;
       z-index: 10;
-    }
-
-    .location {
-      font-size: 13px;
-      color: #6b7280;
-      margin-top: 4px;
     }
 
     .nav {
@@ -78,19 +75,9 @@
     .card {
       background: white;
       border-radius: 18px;
-      overflow: hidden;
+      padding: 16px;
       box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-      margin-bottom: 16px;
-    }
-
-    .card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-    }
-
-    .card-content {
-      padding: 14px;
+      margin-bottom: 14px;
     }
 
     .badge {
@@ -116,11 +103,6 @@
       margin-bottom: 10px;
     }
 
-    .rating {
-      font-size: 15px;
-      font-weight: 600;
-    }
-
     .form input, .form button {
       width: 100%;
       padding: 12px;
@@ -137,64 +119,65 @@
       border: none;
     }
 
-    .geo-btn {
-      background: #10b981;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 10px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
+  </style>
+</head>
 
-  </style></head><body>  <header>
-    DealSpot
-    <div id="userLocation" class="location">Localisation inconnue</div>
-  </header>  <div class="nav">
+<body>
+
+  <header>DealSpot</header>
+
+  <div class="nav">
     <button class="active" onclick="showPage('top', this)">🏆 Top</button>
     <button onclick="showPage('liste', this)">📋 Liste</button>
-    <button onclick="showPage('avis', this)">⭐ Avis</button>
     <button onclick="showPage('ajouter', this)">➕ Ajouter</button>
-  </div>  <div class="search-container">
+  </div>
+
+  <div class="search-container">
     <input
       type="text"
       class="search-box"
       placeholder="🔍 Rechercher un bon plan..."
     />
-  </div>  <!-- PAGE TOP -->  <div id="top" class="page active"><div class="card">
-  <img src="https://images.unsplash.com/photo-1601924582975-7e6b0f7d3c4f" />
-  <div class="card-content">
-    <div class="badge">-50%</div>
-    <div class="title">Pizza</div>
-    <div class="city">Paris</div>
-    <div class="rating">⭐ 4.8</div>
   </div>
-</div>
 
-  </div>  <!-- PAGE AJOUTER -->  <div id="ajouter" class="page"><div class="card">
-  <div class="card-content">
-    <div class="title">Ajouter un bon plan</div>
+  <!-- PAGE TOP -->
+  <div id="top" class="page active">
 
-    <div class="form">
+    <div id="dealsContainer"></div>
 
-      <button class="geo-btn" onclick="getLocation()">
-        📍 Utiliser ma position
-      </button>
+  </div>
 
-      <input id="dealName" type="text" placeholder="Nom du bon plan" />
+  <!-- PAGE LISTE -->
+  <div id="liste" class="page">
 
-      <input id="dealCity" type="text" placeholder="Ville" />
+    <div id="dealsList"></div>
 
-      <input type="text" placeholder="Réduction (ex: -30%)" />
+  </div>
 
-      <button>Ajouter</button>
+  <!-- PAGE AJOUTER -->
+  <div id="ajouter" class="page">
+
+    <div class="card">
+
+      <div class="title">Ajouter un bon plan</div>
+
+      <div class="form">
+
+        <input id="dealName" type="text" placeholder="Nom du bon plan" />
+
+        <input id="dealCity" type="text" placeholder="Ville" />
+
+        <input id="dealDiscount" type="text" placeholder="Réduction (ex: -30%)" />
+
+        <button onclick="addDeal()">Ajouter</button>
+
+      </div>
 
     </div>
 
   </div>
-</div>
 
-  </div>  <script>
+  <script>
 
     function showPage(pageId, button) {
 
@@ -210,34 +193,140 @@
 
     }
 
-    function getLocation() {
+    function loadDeals() {
 
-      if (navigator.geolocation) {
+      let deals = JSON.parse(localStorage.getItem('deals')) || [];
 
-        navigator.geolocation.getCurrentPosition(function(position) {
+      let container = document.getElementById('dealsContainer');
+      let list = document.getElementById('dealsList');
 
-          let lat = position.coords.latitude;
-          let lon = position.coords.longitude;
+      container.innerHTML = '';
+      list.innerHTML = '';
 
-          document.getElementById("userLocation").innerText =
-            "Position détectée";
+      deals.sort((a, b) => (b.likes || 0) - (a.likes || 0));
 
-          document.getElementById("dealCity").value =
-            "Ville détectée automatiquement";
+      deals.forEach((deal, index) => {
 
-        }, function() {
+        let html = `
 
-          alert("Impossible d'obtenir la localisation");
+          <div class="card">
+            <div class="badge">${deal.discount}</div>
+            <div class="title">${deal.name}</div>
+            <div class="city">${deal.city}</div>
+            <button onclick="likeDeal(${index})">👍 ${deal.likes || 0}</button>
+            <button onclick="commentDeal(${index})">💬 Commenter</button>
+            <div class="comments">${(deal.comments || []).map(c => `<div class='comment'>${c}</div>`).join('')}</div>(${index})">👍 ${deal.likes || 0}</button>
+          </div>
 
-        });
+        `;
 
-      } else {
+        container.innerHTML += html;
+        list.innerHTML += html;
 
-        alert("Géolocalisation non supportée");
+      });
 
-      }
+      let deals = JSON.parse(localStorage.getItem('deals')) || [];
+
+      let container = document.getElementById('dealsContainer');
+      let list = document.getElementById('dealsList');
+
+      container.innerHTML = '';
+      list.innerHTML = '';
+
+      deals.forEach(deal => {
+
+        let html = `
+
+          <div class="card">
+            <div class="badge">${deal.discount}</div>
+            <div class="title">${deal.name}</div>
+            <div class="city">${deal.city}</div>
+          </div>
+
+        `;
+
+        container.innerHTML += html;
+        list.innerHTML += html;
+
+      });
 
     }
 
-  </script></body>
+    function addDeal() {
+
+      let name = document.getElementById('dealName').value;
+      let city = document.getElementById('dealCity').value;
+      let discount = document.getElementById('dealDiscount').value;
+
+      if (!name || !city || !discount) {
+        alert('Remplis tous les champs');
+        return;
+      }
+
+      let deals = JSON.parse(localStorage.getItem('deals')) || [];
+
+      deals.push({
+        name: name,
+        city: city,
+        discount: discount,
+        likes: 0
+      });
+        name: name,
+        city: city,
+        discount: discount
+      });
+
+      localStorage.setItem('deals', JSON.stringify(deals));
+
+      document.getElementById('dealName').value = '';
+      document.getElementById('dealCity').value = '';
+      document.getElementById('dealDiscount').value = '';
+
+      function commentDeal(index) {
+
+      let deals = JSON.parse(localStorage.getItem('deals')) || [];
+
+      let text = prompt("Votre commentaire :");
+
+      if (!text) return;
+
+      if (!deals[index].comments) {
+        deals[index].comments = [];
+      }
+
+      deals[index].comments.push(text);
+
+      localStorage.setItem('deals', JSON.stringify(deals));
+
+      loadDeals();
+
+    }
+
+    function likeDeal(index) {
+
+      let deals = JSON.parse(localStorage.getItem('deals')) || [];
+
+      if (!deals[index].likes) {
+        deals[index].likes = 0;
+      }
+
+      deals[index].likes += 1;
+
+      localStorage.setItem('deals', JSON.stringify(deals));
+
+      loadDeals();
+
+    }
+
+    loadDeals();
+
+      alert('Deal enregistré');
+
+    }
+
+    loadDeals();
+
+  </script>
+
+</body>
 </html>
