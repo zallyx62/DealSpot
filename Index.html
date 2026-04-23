@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DealSpot</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f3f4f6;
+}
+
+header {
+  background: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+nav {
+  display: flex;
+  justify-content: space-around;
+  background: white;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+button {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #e5e7eb;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #d1d5db;
+}
+
+.container {
+  padding: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+DealSpot
+</header>
+
+<nav>
+<button onclick="showPage('top')">Top</button>
+<button onclick="showPage('list')">Liste</button>
+<button onclick="showPage('reviews')">Avis</button>
+<button onclick="showPage('add')">Ajouter</button>
+</nav>
+
+<div class="container">
+
+<input
+type="text"
+placeholder="Rechercher un bon plan..."
+onkeyup="searchDeals(this.value)"
+>
+
+<div id="top" class="page">
+<div class="card">
+<strong>1. Pizza -50%</strong><br>
+Paris<br>
+⭐ 4.8
+</div>
+
+<div class="card">
+<strong>2. Cinéma gratuit</strong><br>
+Lyon<br>
+⭐ 4.7
+</div>
+
+<div class="card">
+<strong>3. Parking gratuit</strong><br>
+Marseille<br>
+⭐ 4.6
+</div>
+</div>
+
+<div id="list" class="page" style="display:none">
+<div class="card deal">
+<strong>Pizza -50%</strong><br>
+Paris<br>
+⭐ 4.8
+</div>
+
+<div class="card deal">
+<strong>Cinéma gratuit</strong><br>
+Lyon<br>
+⭐ 4.7
+</div>
+
+<div class="card deal">
+<strong>Parking gratuit</strong><br>
+Marseille<br>
+⭐ 4.6
+</div>
+
+<div class="card deal">
+<strong>Concert gratuit</strong><br>
+Toulouse<br>
+⭐ 4.9
+</div>
+</div>
+
+<div id="reviews" class="page" style="display:none">
+<div class="card">
+Alex : Très bon plan.
+</div>
+
+<div class="card">
+Sam : Confirmé sur place.
+</div>
+</div>
+
+<div id="add" class="page" style="display:none">
+<div class="card">
+Ajouter un bon plan (simulation)
+</div>
+</div>
+
+</div>
+
+<script>
+
+function showPage(page) {
+
+let pages = document.querySelectorAll(".page");
+
+pages.forEach(p => {
+p.style.display = "none";
+});
+
+document.getElementById(page).style.display = "block";
+
+}
+
+function searchDeals(text) {
+
+text = text.toLowerCase();
+
+let deals = document.querySelectorAll(".deal");
+
+deals.forEach(d => {
+
+if (d.innerText.toLowerCase().includes(text)) {
+d.style.display = "block";
+}
+else {
+d.style.display = "none";
+}
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
