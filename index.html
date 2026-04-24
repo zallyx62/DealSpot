@@ -1,586 +1,876 @@
-import { useState, useEffect } from "react";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-
-const sg = async (k) => { try { const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; } catch { return null; } };
-const ss = async (k, v) => { try { await window.storage.set(k, JSON.stringify(v)); } catch {} };
-
-const AVATARS = ["😊","🧔","👩","👩‍🦱","🧑","😎","🧕","👱‍♀️","🧑‍🦲","👩‍🦰","🧑‍🎤","👨‍💼","🧑‍🍳","👩‍💻","🧑‍🎨","🤓"];
-
-const DEALS_INIT = [
-  { id:"d1", type:"promo", title:"Boulangerie Simon : viennoiseries -50% à 19h", desc:"Chaque soir à 19h, les invendus sont bradés. Croissants, pains au chocolat, baguettes. La boulangère fait souvent un bonus si vous prenez tout.", location:"14 rue du Commerce, Paris 15e", author:"Mathieu R.", avatar:"🧑", date:"22 avr.", up:62, down:3, vote:null, comments:[], reviews:[
-    { id:"r1", source:"google", author:"Marie-Claire D.", avatar:"👩", rating:5, text:"On y va chaque mardi depuis 3 semaines. Les croissants sont encore chauds à 19h. À tester absolument !", date:"15 avr.", likes:34 },
-    { id:"r2", source:"google", author:"Karim B.", avatar:"🧔", rating:4, text:"Arrivez vers 18h55 car le stock part vite. Pain aux raisins quasi toujours dispo.", date:"18 avr.", likes:18 },
-    { id:"r3", source:"google", author:"Sophie L.", avatar:"👩‍🦱", rating:5, text:"4 viennoiseries pour 3€ hier soir. Le pain au chocolat était encore tiède, vraie surprise.", date:"20 avr.", likes:27 },
-  ]},
-  { id:"d2", type:"promo", title:"Sneakers Nike -40% en magasin", desc:"Stock limité ! Air Max 90 à 90€ au lieu de 150€. Montrez ce message au caissier.", location:"Centre Commercial Italie 2, Paris 13e", author:"Sarah K.", avatar:"👩", date:"21 avr.", up:41, down:12, vote:null, comments:[], reviews:[
-    { id:"r4", source:"google", author:"Thomas R.", avatar:"🧑", rating:2, text:"Déçu. Fait le déplacement exprès et le rayon était vide depuis 2 jours.", date:"21 avr.", likes:41 },
-    { id:"r5", source:"google", author:"Inès M.", avatar:"👩", rating:5, text:"J'ai eu les dernières paires en 41 le lundi matin à l'ouverture ! Foncez tôt.", date:"17 avr.", likes:33 },
-  ]},
-  { id:"d3", type:"event", title:"Concert gratuit au Parc des Buttes-Chaumont", desc:"Trio de jazz tous les samedis en mai de 15h à 17h. Entrée libre, apporter un pique-nique.", location:"Parc des Buttes-Chaumont, Paris 19e", author:"Nina M.", avatar:"👩‍🦱", date:"20 avr.", up:89, down:1, vote:null, comments:[], reviews:[
-    { id:"r6", source:"google", author:"Nina R.", avatar:"👩", rating:5, text:"On était plus de 300 personnes samedi ! Le trio joue du jazz manouche, c'est excellent.", date:"19 avr.", likes:52 },
-    { id:"r7", source:"google", author:"Julien M.", avatar:"🧑", rating:4, text:"Super ambiance. Le groupe joue vraiment bien, niveau professionnel.", date:"20 avr.", likes:21 },
-  ]},
-  { id:"d4", type:"service", title:"Coupe + brushing à 25€ — Salon Nova", desc:"Prix de lancement. Coupe + brushing à 25€ pour tout type de cheveux. RDV sur @salon_nova.", location:"34 rue Oberkampf, Paris 11e", author:"Marie D.", avatar:"👩‍🦱", date:"22 avr.", up:31, down:1, vote:null, comments:[], reviews:[
-    { id:"r8", source:"google", author:"Emma T.", avatar:"👩", rating:5, text:"Coupe + brushing impeccable pour 25€. Salon moderne, personnel très accueillant.", date:"21 avr.", likes:12 },
-  ]},
-];
-
-const PLACES_INIT = [
-  { id:"p1", cat:"toilettes", icon:"🚻", name:"WC Châtelet - Les Halles", address:"Forum des Halles, Paris 1er", hours:"6h-23h", offline:true, reviews:[
-    { id:"rp1", source:"gmaps", author:"Paul V.", avatar:"🧑", rating:3, text:"Propres en matinée, beaucoup moins après 17h. Gratuit et accessible.", date:"10 mars", likes:23 },
-    { id:"rp2", source:"gmaps", author:"Amina K.", avatar:"👩", rating:4, text:"Bien indiqués depuis la sortie métro. Jamais eu de problème en 2 ans.", date:"1 avr.", likes:11 },
-  ]},
-  { id:"p2", cat:"fontaine", icon:"💧", name:"Fontaine Pont d'Iéna", address:"Pont d'Iéna, Paris 7e", hours:"Permanent", offline:true, reviews:[
-    { id:"rp3", source:"gmaps", author:"Claire M.", avatar:"👩‍🦱", rating:5, text:"Eau fraîche et bonne toute l'année. Vue sur la Tour Eiffel en prime.", date:"5 avr.", likes:48 },
-    { id:"rp4", source:"gmaps", author:"Marc D.", avatar:"🧑‍🦲", rating:5, text:"Parfaite en été pour remplir sa gourde. Eau potable confirmée.", date:"20 avr.", likes:31 },
-  ]},
-  { id:"p3", cat:"wifi", icon:"📶", name:"Wi-Fi Paris — Hôtel de Ville", address:"Place de l'Hôtel de Ville, Paris 4e", hours:"Permanent", offline:true, reviews:[
-    { id:"rp5", source:"gmaps", author:"Julie F.", avatar:"👩", rating:4, text:"Connexion stable en journée. Le soir ça ralentit parfois.", date:"12 avr.", likes:14 },
-  ]},
-  { id:"p4", cat:"prise", icon:"🔌", name:"McDonald's Opéra", address:"27 bd des Italiens, Paris 9e", hours:"7h-0h", offline:true, reviews:[
-    { id:"rp6", source:"gmaps", author:"Sarah A.", avatar:"👩", rating:4, text:"Prises accessibles au fond à gauche, 1er étage. Venez entre 9h et 11h.", date:"8 avr.", likes:29 },
-  ]},
-  { id:"p5", cat:"parking", icon:"🅿️", name:"Parking Décathlon Villette", address:"Av. Corentin Cariou, Paris 19e", hours:"9h-22h", offline:true, reviews:[
-    { id:"rp7", source:"gmaps", author:"Pierre M.", avatar:"🧑", rating:4, text:"Gratuit si vous faites un achat. Toujours de la place.", date:"14 avr.", likes:8 },
-  ]},
-  { id:"p6", cat:"eau", icon:"🫧", name:"Fontaine pétillante Roquette", address:"Rue de la Roquette, Paris 11e", hours:"Permanent", offline:true, reviews:[
-    { id:"rp8", source:"gmaps", author:"Alex B.", avatar:"😎", rating:5, text:"La seule fontaine pétillante gratuite que je connaisse à Paris ! Le secret des locaux du 11e.", date:"3 avr.", likes:67 },
-  ]},
-];
-
-const PLACE_CATS = [{id:"all",label:"Tout",icon:"📍"},{id:"toilettes",label:"Toilettes",icon:"🚻"},{id:"fontaine",label:"Eau plate",icon:"💧"},{id:"eau",label:"Pétillante",icon:"🫧"},{id:"wifi",label:"Wi-Fi",icon:"📶"},{id:"prise",label:"Prises",icon:"🔌"},{id:"parking",label:"Parking",icon:"🅿️"}];
-const DEAL_TYPES = [{id:"all",label:"Tous",icon:"📡"},{id:"promo",label:"Promo",icon:"🏷️"},{id:"gratuit",label:"Gratuit",icon:"🎁"},{id:"event",label:"Événement",icon:"🎉"},{id:"nourriture",label:"Nourriture",icon:"🥗"},{id:"service",label:"Service",icon:"🛠️"}];
-const MISSIONS_INIT = [{id:"m1",label:"Signaler 1 bon plan",pts:50,icon:"📡",done:false},{id:"m2",label:"Économiser 2€ aujourd'hui",pts:30,icon:"💰",done:false},{id:"m3",label:"Éviter un achat inutile",pts:20,icon:"🛑",done:false},{id:"m4",label:"Trouver un endroit gratuit",pts:40,icon:"🗺️",done:false},{id:"m5",label:"Sauvegarder un bon plan",pts:15,icon:"🔖",done:false}];
-const AF_TIPS = ["Vérifie le prix de ton café quotidien — 1€/jour = 365€/an 😮","Ajoute un bon plan que tu connais. 30 secondes, ça aide tout le monde.","Regarde si un parc est gratuit près de chez toi pour ta pause déjeuner.","Vérifie ton dernier relevé : tu paies peut-être un abonnement inutile.","Partage Spotto à un ami qui cherche des bons plans 😉","Prépare ta liste de courses avant d'aller au supermarché."];
-const MODS = {
-  radar:    {color:"#2563EB",light:"#EFF6FF",label:"Radar",    icon:["M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.14 12 19.79 19.79 0 0 1 1.09 3.18 2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"]},
-  carte:    {color:"#0891B2",light:"#ECFEFF",label:"Carte",    icon:["M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z","M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6"]},
-  prix:     {color:"#D97706",light:"#FFFBEB",label:"Prix",     icon:["M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z","M7 7h.01"]},
-  missions: {color:"#059669",light:"#ECFDF5",label:"Missions", icon:["M13 2L3 14h9l-1 8 10-12h-9l1-8z"]},
-  profil:   {color:"#6366F1",light:"#EEF2FF",label:"Profil",   icon:["M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2","M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"]},
-};
-
-const CSS=`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{--bg:#F4F6FB;--sf:#fff;--s2:#EEF1F8;--bd:#DDE2EE;--tx:#0D1117;--t2:#6B7280;--t3:#9CA3AF;--mc:#2563EB;--ml:#EFF6FF;--gn:#059669;--gl:#ECFDF5;--rd:#DC2626;--am:#D97706;--al:#FFFBEB;--bl:#2563EB;--bld:#DBEAFE;--r:14px;--rs:10px;--sh:0 1px 8px rgba(0,0,0,.07);--shl:0 6px 28px rgba(0,0,0,.13);--top:60px;--bot:68px;--tr:.2s cubic-bezier(.4,0,.2,1);}
-[data-theme=dark]{--bg:#0C0E1A;--sf:#131625;--s2:#1A1E30;--bd:#252A40;--tx:#F0F4FF;--t2:#8892A4;--t3:#4B5563;--gl:#0A2018;--al:#292000;--bld:#1E3A5F;--ml:#1A2540;--sh:0 1px 8px rgba(0,0,0,.4);--shl:0 6px 28px rgba(0,0,0,.6);}
-body{background:var(--bg);color:var(--tx);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
-.wrap{min-height:100vh;background:var(--bg);}
-.tb{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--top);background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 14px;gap:8px;}
-.logo{font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;color:var(--mc);flex-shrink:0;transition:color var(--tr);}
-.logo b{color:var(--tx);font-weight:800;}
-.sr{flex:1;display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:8px 11px;}
-.sr input{background:none;border:none;outline:none;font-family:'Manrope',sans-serif;font-size:16px;color:var(--tx);width:100%;}
-.sr input::placeholder{color:var(--t3);}
-.ib{width:38px;height:38px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx);transition:all var(--tr);flex-shrink:0;}
-.ib:hover{background:var(--mc);color:#fff;border-color:var(--mc);}
-.op{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--t2);background:var(--s2);flex-shrink:0;}
-.dt{width:7px;height:7px;border-radius:50%;}.dt.on{background:#22C55E;}.dt.off{background:#F59E0B;}
-.fb{position:fixed;top:var(--top);left:0;right:0;z-index:190;background:var(--sf);border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none;padding:9px 0;}
-.fb::-webkit-scrollbar{display:none;}
-.fbi{display:flex;gap:7px;padding:0 14px;width:max-content;}
-.ch{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;background:var(--s2);color:var(--t2);border:1px solid var(--bd);cursor:pointer;transition:all var(--tr);white-space:nowrap;font-family:'Manrope',sans-serif;}
-.ch.a{background:var(--mc);color:#fff;border-color:var(--mc);}
-.ch:hover:not(.a){border-color:var(--mc);color:var(--mc);}
-.bb{position:fixed;bottom:0;left:0;right:0;z-index:200;height:calc(var(--bot) + env(safe-area-inset-bottom,0px));background:var(--sf);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom,0px);}
-.nb{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--t3);padding:6px 12px;transition:color var(--tr);font-family:'Manrope',sans-serif;}
-.nb span{font-size:10px;font-weight:600;}.nb.a{color:var(--mc);}
-.feed{padding:calc(var(--top) + 52px + 12px) 14px calc(var(--bot) + env(safe-area-inset-bottom,0px) + 14px);max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
-.pg{padding:calc(var(--top)+16px) 14px calc(var(--bot) + env(safe-area-inset-bottom,0px) + 14px);max-width:560px;margin:0 auto;}
-.cd{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;transition:all var(--tr);}
-.cd.cl{cursor:pointer;}.cd.cl:hover{box-shadow:var(--shl);transform:translateY(-1px);}.cd.cl:active{transform:scale(.99);}
-.cd-top{padding:13px 14px 0;display:flex;align-items:flex-start;gap:9px;}
-.cd-av{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--mc),#60A5FA);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.cd-mt{flex:1;min-width:0;}.cd-au{font-size:12px;font-weight:700;}.cd-dt{font-size:11px;color:var(--t3);}
-.cd-bg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--bld);color:var(--bl);white-space:nowrap;}
-.cd-bd{padding:10px 14px 12px;}
-.cd-ti{font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;line-height:1.35;}
-.cd-de{font-size:13px;color:var(--t2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.cd-lo{display:flex;align-items:center;gap:4px;margin-top:7px;font-size:12px;color:var(--t3);}
-.cd-ft{padding:8px 14px 12px;border-top:1px solid var(--bd);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.vb{display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--t2);padding:5px 9px;border-radius:7px;transition:all var(--tr);font-family:'Manrope',sans-serif;}
-.vb:hover{background:var(--s2);}.vb.up.on{color:var(--gn);}.vb.dn.on{color:var(--rd);}
-.sv{background:none;border:none;cursor:pointer;font-size:18px;margin-left:auto;transition:transform .2s;}.sv:hover{transform:scale(1.2);}
-.ri{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--t2);}
-.pc{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:9px;box-shadow:var(--sh);cursor:pointer;transition:all var(--tr);}
-.pc:hover{border-color:var(--mc);transform:translateY(-1px);}
-.pc-ic{width:40px;height:40px;border-radius:10px;background:var(--ml);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.pc-in{flex:1;min-width:0;}.pc-nm{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.pc-ad{font-size:12px;color:var(--t2);margin-top:1px;}.pc-hr{font-size:11px;color:var(--gn);font-weight:600;margin-top:2px;}
-.pc-rg{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
-.pc-of{font-size:10px;background:var(--al);color:var(--am);padding:2px 7px;border-radius:6px;font-weight:700;}
-.pi{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px;}
-.pi-h{padding:13px 14px;display:flex;align-items:center;gap:10px;}
-.pi-em{width:40px;height:40px;border-radius:10px;background:var(--al);display:flex;align-items:center;justify-content:center;font-size:20px;}
-.pi-nm{font-size:15px;font-weight:700;}.pi-st{font-size:12px;color:var(--t2);}.pi-cr{margin-left:auto;text-align:right;}
-.pi-pr{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;}
-.pi-tr{font-size:11px;font-weight:700;}.pi-tr.up{color:var(--rd);}.pi-tr.dn{color:var(--gn);}.pi-tr.eq{color:var(--t3);}
-.mhd{background:linear-gradient(135deg,#059669,#34D399);border-radius:var(--r);padding:18px 16px;margin-bottom:16px;color:#fff;}
-.mhd-pt{font-family:'Outfit',sans-serif;font-size:36px;font-weight:800;line-height:1;}
-.mhd-lb{font-size:13px;opacity:.85;margin-top:3px;}
-.mhd-st{font-size:12px;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px;display:inline-block;margin-top:8px;font-weight:600;}
-.st-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
-.stc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:14px 12px;text-align:center;box-shadow:var(--sh);}
-.stc-v{font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;color:var(--mc);}
-.stc-l{font-size:11px;color:var(--t2);margin-top:2px;font-weight:600;}
-.mi{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:9px;box-shadow:var(--sh);cursor:pointer;transition:all var(--tr);}
-.mi:hover{border-color:var(--gn);}.mi.dn{opacity:.6;}
-.mi-ic{width:40px;height:40px;border-radius:10px;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:20px;}
-.mi-tx{flex:1;}.mi-nm{font-size:14px;font-weight:600;}.mi-rw{font-size:12px;color:var(--gn);font-weight:700;margin-top:1px;}
-.mi-ck{width:26px;height:26px;border-radius:8px;border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;transition:all var(--tr);}
-.mi-ck.on{background:var(--gn);border-color:var(--gn);color:#fff;}
-.af{background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:var(--r);padding:22px 18px;text-align:center;position:relative;overflow:hidden;margin-top:16px;}
-.af::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(37,99,235,.3),transparent 60%);}
-.af *{position:relative;}
-.af-ti{font-family:'Outfit',sans-serif;font-size:19px;font-weight:800;color:#fff;margin-bottom:5px;}
-.af-su{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:16px;}
-.af-bt{background:#FACC15;color:#0F172A;border:none;border-radius:12px;padding:11px 24px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all var(--tr);margin-bottom:14px;display:inline-block;}
-.af-bt:hover{transform:scale(1.04);}
-.af-tp{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 14px;color:rgba(255,255,255,.9);font-size:14px;line-height:1.6;text-align:left;animation:tpin .35s ease;}
-@keyframes tpin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-.prc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:18px 16px;margin-bottom:14px;box-shadow:var(--sh);}
-.prc-tp{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-.prc-av{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--mc),#60A5FA);display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:opacity .2s;}
-.prc-av:hover{opacity:.8;}
-.prc-nm{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;}
-.prc-em{font-size:12px;color:var(--t2);margin-top:2px;}
-.pen{background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;padding:2px 5px;transition:color .15s;margin-left:4px;}
-.pen:hover{color:var(--mc);}
-.prc-st{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.ps{text-align:center;padding:10px;background:var(--s2);border-radius:9px;}
-.ps-v{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:var(--mc);}
-.ps-l{font-size:10px;color:var(--t2);font-weight:600;margin-top:1px;}
-.ne{display:flex;gap:7px;align-items:center;margin-top:5px;}
-.ne-i{flex:1;padding:8px 12px;background:var(--sf);border:1.5px solid var(--mc);border-radius:9px;font-family:'Manrope',sans-serif;font-size:16px;font-weight:600;color:var(--tx);outline:none;}
-.sm{padding:8px 12px;background:var(--mc);color:#fff;border:none;border-radius:9px;cursor:pointer;font-weight:700;font-size:12px;font-family:'Manrope',sans-serif;}
-.sm.cl{background:var(--bd);color:var(--tx);}
-.avg-g{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin:10px 0 14px;}
-.ag{width:36px;height:36px;border-radius:10px;background:var(--s2);border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all var(--tr);}
-.ag.on{border-color:var(--mc);background:var(--ml);}
-.si{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:9px;cursor:pointer;transition:all var(--tr);}
-.si:hover{border-color:var(--mc);}
-.si-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
-.si-lb{font-size:14px;font-weight:600;}.si-sb{font-size:12px;color:var(--t2);}
-.tg{width:42px;height:23px;border-radius:12px;background:var(--bd);position:relative;cursor:pointer;transition:background var(--tr);border:none;flex-shrink:0;margin-left:auto;}
-.tg.on{background:var(--mc);}
-.tg::after{content:'';position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:10px;background:#fff;transition:transform var(--tr);box-shadow:0 1px 4px rgba(0,0,0,.2);}
-.tg.on::after{transform:translateX(19px);}
-.ov{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:flex;align-items:flex-end;animation:fo .2s ease;}
-@keyframes fo{from{opacity:0;}to{opacity:1;}}
-.mo{background:var(--sf);border-radius:22px 22px 0 0;width:100%;max-width:560px;margin:0 auto;max-height:93vh;overflow-y:auto;animation:su .3s cubic-bezier(.4,0,.2,1);scrollbar-width:thin;}
-@keyframes su{from{transform:translateY(60px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.mhd2{width:32px;height:4px;background:var(--bd);border-radius:4px;margin:10px auto 0;}
-.mh{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bd);}
-.mtl{font-family:'Outfit',sans-serif;font-weight:800;font-size:17px;}
-.mb{padding:18px;}
-.fg{margin-bottom:13px;}
-.fl{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.4px;}
-.fi,.fta,.fse{width:100%;padding:10px 13px;background:var(--s2);border:1.5px solid var(--bd);border-radius:var(--rs);outline:none;font-family:'Manrope',sans-serif;font-size:16px;color:var(--tx);transition:border-color var(--tr);}
-.fi:focus,.fta:focus,.fse:focus{border-color:var(--mc);}
-.fta{resize:vertical;min-height:70px;font-size:16px;}.fse option{background:var(--sf);color:var(--tx);}
-.bp{width:100%;padding:13px;border:none;border-radius:var(--rs);cursor:pointer;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;background:var(--mc);color:#fff;transition:all var(--tr);}
-.bp:hover{opacity:.9;transform:translateY(-1px);}.bp:active{transform:scale(.98);}.bp:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-.fab{position:fixed;bottom:calc(var(--bot) + env(safe-area-inset-bottom,0px) + 14px);right:18px;width:54px;height:54px;border-radius:16px;border:none;background:var(--mc);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:all var(--tr);z-index:180;}
-.fab:hover{transform:scale(1.08) rotate(90deg);}.fab:active{transform:scale(.96);}
-.stars{display:flex;gap:1px;align-items:center;}
-.star{font-size:14px;color:#F59E0B;line-height:1;user-select:none;}.star.mt{color:var(--bd);}.star.lg{font-size:28px;cursor:pointer;transition:transform .15s;}.star.lg:hover{transform:scale(1.15);}
-.rv{display:flex;gap:9px;padding:11px;border-radius:11px;margin-bottom:8px;background:var(--s2);border:1px solid var(--bd);}
-.rv.app{border-color:#6EE7B7;background:var(--gl);}
-[data-theme=dark] .rv.app{background:#061910;}
-.rv-av{width:32px;height:32px;border-radius:9px;background:var(--bld);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-.rv-bd{flex:1;min-width:0;}
-.rv-tp{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap;}
-.rv-au{font-size:12px;font-weight:700;}.rv-dt{font-size:11px;color:var(--t3);margin-left:auto;}
-.rv-bg{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
-.rv-bg.go{background:var(--bld);color:var(--bl);}.rv-bg.ap{background:#DCFCE7;color:var(--gn);}
-[data-theme=dark] .rv-bg.go{background:#1E3A5F;color:#93C5FD;}[data-theme=dark] .rv-bg.ap{background:#14532D;color:#6EE7B7;}
-.rv-tx{font-size:13px;line-height:1.5;}
-.rv-lk{font-size:11px;color:var(--t3);background:none;border:none;cursor:pointer;margin-top:4px;font-family:'Manrope',sans-serif;transition:color .15s;}.rv-lk:hover{color:var(--mc);}
-.rb{display:flex;align-items:flex-start;gap:14px;background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
-.rb-bg{font-family:'Outfit',sans-serif;font-size:40px;font-weight:800;line-height:1;}
-.rb-sb{font-size:12px;color:var(--t2);margin-top:3px;}
-.rf{background:var(--s2);border:1.5px dashed var(--bd);border-radius:12px;padding:14px;margin-top:10px;}
-.cmt{display:flex;gap:9px;padding:11px;border-radius:11px;margin-bottom:8px;background:var(--s2);}
-.cmt-av{width:30px;height:30px;border-radius:8px;background:var(--bld);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-.cmt-au{font-size:12px;font-weight:700;}.cmt-tx{font-size:13px;margin-top:2px;line-height:1.5;}
-.cmt-rw{display:flex;gap:8px;align-items:center;margin-top:12px;}
-.cmt-in{flex:1;padding:9px 12px;background:var(--s2);border:1.5px solid var(--bd);border-radius:10px;outline:none;font-family:'Manrope',sans-serif;font-size:16px;color:var(--tx);transition:border-color var(--tr);}
-.cmt-in:focus{border-color:var(--mc);}
-.csend{width:38px;height:38px;border-radius:10px;background:var(--mc);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.sec{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin:18px 0 9px;}
-.dvd{height:1px;background:var(--bd);margin:16px 0;}
-.empty{text-align:center;padding:40px 20px;color:var(--t2);}
-.empty-e{font-size:40px;margin-bottom:10px;}
-.empty-t{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;color:var(--tx);margin-bottom:5px;}
-.toast{position:fixed;bottom:calc(var(--bot) + env(safe-area-inset-bottom,0px) + 74px);left:50%;transform:translateX(-50%);background:var(--tx);color:var(--sf);padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;animation:tin .3s ease,tout .3s 2.1s forwards;}
-@keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
-@keyframes tout{to{opacity:0;transform:translateX(-50%) translateY(8px);}}
-::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}`;
-
-const Ico=({d,s=18})=>(<svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{Array.isArray(d)?d.map((p,i)=><path key={i} d={p}/>):<path d={d}/>}</svg>);
-const X="M18 6L6 18M6 6l12 12",PLUS="M12 5v14M5 12h14",BACK="M19 12H5M12 5l-7 7 7 7";
-const TU=["M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z","M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"];
-const TD=["M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z","M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"];
-const CM="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z";
-const SE="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z";
-const SN="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z";
-const CK="M20 6L9 17l-5-5";
-const LO="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9";
-const GE="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z";
-
-const avgR=(r=[])=>r.length?r.reduce((s,x)=>s+x.rating,0)/r.length:0;
-const Stars=({rating,lg=false,interactive=false,onRate})=>(<div className="stars">{[1,2,3,4,5].map(n=>(<span key={n} className={`star${n<=Math.round(rating)?"":" mt"}${lg?" lg":""}`} onClick={interactive?()=>onRate(n):undefined}>★</span>))}</div>);
-
-export default function App(){
-  const [tab,setTab]=useState("radar");
-  const [theme,setTheme]=useState("light");
-  const [online,setOnline]=useState(true);
-  const [deals,setDeals]=useState(DEALS_INIT);
-  const [places,setPlaces]=useState(PLACES_INIT);
-  const [prices,setPrices]=useState([]);
-  const [missions,setMissions]=useState(MISSIONS_INIT);
-  const [pts,setPts]=useState(0);
-  const [streak]=useState(3);
-  const [user,setUser]=useState(null);
-  const [q,setQ]=useState("");
-  const [dFlt,setDFlt]=useState("all");
-  const [pFlt,setPFlt]=useState("all");
-  const [saved,setSaved]=useState([]);
-  const [toast,setToast]=useState(null);
-  const [modal,setModal]=useState(null);
-  const [sel,setSel]=useState(null);
-  const [sType,setSType]=useState("deal");
-  const [newCmt,setNewCmt]=useState("");
-  const [newRev,setNewRev]=useState({rating:0,text:""});
-  const [afTip,setAfTip]=useState(null);
-  const [editNm,setEditNm]=useState(false);
-  const [nmVal,setNmVal]=useState("");
-  const [editAv,setEditAv]=useState(false);
-  const [dF,setDF]=useState({type:"promo",title:"",desc:"",location:""});
-  const [pF,setPF]=useState({cat:"toilettes",name:"",address:"",hours:""});
-  const [prF,setPrF]=useState({name:"",store:"",price:"",emoji:"🛒"});
-  const [prSel,setPrSel]=useState(null);
-
-  useEffect(()=>{(async()=>{
-    const t=await sg("sp_theme");if(t)setTheme(t);
-    const u=await sg("sp_user");if(u)setUser(u);
-    const sv=await sg("sp_saved");if(sv)setSaved(sv);
-    const p=await sg("sp_pts");if(p!==null)setPts(Number(p));
-    const ms=await sg("sp_miss");if(ms)setMissions(ms);
-    const pr=await sg("sp_prices");if(pr)setPrices(pr);
-    const dm=await sg("sp_dm")||{};
-    const xd=await sg("sp_xd")||[];
-    setDeals([...DEALS_INIT.map(d=>{const m=dm[d.id];if(!m)return d;return{...d,up:m.up??d.up,down:m.down??d.down,vote:m.vote??d.vote,comments:m.comments||d.comments,reviews:[...(m.ur||[]),...d.reviews]};}), ...xd]);
-    const pm=await sg("sp_pm")||{};
-    const xp=await sg("sp_xp")||[];
-    setPlaces([...PLACES_INIT.map(p2=>{const m=pm[p2.id];if(!m)return p2;return{...p2,reviews:[...(m.ur||[]),...p2.reviews]};}), ...xp]);
-  })();},[]);
-
-  useEffect(()=>{
-    document.documentElement.setAttribute("data-theme",theme);
-    const m=MODS[tab];
-    document.documentElement.style.setProperty("--mc",m.color);
-    document.documentElement.style.setProperty("--ml",m.light);
-  },[theme,tab]);
-
-  const msg=(m)=>{setToast(m);setTimeout(()=>setToast(null),2500);};
-  const close=()=>{setModal(null);setSel(null);setNewCmt("");setNewRev({rating:0,text:""});};
-
-  const saveD=async(ds)=>{const dm={},xd=[];for(const d of ds){if(DEALS_INIT.find(x=>x.id===d.id)){dm[d.id]={up:d.up,down:d.down,vote:d.vote,comments:d.comments,ur:d.reviews.filter(r=>r.source==="app")};}else{xd.push(d);}}await ss("sp_dm",dm);await ss("sp_xd",xd);};
-  const saveP=async(ps)=>{const pm={},xp=[];for(const p of ps){if(PLACES_INIT.find(x=>x.id===p.id)){pm[p.id]={ur:p.reviews.filter(r=>r.source==="app")};}else{xp.push(p);}}await ss("sp_pm",pm);await ss("sp_xp",xp);};
-
-  // FIX: upD/upP appelaient fn(sel) séparément, causant une double exécution
-  // Les votes/likes étaient incrémentés 2x. Maintenant on cache le résultat.
-  const upD=(id,fn)=>{
-    let updated=null;
-    const n=deals.map(d=>{if(d.id===id){updated=fn(d);return updated;}return d;});
-    setDeals(n);
-    if(sel?.id===id&&sType==="deal"&&updated)setSel(updated);
-    return n;
-  };
-  const upP=(id,fn)=>{
-    let updated=null;
-    const n=places.map(p=>{if(p.id===id){updated=fn(p);return updated;}return p;});
-    setPlaces(n);
-    if(sel?.id===id&&sType==="place"&&updated)setSel(updated);
-    return n;
-  };
-
-  const vote=async(id,dir,e)=>{
-    e?.stopPropagation();
-    if(!user){msg("Connecte-toi pour voter");return;}
-    const n=upD(id,d=>{
-      const isUp=d.vote==="up",isDn=d.vote==="down";
-      let up=d.up,down=d.down,vote=d.vote;
-      if(dir==="up"){
-        if(isUp){up--;vote=null;}
-        else{if(isDn)down--;up++;vote="up";}
-      }else{
-        if(isDn){down--;vote=null;}
-        else{if(isUp)up--;down++;vote="down";}
-      }
-      return{...d,up,down,vote};
-    });
-    await saveD(n);
-  };
-
-  const toggleSave=async(id,e)=>{
-    e?.stopPropagation();
-    const n=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
-    setSaved(n);
-    await ss("sp_saved",n);
-    msg(n.includes(id)?"Sauvegardé 🔖":"Retiré des sauvegardes");
-  };
-
-  const addDeal=async()=>{
-    if(!user){msg("Connecte-toi d'abord");return;}
-    if(!dF.title.trim()||!dF.location.trim()){msg("Titre et lieu requis");return;}
-    const d={id:"d"+Date.now(),...dF,author:user.name,avatar:user.avatar,date:new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}),up:0,down:0,vote:null,comments:[],reviews:[]};
-    const n=[d,...deals];setDeals(n);await saveD(n);
-    setDF({type:"promo",title:"",desc:"",location:""});setModal(null);msg("Bon plan publié ! 🎉");
-  };
-
-  const addPlace=async()=>{
-    if(!user){msg("Connecte-toi d'abord");return;}
-    if(!pF.name.trim()||!pF.address.trim()){msg("Nom et adresse requis");return;}
-    const cat=PLACE_CATS.find(c=>c.id===pF.cat);
-    const p={id:"p"+Date.now(),...pF,icon:cat?.icon||"📍",offline:true,reviews:[]};
-    const n=[...places,p];setPlaces(n);await saveP(n);
-    setPF({cat:"toilettes",name:"",address:"",hours:""});setModal(null);msg("Lieu ajouté ✓");
-  };
-
-  const addPrice=async()=>{
-    const val=parseFloat(prF.price.replace(",","."));
-    if(isNaN(val)){msg("Prix invalide");return;}
-    const date=new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short"});
-    if(prSel){
-      const n=prices.map(p=>p.id===prSel.id?{...p,history:[...p.history,{date,val}],current:val}:p);
-      setPrices(n);await ss("sp_prices",n);setPrSel(null);setModal(null);msg("Prix mis à jour ✓");
-    }else{
-      if(!prF.name.trim()){msg("Nom requis");return;}
-      const p={id:"pr"+Date.now(),name:prF.name,store:prF.store,emoji:prF.emoji,current:val,history:[{date,val}]};
-      const n=[p,...prices];setPrices(n);await ss("sp_prices",n);
-      setPrF({name:"",store:"",price:"",emoji:"🛒"});setModal(null);msg("Produit ajouté ✓");
-    }
-  };
-
-  const addCmt=async()=>{
-    if(!user){msg("Connecte-toi pour commenter");return;}
-    if(!newCmt.trim()||!sel)return;
-    const c={id:"c"+Date.now(),author:user.name,avatar:user.avatar,text:newCmt.trim(),likes:0};
-    const selId=sel.id;
-    const n=upD(selId,d=>({...d,comments:[...(d.comments||[]),c]}));
-    await saveD(n);setNewCmt("");msg("Commentaire ajouté ✓");
-  };
-
-  const addRev=async()=>{
-    if(!user){msg("Connecte-toi pour noter");return;}
-    if(newRev.rating===0){msg("Choisis une note ⭐");return;}
-    if(!newRev.text.trim()){msg("Écris ton avis");return;}
-    if(!sel)return;
-    const r={id:"rev"+Date.now(),source:"app",author:user.name,avatar:user.avatar,rating:newRev.rating,text:newRev.text.trim(),date:new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}),likes:0};
-    if(sType==="deal"){const n=upD(sel.id,d=>({...d,reviews:[r,...d.reviews]}));await saveD(n);}
-    else{const n=upP(sel.id,p=>({...p,reviews:[r,...p.reviews]}));await saveP(n);}
-    setNewRev({rating:0,text:""});msg("Avis publié ! Merci 🙏");
-  };
-
-  const likeRev=async(revId)=>{
-    if(!sel)return;
-    if(sType==="deal"){const n=upD(sel.id,d=>({...d,reviews:d.reviews.map(r=>r.id===revId?{...r,likes:r.likes+1}:r)}));await saveD(n);}
-    else{const n=upP(sel.id,p=>({...p,reviews:p.reviews.map(r=>r.id===revId?{...r,likes:r.likes+1}:r)}));await saveP(n);}
-  };
-
-  const doMission=async(id)=>{
-    if(!user){msg("Connecte-toi d'abord");return;}
-    const m=missions.find(x=>x.id===id&&!x.done);if(!m)return;
-    const n=missions.map(x=>x.id===id?{...x,done:true}:x);
-    const np=pts+m.pts;setMissions(n);setPts(np);
-    await ss("sp_miss",n);await ss("sp_pts",np);msg(`+${m.pts} pts ! 🏆`);
-  };
-
-  const login=async(prov)=>{
-    const map={Google:"😊",Apple:"⬛",Facebook:"💙"};
-    const u={name:`Utilisateur ${prov}`,avatar:map[prov]||"😊",email:`user@${prov.toLowerCase()}.com`,provider:prov};
-    setUser(u);await ss("sp_user",u);setModal(null);msg(`Connecté via ${prov} ✓`);
-  };
-
-  const logout=async()=>{setUser(null);await ss("sp_user",null);msg("Déconnecté");};
-
-  // FIX: toggleTheme ne prend plus d'event, évite double-déclenchement
-  const toggleTheme=async()=>{
-    const n=theme==="light"?"dark":"light";
-    setTheme(n);await ss("sp_theme",n);
-  };
-
-  const saveNm=async()=>{
-    if(!nmVal.trim())return;
-    const u={...user,name:nmVal.trim()};setUser(u);await ss("sp_user",u);setEditNm(false);msg("Pseudo mis à jour ✓");
-  };
-
-  const saveAv=async(emoji)=>{
-    const u={...user,avatar:emoji};setUser(u);await ss("sp_user",u);setEditAv(false);msg("Avatar mis à jour ✓");
-  };
-
-  const fDeals=deals.filter(d=>{
-    const s=q.toLowerCase();
-    return(!s||d.title.toLowerCase().includes(s)||(d.desc||"").toLowerCase().includes(s)||(d.location||"").toLowerCase().includes(s))&&(dFlt==="all"||d.type===dFlt);
-  });
-  const fPlaces=places.filter(p=>{
-    const s=q.toLowerCase();
-    return(pFlt==="all"||p.cat===pFlt)&&(!s||p.name.toLowerCase().includes(s)||p.address.toLowerCase().includes(s));
-  });
-  const trend=(h)=>h.length<2?"eq":h.at(-1).val>h.at(-2).val?"up":"dn";
-
-  const RevBlock=({target})=>{
-    const a=avgR(target.reviews);
-    const appR=target.reviews.filter(r=>r.source==="app");
-    const extR=target.reviews.filter(r=>r.source!=="app");
-    return(<div>
-      {target.reviews.length>0&&(<div className="rb">
-        <div style={{textAlign:"center"}}><div className="rb-bg">{a.toFixed(1)}</div><Stars rating={a}/><div className="rb-sb">{target.reviews.length} avis</div></div>
-        <div style={{flex:1}}>{[5,4,3,2,1].map(n=>{const c=target.reviews.filter(r=>Math.round(r.rating)===n).length;const p=target.reviews.length?c/target.reviews.length*100:0;return(<div key={n} style={{display:"flex",alignItems:"center",gap:5,marginBottom:4}}><span style={{fontSize:10,color:"var(--t3)",minWidth:7}}>{n}</span><span style={{fontSize:10,color:"#F59E0B"}}>★</span><div style={{flex:1,height:5,background:"var(--bd)",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",width:`${p}%`,background:"#F59E0B",borderRadius:3}}/></div><span style={{fontSize:10,color:"var(--t3)",minWidth:12,textAlign:"right"}}>{c}</span></div>);})}</div>
-      </div>)}
-      {appR.length>0&&<div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:13,color:"var(--gn)",marginBottom:8}}>✓ Avis utilisateurs Spotto</div>}
-      {appR.map(r=>(<div key={r.id} className="rv app"><div className="rv-av">{r.avatar}</div><div className="rv-bd"><div className="rv-tp"><span className="rv-au">{r.author}</span><Stars rating={r.rating}/><span className="rv-bg ap">✓ Spotto</span><span className="rv-dt">{r.date}</span></div><div className="rv-tx">{r.text}</div><button className="rv-lk" onClick={()=>likeRev(r.id)}>👍 {r.likes} utile{r.likes!==1?"s":""}</button></div></div>))}
-      {extR.length>0&&<div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:13,color:"var(--t2)",marginBottom:8,marginTop:appR.length?12:0}}>🌐 Avis Google Maps</div>}
-      {extR.map(r=>(<div key={r.id} className="rv"><div className="rv-av">{r.avatar}</div><div className="rv-bd"><div className="rv-tp"><span className="rv-au">{r.author}</span><Stars rating={r.rating}/><span className="rv-bg go">Google</span><span className="rv-dt">{r.date}</span></div><div className="rv-tx">{r.text}</div><button className="rv-lk" onClick={()=>likeRev(r.id)}>👍 {r.likes} utile{r.likes!==1?"s":""}</button></div></div>))}
-      <div className="rf"><div style={{fontWeight:700,fontSize:13,marginBottom:9}}>⭐ Laisse ton avis</div><Stars rating={newRev.rating} lg interactive onRate={n=>setNewRev(p=>({...p,rating:n}))}/><textarea className="fta" style={{marginTop:10,minHeight:60}} placeholder={user?"Partage ton expérience…":"Connecte-toi pour noter"} value={newRev.text} onChange={e=>setNewRev(p=>({...p,text:e.target.value}))} disabled={!user}/><button className="bp" style={{marginTop:8}} onClick={addRev} disabled={!user}>Publier mon avis</button></div>
-    </div>);
-  };
-
-  const NmEdit=({compact=false})=>editNm?(<div className="ne"><input className="ne-i" autoFocus value={nmVal} onChange={e=>setNmVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")saveNm();if(e.key==="Escape")setEditNm(false);}} placeholder="Ton pseudo…"/><button className="sm" onClick={saveNm}>✓</button><button className="sm cl" onClick={()=>setEditNm(false)}>✕</button></div>):(<div style={{display:"flex",alignItems:"center"}}><div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:compact?15:17}}>{user?.name}</div><button className="pen" onClick={()=>{setNmVal(user?.name||"");setEditNm(true);}}>✏️</button></div>);
-
-  const AvaGrid=()=>(<div style={{marginTop:10}}><div style={{fontSize:12,fontWeight:700,color:"var(--t2)",marginBottom:7}}>Choisir un avatar</div><div className="avg-g">{AVATARS.map(a=><div key={a} className={`ag ${user?.avatar===a?"on":""}`} onClick={()=>saveAv(a)}>{a}</div>)}</div></div>);
-
-  const DCard=({d})=>{
-    const a=avgR(d.reviews);const tp=DEAL_TYPES.find(t=>t.id===d.type);
-    return(<div className="cd cl" onClick={()=>{setSel(d);setSType("deal");setModal("detail");}}>
-      <div className="cd-top"><div className="cd-av">{d.avatar}</div><div className="cd-mt"><div className="cd-au">{d.author}</div><div className="cd-dt">{d.date}</div></div><span className="cd-bg">{tp?.icon} {tp?.label}</span></div>
-      <div className="cd-bd"><div className="cd-ti">{d.title}</div><div className="cd-de">{d.desc}</div>{d.location&&<div className="cd-lo">📍 {d.location}</div>}</div>
-      <div className="cd-ft">
-        <button className={`vb up ${d.vote==="up"?"on":""}`} onClick={e=>vote(d.id,"up",e)}><Ico d={TU} s={13}/> {d.up}</button>
-        <button className={`vb dn ${d.vote==="down"?"on":""}`} onClick={e=>vote(d.id,"dn",e)}><Ico d={TD} s={13}/> {d.down}</button>
-        <button className="vb" onClick={e=>{e.stopPropagation();setSel(d);setSType("deal");setModal("detail");}}><Ico d={CM} s={13}/> {d.comments?.length||0}</button>
-        {a>0&&<div className="ri"><span style={{color:"#F59E0B"}}>★</span>{a.toFixed(1)}·{d.reviews.length}</div>}
-        <button className="sv" onClick={e=>toggleSave(d.id,e)}>{saved.includes(d.id)?"🔖":"🏷️"}</button>
-      </div>
-    </div>);
-  };
-
-  return(<>
-    <style>{CSS}</style>
-    <div className="wrap">
-
-      <header className="tb">
-        <div className="logo">Spot<b>to</b></div>
-        {(tab==="radar"||tab==="carte")&&(<div className="sr"><Ico d={SE} s={14}/><input placeholder={tab==="radar"?"Titre, lieu, description…":"Chercher un lieu…"} value={q} onChange={e=>setQ(e.target.value)}/></div>)}
-        <div style={{display:"flex",gap:6,marginLeft:"auto",alignItems:"center"}}>
-          <div className="op"><div className={`dt ${online?"on":"off"}`}/>{online?"En ligne":"Hors ligne"}</div>
-          <button className="ib" onClick={()=>setModal("settings")}><Ico d={GE} s={17}/></button>
-        </div>
-      </header>
-
-      {(tab==="radar"||tab==="carte")&&(<div className="fb"><div className="fbi">
-        {tab==="radar"&&DEAL_TYPES.map(t=><button key={t.id} className={`ch ${dFlt===t.id?"a":""}`} onClick={()=>setDFlt(t.id)}>{t.icon} {t.label}</button>)}
-        {tab==="carte"&&PLACE_CATS.map(c=><button key={c.id} className={`ch ${pFlt===c.id?"a":""}`} onClick={()=>setPFlt(c.id)}>{c.icon} {c.label}</button>)}
-      </div></div>)}
-
-      {tab==="radar"&&(<><div className="feed">{fDeals.length===0?<div className="empty"><div className="empty-e">📡</div><div className="empty-t">Aucun bon plan trouvé</div><p>Sois le premier à en signaler un !</p></div>:fDeals.map(d=><DCard key={d.id} d={d}/>)}</div><button className="fab" onClick={()=>setModal("add-deal")}><Ico d={PLUS} s={22}/></button></>)}
-
-      {tab==="carte"&&(<><div className="feed">
-        <div className="cd" style={{background:`linear-gradient(135deg,var(--mc),#22D3EE)`,padding:16,color:"#fff",border:"none"}}>
-          <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:17,marginBottom:4}}>📍 Carte des lieux utiles</div>
-          <div style={{fontSize:13,opacity:.85}}>Toilettes, eau, Wi-Fi, prises, parkings — disponibles hors ligne.</div>
-          <div style={{marginTop:10,fontSize:12,background:"rgba(255,255,255,.2)",borderRadius:8,padding:"5px 11px",display:"inline-block",fontWeight:700}}>{places.length} lieux répertoriés</div>
-        </div>
-        {fPlaces.length===0?<div className="empty"><div className="empty-e">🗺️</div><div className="empty-t">Aucun lieu trouvé</div></div>:fPlaces.map(p=>{const a=avgR(p.reviews);return(<div key={p.id} className="pc" onClick={()=>{setSel(p);setSType("place");setModal("detail");}}><div className="pc-ic">{p.icon}</div><div className="pc-in"><div className="pc-nm">{p.name}</div><div className="pc-ad">{p.address}</div>{p.hours&&<div className="pc-hr">⏰ {p.hours}</div>}</div><div className="pc-rg">{p.offline&&<div className="pc-of">📥 Offline</div>}{a>0&&<div className="ri"><span style={{color:"#F59E0B"}}>★</span>{a.toFixed(1)}</div>}</div></div>);})}
-      </div><button className="fab" onClick={()=>setModal("add-place")}><Ico d={PLUS} s={22}/></button></>)}
-
-      {tab==="prix"&&(<div className="pg" style={{paddingTop:"calc(var(--top) + 16px)"}}>
-        <div style={{marginBottom:16}}><div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:20}}>💰 Mémoire de Prix</div><div style={{fontSize:13,color:"var(--t2)"}}>Suis l'évolution de tes produits dans le temps</div></div>
-        {prices.length===0?<div className="empty"><div className="empty-e">🏷️</div><div className="empty-t">Aucun produit suivi</div><p>Ajoute un produit pour surveiller son prix.</p></div>:prices.map(p=>{const tr=trend(p.history);const first=p.history[0]?.val;const diff=first?Math.abs(((p.current-first)/first*100)).toFixed(1):0;return(<div key={p.id} className="pi"><div className="pi-h"><div className="pi-em">{p.emoji}</div><div><div className="pi-nm">{p.name}</div>{p.store&&<div className="pi-st">{p.store}</div>}</div><div className="pi-cr"><div className="pi-pr">{p.current.toFixed(2)}€</div><div className={`pi-tr ${tr}`}>{tr==="up"?`▲ +${diff}%`:tr==="dn"?`▼ -${diff}%`:"— stable"}</div></div></div>{p.history.length>1&&(<div style={{padding:"0 14px 14px",height:104}}><ResponsiveContainer width="100%" height={90}><LineChart data={p.history}><Line type="monotone" dataKey="val" stroke={MODS.prix.color} strokeWidth={2} dot={{r:3,fill:MODS.prix.color}}/><XAxis dataKey="date" tick={{fontSize:10,fill:"#9CA3AF"}} axisLine={false} tickLine={false}/><YAxis domain={["auto","auto"]} tick={{fontSize:10,fill:"#9CA3AF"}} axisLine={false} tickLine={false} width={35}/><Tooltip formatter={v=>[`${v}€`]} contentStyle={{background:"var(--sf)",border:"1px solid var(--bd)",borderRadius:8,fontSize:12}}/></LineChart></ResponsiveContainer></div>)}<div style={{padding:"0 14px 12px"}}><button className="bp" style={{padding:9,fontSize:13}} onClick={()=>{setPrSel(p);setPrF({name:p.name,store:p.store||"",price:"",emoji:p.emoji});setModal("add-price");}}>Mettre à jour le prix</button></div></div>);})}
-        <button className="fab" onClick={()=>{setPrSel(null);setModal("add-price");}}><Ico d={PLUS} s={22}/></button>
-      </div>)}
-
-      {tab==="missions"&&(<div className="pg" style={{paddingTop:"calc(var(--top) + 16px)"}}>
-        <div className="mhd"><div className="mhd-pt">{pts} pts</div><div className="mhd-lb">Points accumulés</div><div className="mhd-st">🔥 {streak} jours de suite</div></div>
-        <div className="st-row"><div className="stc"><div className="stc-v">{missions.filter(m=>m.done).length}/{missions.length}</div><div className="stc-l">Missions du jour</div></div><div className="stc"><div className="stc-v">{streak}</div><div className="stc-l">Jours de suite</div></div><div className="stc"><div className="stc-v">{missions.filter(m=>m.done).reduce((a,m)=>a+m.pts,0)}</div><div className="stc-l">Pts aujourd'hui</div></div></div>
-        <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:16,marginBottom:10}}>🎯 Missions du jour</div>
-        {missions.map(m=>(<div key={m.id} className={`mi ${m.done?"dn":""}`} onClick={()=>doMission(m.id)}><div className="mi-ic">{m.icon}</div><div className="mi-tx"><div className="mi-nm">{m.label}</div><div className="mi-rw">+{m.pts} points</div></div><div className={`mi-ck ${m.done?"on":""}`}>{m.done&&<Ico d={CK} s={14}/>}</div></div>))}
-        <div className="af"><div className="af-ti">Je n'ai pas envie…</div><div className="af-su">Un coup de boost en 1 clic</div><button className="af-bt" onClick={()=>setAfTip(AF_TIPS[Math.floor(Math.random()*AF_TIPS.length)])}>💡 Donne-moi une astuce</button>{afTip&&<div className="af-tp" key={afTip}>{afTip}</div>}</div>
-      </div>)}
-
-      {tab==="profil"&&(<div className="pg" style={{paddingTop:"calc(var(--top) + 16px)"}}>
-        {user?(<>
-          <div className="prc">
-            <div className="prc-tp"><div className="prc-av" onClick={()=>setEditAv(a=>!a)}>{user.avatar}</div><div style={{flex:1}}><NmEdit/><div className="prc-em">{user.email}</div></div></div>
-            {editAv&&<AvaGrid/>}
-            <div className="prc-st"><div className="ps"><div className="ps-v">{deals.filter(d=>d.author===user.name).length}</div><div className="ps-l">Plans signalés</div></div><div className="ps"><div className="ps-v">{saved.length}</div><div className="ps-l">Sauvegardés</div></div><div className="ps"><div className="ps-v">{pts}</div><div className="ps-l">Points</div></div></div>
-          </div>
-          <div className="sec">Plans sauvegardés</div>
-          {saved.length===0?<div className="empty" style={{padding:"24px 0"}}><div className="empty-e" style={{fontSize:30}}>🔖</div><p>Aucune sauvegarde</p></div>:deals.filter(d=>saved.includes(d.id)).map(d=><DCard key={d.id} d={d}/>)}
-          <div className="sec">Mes bons plans</div>
-          {deals.filter(d=>d.author===user.name).length===0?<div style={{color:"var(--t2)",fontSize:13,padding:"8px 0"}}>Tu n'as pas encore signalé de bon plan.</div>:deals.filter(d=>d.author===user.name).map(d=><DCard key={d.id} d={d}/>)}
-        </>):(<div className="empty"><div className="empty-e">👤</div><div className="empty-t">Non connecté</div><p style={{marginBottom:16}}>Connecte-toi pour accéder à ton profil.</p><button className="bp" style={{maxWidth:240}} onClick={()=>setModal("settings")}>Se connecter</button></div>)}
-      </div>)}
-
-      <nav className="bb">{Object.entries(MODS).map(([id,m])=>(<button key={id} className={`nb ${tab===id?"a":""}`} onClick={()=>setTab(id)}><Ico d={m.icon} s={20}/><span>{m.label}</span></button>))}</nav>
-
-      {modal==="settings"&&(<div className="ov" onClick={close}><div className="mo" onClick={e=>e.stopPropagation()}>
-        <div className="mhd2"/>
-        <div className="mh"><span className="mtl">⚙️ Paramètres</span><button className="ib" onClick={close}><Ico d={X} s={16}/></button></div>
-        <div className="mb">
-          {user&&(<div className="prc" style={{marginBottom:16}}><div className="prc-tp" style={{marginBottom:0}}><div className="prc-av" style={{width:44,height:44,fontSize:22,borderRadius:12}} onClick={()=>setEditAv(a=>!a)}>{user.avatar}</div><div style={{flex:1}}><NmEdit compact/><div className="prc-em">{user.email}</div></div></div>{editAv&&<AvaGrid/>}</div>)}
-          <div className="sec">Apparence</div>
-          {/* FIX: le toggle ne propage plus l'événement au div parent pour éviter double déclenchement */}
-          <div className="si" onClick={toggleTheme}>
-            <div className="si-ic" style={{background:theme==="dark"?"#1C1B3A":"#FFF9C4"}}>{theme==="dark"?"🌙":"☀️"}</div>
-            <div><div className="si-lb">Thème {theme==="dark"?"Sombre":"Clair"}</div></div>
-            <button className={`tg ${theme==="dark"?"on":""}`} onClick={e=>{e.stopPropagation();toggleTheme();}}/>
-          </div>
-          <div className="si" onClick={()=>{setOnline(o=>!o);msg(online?"Mode hors ligne activé":"Mode en ligne activé");}}>
-            <div className="si-ic">📶</div>
-            <div><div className="si-lb">Mode {online?"En ligne":"Hors ligne"}</div><div className="si-sb">Données en cache disponibles hors ligne</div></div>
-            <button className={`tg ${online?"on":""}`} onClick={e=>{e.stopPropagation();setOnline(o=>!o);msg(online?"Mode hors ligne activé":"Mode en ligne activé");}}/>
-          </div>
-          <div className="sec">Compte</div>
-          {!user?["Google","Apple","Facebook"].map(p=>(<div key={p} className="si" onClick={()=>login(p)}><div className="si-ic">{p==="Google"?"🔴":p==="Apple"?"⬛":"🔵"}</div><div><div className="si-lb">Continuer avec {p}</div></div></div>)):<div className="si" onClick={logout}><div className="si-ic" style={{background:"#FEE2E2"}}><Ico d={LO} s={16}/></div><div><div className="si-lb" style={{color:"#DC2626"}}>Se déconnecter</div><div className="si-sb">Via {user.provider}</div></div></div>}
-          <div className="sec">À propos</div>
-          <div className="si"><div className="si-ic">✨</div><div><div className="si-lb">Spotto v3.1</div><div className="si-sb">La communauté des économies du quotidien</div></div></div>
-        </div>
-      </div></div>)}
-
-      {modal==="detail"&&sel&&(<div className="ov" onClick={close}><div className="mo" onClick={e=>e.stopPropagation()} style={{maxHeight:"94vh"}}>
-        <div className="mhd2"/>
-        <div className="mh"><button className="ib" onClick={close}><Ico d={BACK} s={16}/></button><span className="mtl" style={{flex:1,textAlign:"center"}}>{sType==="deal"?"Bon Plan":"Lieu Utile"}</span>{sType==="deal"?<button className="ib" onClick={e=>{e.stopPropagation();toggleSave(sel.id);}}>{saved.includes(sel.id)?"🔖":"🏷️"}</button>:<div style={{width:38}}/>}</div>
-        <div className="mb">
-          {sType==="deal"?(<>
-            <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:12}}><div className="cd-av">{sel.avatar}</div><div><div className="cd-au">{sel.author}</div><div className="cd-dt">{sel.date}</div></div></div>
-            <h2 style={{fontFamily:"'Outfit',sans-serif",fontSize:20,fontWeight:800,marginBottom:8,lineHeight:1.3}}>{sel.title}</h2>
-            <p style={{fontSize:14,color:"var(--t2)",lineHeight:1.6,marginBottom:12}}>{sel.desc}</p>
-            {sel.location&&<div style={{background:"var(--s2)",border:"1px solid var(--bd)",borderRadius:10,padding:"10px 13px",fontSize:13,color:"var(--t2)",marginBottom:14}}>📍 {sel.location}</div>}
-            <div style={{display:"flex",gap:8,marginBottom:20}}>{["up","dn"].map(dir=>{const d=deals.find(x=>x.id===sel.id)||sel;const on=d.vote===(dir==="up"?"up":"down");return(<button key={dir} className={`vb ${dir} ${on?"on":""}`} style={{flex:1,justifyContent:"center",borderRadius:10,padding:10,border:"1px solid var(--bd)",background:"var(--s2)"}} onClick={e=>vote(sel.id,dir,e)}><Ico d={dir==="up"?TU:TD} s={15}/> {dir==="up"?`Valide (${d.up??0})`:`Scam (${d.down??0})`}</button>);})}</div>
-            <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:15,marginBottom:12}}>⭐ Notes & Avis</div>
-            <RevBlock target={sel}/>
-            <div className="dvd"/>
-            <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:15,marginBottom:10}}>💬 Commentaires ({sel.comments?.length||0})</div>
-            {(sel.comments||[]).length===0?<div style={{textAlign:"center",padding:14,color:"var(--t3)",fontSize:13}}>Sois le premier à commenter</div>:(sel.comments||[]).map(c=>(<div key={c.id} className="cmt"><div className="cmt-av">{c.avatar||"😊"}</div><div><div className="cmt-au">{c.author}</div><div className="cmt-tx">{c.text}</div></div></div>))}
-            <div className="cmt-rw"><input className="cmt-in" placeholder={user?"Ton commentaire…":"Connecte-toi pour commenter"} value={newCmt} onChange={e=>setNewCmt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addCmt()} disabled={!user}/><button className="csend" onClick={addCmt} disabled={!user}><Ico d={SN} s={14}/></button></div>
-          </>):(<>
-            <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:14}}><div style={{width:52,height:52,borderRadius:14,background:"var(--ml)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>{sel.icon}</div><div><div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:18}}>{sel.name}</div><div style={{fontSize:13,color:"var(--t2)",marginTop:2}}>📍 {sel.address}</div>{sel.hours&&<div style={{fontSize:12,color:"var(--gn)",fontWeight:600,marginTop:3}}>⏰ {sel.hours}</div>}</div></div>
-            {sel.offline&&<div style={{background:"var(--al)",color:"var(--am)",borderRadius:8,padding:"8px 12px",fontSize:12,fontWeight:700,marginBottom:14}}>📥 Disponible hors ligne — données en cache</div>}
-            <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:15,marginBottom:12}}>⭐ Notes & Avis</div>
-            <RevBlock target={sel}/>
-          </>)}
-        </div>
-      </div></div>)}
-
-      {modal==="add-deal"&&(<div className="ov" onClick={()=>setModal(null)}><div className="mo" onClick={e=>e.stopPropagation()}><div className="mhd2"/><div className="mh"><span className="mtl">📡 Signaler un bon plan</span><button className="ib" onClick={()=>setModal(null)}><Ico d={X} s={16}/></button></div><div className="mb">{!user?<div className="empty"><div className="empty-e">🔒</div><div className="empty-t">Connexion requise</div><button className="bp" style={{marginTop:12}} onClick={()=>setModal("settings")}>Se connecter</button></div>:<><div className="fg"><label className="fl">Type</label><select className="fse" value={dF.type} onChange={e=>setDF(f=>({...f,type:e.target.value}))}>{DEAL_TYPES.filter(t=>t.id!=="all").map(t=><option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}</select></div><div className="fg"><label className="fl">Titre *</label><input className="fi" placeholder="Pizza -50%, concert gratuit…" value={dF.title} onChange={e=>setDF(f=>({...f,title:e.target.value}))}/></div><div className="fg"><label className="fl">Description</label><textarea className="fta" placeholder="Détails, conditions, horaires…" value={dF.desc} onChange={e=>setDF(f=>({...f,desc:e.target.value}))}/></div><div className="fg"><label className="fl">Lieu / Adresse *</label><input className="fi" placeholder="12 rue du Commerce, Paris 15e" value={dF.location} onChange={e=>setDF(f=>({...f,location:e.target.value}))}/></div><button className="bp" onClick={addDeal}>Publier le bon plan 🚀</button></>}</div></div></div>)}
-
-      {modal==="add-place"&&(<div className="ov" onClick={()=>setModal(null)}><div className="mo" onClick={e=>e.stopPropagation()}><div className="mhd2"/><div className="mh"><span className="mtl">📍 Ajouter un lieu</span><button className="ib" onClick={()=>setModal(null)}><Ico d={X} s={16}/></button></div><div className="mb">{!user?<div className="empty"><div className="empty-e">🔒</div><div className="empty-t">Connexion requise</div><button className="bp" style={{marginTop:12}} onClick={()=>setModal("settings")}>Se connecter</button></div>:<><div className="fg"><label className="fl">Catégorie</label><select className="fse" value={pF.cat} onChange={e=>setPF(f=>({...f,cat:e.target.value}))}>{PLACE_CATS.filter(c=>c.id!=="all").map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}</select></div><div className="fg"><label className="fl">Nom *</label><input className="fi" placeholder="WC Châtelet, Fontaine…" value={pF.name} onChange={e=>setPF(f=>({...f,name:e.target.value}))}/></div><div className="fg"><label className="fl">Adresse *</label><input className="fi" placeholder="14 av. de la République" value={pF.address} onChange={e=>setPF(f=>({...f,address:e.target.value}))}/></div><div className="fg"><label className="fl">Horaires</label><input className="fi" placeholder="6h-22h, Permanent…" value={pF.hours} onChange={e=>setPF(f=>({...f,hours:e.target.value}))}/></div><button className="bp" onClick={addPlace}>Ajouter à la carte 🗺️</button></>}</div></div></div>)}
-
-      {modal==="add-price"&&(<div className="ov" onClick={()=>{setModal(null);setPrSel(null);}}><div className="mo" onClick={e=>e.stopPropagation()}><div className="mhd2"/><div className="mh"><span className="mtl">{prSel?"Nouveau prix":"🏷️ Ajouter un produit"}</span><button className="ib" onClick={()=>{setModal(null);setPrSel(null);}}><Ico d={X} s={16}/></button></div><div className="mb">{!prSel&&<><div className="fg"><label className="fl">Emoji</label><input className="fi" maxLength={2} value={prF.emoji} onChange={e=>setPrF(f=>({...f,emoji:e.target.value}))} style={{fontSize:22,textAlign:"center"}}/></div><div className="fg"><label className="fl">Nom du produit *</label><input className="fi" placeholder="Beurre, iPhone…" value={prF.name} onChange={e=>setPrF(f=>({...f,name:e.target.value}))}/></div><div className="fg"><label className="fl">Magasin</label><input className="fi" placeholder="Carrefour, Amazon…" value={prF.store} onChange={e=>setPrF(f=>({...f,store:e.target.value}))}/></div></>}<div className="fg"><label className="fl">Prix actuel (€) *</label><input className="fi" type="number" step="0.01" placeholder="2.99" value={prF.price} onChange={e=>setPrF(f=>({...f,price:e.target.value}))}/></div><button className="bp" onClick={addPrice}>{prSel?"Enregistrer le prix ✓":"Commencer le suivi 📊"}</button></div></div></div>)}
-
-      {toast&&<div className="toast">{toast}</div>}
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#080D1A"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Boon — Trouve. Partage. Économise.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+html[data-theme="dark"]{--bg:#080D1A;--surface:#0F1623;--card:#161F30;--card2:#1C2840;--border:#243048;--border2:#2E3D5C;--text:#F1F5F9;--text2:#94A3B8;--text3:#64748B;--input-bg:#0F1623;--modal-bg:#111827;--overlay:rgba(0,0,0,0.78)}
+html[data-theme="light"]{--bg:#F0F4FF;--surface:#FFFFFF;--card:#FFFFFF;--card2:#F1F5F9;--border:#E2E8F0;--border2:#CBD5E1;--text:#0F172A;--text2:#64748B;--text3:#94A3B8;--input-bg:#F8FAFC;--modal-bg:#FFFFFF;--overlay:rgba(0,0,0,0.52)}
+:root{--accent:#F59E0B;--accent2:#FCD34D;--accent-dim:rgba(245,158,11,0.12);--green:#10B981;--green-dim:rgba(16,185,129,0.12);--red:#EF4444;--red-dim:rgba(239,68,68,0.12);--blue:#3B82F6;--blue-dim:rgba(59,130,246,0.12);--purple:#8B5CF6;--nav-h:68px;--top-h:56px;--r:14px;--r2:20px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+#topbar{flex-shrink:0;height:var(--top-h);display:flex;align-items:center;padding:0 14px;background:var(--surface);border-bottom:1px solid var(--border);z-index:10;gap:8px}
+.tb-logo{display:flex;align-items:center;gap:7px;flex:1}
+.tb-logo .mark{width:30px;height:30px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#000}
+.tb-logo .name{font-size:18px;font-weight:800;letter-spacing:-.5px}
+.tb-logo .name em{color:var(--accent);font-style:normal}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.icon-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn svg{width:16px;height:16px;stroke:var(--text2);stroke-width:2;fill:none}
+.net-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex-shrink:0;transition:all .3s}
+.net-dot.offline{background:var(--red);box-shadow:0 0 6px var(--red)}
+.search-wrap{padding:10px 14px 0;flex-shrink:0}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0 12px;height:40px;transition:border-color .2s}
+.search-box:focus-within{border-color:var(--accent)}
+.search-box svg{width:14px;height:14px;stroke:var(--text3);stroke-width:2;fill:none;flex-shrink:0}
+.search-box input{flex:1;background:none;border:none;outline:none;font-size:13px;font-family:'Sora',sans-serif;color:var(--text)}
+.search-box input::placeholder{color:var(--text3)}
+.s-clear{font-size:14px;color:var(--text3);cursor:pointer;display:none}
+.search-box input:not(:placeholder-shown)+.s-clear{display:block}
+#main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+#main::-webkit-scrollbar{display:none}
+#nav{flex-shrink:0;height:var(--nav-h);display:flex;background:var(--surface);border-top:1px solid var(--border);z-index:10;padding-bottom:env(safe-area-inset-bottom)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:all .2s;padding:6px 0;position:relative}
+.nav-item svg{width:22px;height:22px;stroke:var(--text3);stroke-width:1.8;fill:none;transition:all .2s}
+.nav-item span{font-size:10px;font-weight:500;color:var(--text3);transition:all .2s}
+.nav-item.active svg{stroke:var(--accent)}
+.nav-item.active span{color:var(--accent)}
+.nav-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--accent);border-radius:0 0 4px 4px}
+.nav-center-wrap{flex:0 0 72px;display:flex;align-items:center;justify-content:center}
+.nav-center{width:48px;height:48px;border-radius:16px;background:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(245,158,11,.4);transition:transform .15s}
+.nav-center:active{transform:scale(.91)}
+.nav-center svg{width:22px;height:22px;stroke:#000;stroke-width:2.5;fill:none}
+.tab{display:none;padding:12px 14px calc(16px + var(--nav-h))}
+.tab.active{display:block}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-head h2{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-dim);color:var(--green)}
+.badge-amber{background:var(--accent-dim);color:var(--accent)}
+.badge-blue{background:var(--blue-dim);color:var(--blue)}
+.badge-red{background:var(--red-dim);color:var(--red)}
+.chip{flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--text2);transition:all .2s}
+.chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.filter-bar{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+.filter-bar::-webkit-scrollbar{display:none}
+.stars-row{display:flex;align-items:center;gap:2px}
+.star-sm{font-size:12px;line-height:1}
+.star-sm.on{color:var(--accent)}.star-sm.off{color:var(--border2)}
+.avg-lbl{font-size:12px;font-weight:700;color:var(--accent);margin-left:3px}
+.cnt-lbl{font-size:11px;color:var(--text3);margin-left:2px}
+.star-pick{display:flex;gap:6px;margin:8px 0}
+.star-pick .sp{font-size:26px;cursor:pointer;filter:grayscale(1);opacity:.35;transition:all .15s}
+.star-pick .sp.sel{filter:none;opacity:1;transform:scale(1.1)}
+.deal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px}
+.deal-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.deal-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.deal-info{flex:1;min-width:0}
+.deal-title{font-size:14px;font-weight:700;margin-bottom:3px;line-height:1.3}
+.deal-place{font-size:12px;color:var(--text2)}
+.deal-desc{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.4}
+.deal-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);gap:6px;flex-wrap:wrap}
+.deal-actions{display:flex;gap:6px;flex-wrap:wrap}
+.action-btn{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--text2);transition:all .2s;white-space:nowrap}
+.action-btn.liked{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.action-btn.saved{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.action-btn.hasrev{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
+.deal-time{font-size:11px;color:var(--text3);flex-shrink:0}
+.revs-section{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:none}
+.revs-section.open{display:block}
+.rev-item{display:flex;gap:8px;margin-bottom:10px}
+.rev-av{width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent);flex-shrink:0}
+.rev-body{flex:1;background:var(--card2);border-radius:10px;padding:8px 10px}
+.rev-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.rev-author{font-size:12px;font-weight:700}
+.rev-stars{display:flex;gap:1px}
+.rs{font-size:11px}.rs.on{color:var(--accent)}.rs.off{color:var(--border2)}
+.rev-text{font-size:12px;color:var(--text2);line-height:1.4;margin-top:2px}
+.rev-time{font-size:10px;color:var(--text3);margin-top:3px}
+.rev-input-wrap{border-top:1px solid var(--border);padding-top:10px;margin-top:4px}
+.rev-input-wrap .lbl{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.rev-txt{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:12px;font-family:'Sora',sans-serif;color:var(--text);outline:none;resize:none}
+.rev-txt:focus{border-color:var(--accent)}
+.rev-row{display:flex;align-items:center;justify-content:space-between;margin-top:7px;gap:8px}
+.rev-btn{padding:7px 14px;background:var(--accent);border:none;border-radius:9px;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;color:#000;cursor:pointer}
+.map-hero{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:12px}
+.map-pl{height:150px;background:linear-gradient(135deg,#0F2027,#203A43,#2C5364);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.mdot{position:absolute;width:10px;height:10px;border-radius:50%;animation:mdot 2.5s infinite}
+.mdot::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid currentColor;animation:mring 2.5s infinite;opacity:0}
+@keyframes mdot{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+@keyframes mring{0%{transform:scale(.7);opacity:.8}100%{transform:scale(2.2);opacity:0}}
+.map-lbl{background:rgba(8,13,26,.85);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 14px;text-align:center}
+.map-lbl p{font-size:13px;font-weight:700;margin-bottom:1px}
+.map-lbl span{font-size:11px;color:var(--text2)}
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.cat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s}
+.cat-card.active{border-color:var(--accent);background:var(--accent-dim)}
+.cat-card .ic{font-size:22px;margin-bottom:3px}
+.cat-card span{font-size:11px;font-weight:600;color:var(--text2);display:block}
+.cat-card.active span{color:var(--accent)}
+.place-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px}
+.place-row{display:flex;align-items:flex-start;gap:10px}
+.place-dot{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.place-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.place-addr{font-size:11px;color:var(--text2)}
+.place-dist{font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.place-rev-btn{font-size:11px;color:var(--blue);font-weight:600;cursor:pointer;margin-top:4px;display:inline-block}
+.price-hero{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:12px}
+.ph-lbl{font-size:12px;color:var(--text2);margin-bottom:4px}
+.ph-val{font-size:30px;font-weight:800;color:var(--accent);letter-spacing:-1px}
+.ph-val span{font-size:14px;font-weight:500;color:var(--text2)}
+.pstats{display:flex;gap:10px;margin-top:12px}
+.pstat{flex:1;background:rgba(0,0,0,.18);border-radius:10px;padding:10px;text-align:center}
+html[data-theme="light"] .pstat{background:rgba(0,0,0,.05)}
+.pstat .v{font-size:16px;font-weight:700}.pstat .l{font-size:10px;color:var(--text2);margin-top:1px}
+.price-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px}
+.pi-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.pi-icon{width:40px;height:40px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px}
+.pi-name{font-size:13px;font-weight:700}.pi-shop{font-size:11px;color:var(--text2)}
+.pi-price{font-size:18px;font-weight:800}
+.pi-trend{font-size:11px;font-weight:600}
+.pi-trend.up{color:var(--red)}.pi-trend.down{color:var(--green)}.pi-trend.same{color:var(--text3)}
+.mini-chart{display:flex;align-items:flex-end;gap:3px;height:30px;margin-top:8px}
+.mini-bar{flex:1;border-radius:3px 3px 0 0;min-height:4px}
+.xp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:12px}
+.xp-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.lvl-badge{width:38px;height:38px;border-radius:11px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#000}
+.xp-pts{font-size:26px;font-weight:800;color:var(--accent)}
+.xp-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width 1s cubic-bezier(.34,1.56,.64,1)}
+.streak-row{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:12px}
+.streak-day{aspect-ratio:1;border-radius:8px;background:var(--card);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;color:var(--text3);font-weight:600;gap:2px}
+.streak-day.done{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.streak-day .sd{width:5px;height:5px;border-radius:50%;background:var(--border)}
+.streak-day.done .sd{background:var(--accent)}
+.mission-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.mission-card.done{opacity:.55;pointer-events:none}
+.mc-head{display:flex;align-items:flex-start;gap:10px}
+.mc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.mc-body{flex:1}.mc-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.mc-desc{font-size:11px;color:var(--text2);margin-bottom:8px}
+.mc-prog{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.mc-fill{height:100%;border-radius:3px;transition:width .5s}
+.mc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.mc-xp{font-size:12px;font-weight:700;color:var(--accent)}
+.ctr-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.ctr-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
+.ctr-val{font-size:28px;font-weight:800;color:var(--accent)}
+.ctr-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+.anti-hero{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:24px;text-align:center;margin-bottom:14px}
+.anti-face{font-size:56px;display:block;margin-bottom:10px;animation:fl 3s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.anti-hero h2{font-size:20px;font-weight:800;margin-bottom:6px}
+.anti-hero p{font-size:13px;color:var(--text2);max-width:260px;margin:0 auto 18px}
+.anti-btn{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;transition:transform .15s}
+.anti-btn:active{transform:scale(.97)}
+.anti-resp{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:10px;animation:su .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes su{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.anti-resp .ae{font-size:36px;margin-bottom:6px}
+.anti-resp h3{font-size:14px;font-weight:700;margin-bottom:4px}
+.anti-resp p{font-size:13px;color:var(--text2);line-height:1.5}
+.anti-tip{background:var(--green-dim);border:1px solid var(--green);border-radius:var(--r);padding:11px 13px;font-size:12px;color:var(--text)}
+.anti-tip strong{color:var(--green)}
+.modal-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-end}
+.modal-overlay.open{display:flex;animation:fi .2s}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{width:100%;max-height:90vh;background:var(--modal-bg);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:18px 16px calc(18px + env(safe-area-inset-bottom));animation:sm .3s cubic-bezier(.34,1.56,.64,1);overflow-y:auto}
+.modal::-webkit-scrollbar{display:none}
+@keyframes sm{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 14px}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:16px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.form-input{width:100%;padding:12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);font-family:'Sora',sans-serif;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--accent)}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.type-chip{padding:10px 6px;border-radius:10px;text-align:center;cursor:pointer;background:var(--card);border:1px solid var(--border);transition:all .2s}
+.type-chip .tc-i{font-size:20px}
+.type-chip .tc-l{font-size:11px;color:var(--text2);display:block;margin-top:2px;font-weight:600}
+.type-chip.sel{border-color:var(--accent);background:var(--accent-dim)}
+.type-chip.sel .tc-l{color:var(--accent)}
+.submit-btn{width:100%;padding:14px;border-radius:12px;font-size:14px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none;margin-top:8px;background:var(--accent);color:#000;transition:opacity .2s}
+.submit-btn:active{opacity:.8}
+.sett-section{margin-bottom:20px}
+.sett-section h4{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.profile-card{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px}
+.profile-av{width:48px;height:48px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--accent);flex-shrink:0}
+.profile-name{font-size:15px;font-weight:700}
+.profile-email{font-size:12px;color:var(--text2);margin-top:1px}
+.edit-pseudo-btn{font-size:11px;color:var(--accent);font-weight:600;cursor:pointer;padding:4px 8px;border:1px solid var(--accent);border-radius:6px;white-space:nowrap;flex-shrink:0}
+.auth-btn{width:100%;padding:13px;border-radius:11px;font-size:14px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;transition:all .2s}
+.auth-btn:active{opacity:.8}
+.auth-btn.google{border-color:#4285F4;background:rgba(66,133,244,.08);color:#4285F4}
+.auth-btn.apple{border-color:var(--text);background:var(--card)}
+.auth-btn.facebook{border-color:#1877F2;background:rgba(24,119,242,.08);color:#1877F2}
+.auth-btn.signout{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px}
+.tl{font-size:14px;font-weight:600}.ts{font-size:12px;color:var(--text2);margin-top:1px}
+.tog{width:46px;height:26px;border-radius:13px;background:var(--border2);position:relative;cursor:pointer;transition:background .3s;flex-shrink:0}
+.tog.on{background:var(--accent)}
+.tog::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .3s}
+.tog.on::after{transform:translateX(20px)}
+.pseudo-edit-row{display:flex;gap:8px;margin-top:8px;margin-bottom:10px}
+.pseudo-edit-row input{flex:1;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;font-size:14px;font-family:'Sora',sans-serif;color:var(--text);outline:none}
+.pseudo-edit-row input:focus{border-color:var(--accent)}
+.pseudo-edit-row button{padding:10px 14px;background:var(--accent);border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;color:#000;cursor:pointer}
+.sb-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px}
+.sb-card p{font-size:12px;color:var(--text2);line-height:1.5}
+.sb-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;margin-bottom:8px}
+.sb-badge.on{background:var(--green-dim);color:var(--green)}
+.sb-badge.off{background:var(--red-dim);color:var(--red)}
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty .ei{font-size:40px;margin-bottom:8px}
+.empty p{font-size:13px}
+#toast{position:fixed;bottom:calc(var(--nav-h)+14px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:9px 16px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="topbar">
+  <div class="tb-logo">
+    <div class="mark">B</div>
+    <span class="name"><em>Boon</em></span>
+  </div>
+  <div class="tb-actions">
+    <div class="net-dot" id="netDot"></div>
+    <div class="icon-btn" onclick="toggleSearch()">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     </div>
-  </>);
+    <div class="icon-btn" id="userBtn" onclick="openModal('settingsModal')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </div>
+    <div class="icon-btn" onclick="openModal('settingsModal')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </div>
+  </div>
+</div>
+<div class="search-wrap" id="searchWrap" style="display:none">
+  <div class="search-box">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Titre, lieu, description…" oninput="onSearch(this.value)" autocomplete="off"/>
+    <span class="s-clear" onclick="clearSearch()">✕</span>
+  </div>
+</div>
+<div id="main">
+  <div class="tab active" id="tab-radar">
+    <div class="sec-head">
+      <h2>🎯 Radar</h2>
+      <span class="badge badge-green" id="dealCount">0 actifs</span>
+    </div>
+    <div class="filter-bar" id="filterBar">
+      <div class="chip active" onclick="filterDeals(this,'all')">Tout</div>
+      <div class="chip" onclick="filterDeals(this,'promo')">🏷️ Promo</div>
+      <div class="chip" onclick="filterDeals(this,'gratuit')">🎁 Gratuit</div>
+      <div class="chip" onclick="filterDeals(this,'event')">📅 Événement</div>
+      <div class="chip" onclick="filterDeals(this,'food')">🍕 Nourriture</div>
+      <div class="chip" onclick="filterDeals(this,'service')">🔧 Service</div>
+    </div>
+    <div id="dealList"></div>
+  </div>
+  <div class="tab" id="tab-carte">
+    <div class="sec-head"><h2>🗺️ Lieux Utiles</h2></div>
+    <div class="map-hero">
+      <div class="map-pl" id="mapViz"></div>
+      <div style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--text2)" id="placeCountLabel">…</span>
+        <span class="badge badge-blue" style="cursor:pointer" onclick="openModal('addPlaceModal')">+ Ajouter</span>
+      </div>
+    </div>
+    <div class="category-grid" id="catGrid"></div>
+    <div id="placeList"></div>
+  </div>
+  <div class="tab" id="tab-prix">
+    <div class="sec-head"><h2>💰 Mémoire de Prix</h2></div>
+    <div class="price-hero">
+      <div class="ph-lbl">Économies détectées ce mois</div>
+      <div class="ph-val" id="savingsTotal">0 <span>€ économisés</span></div>
+      <div class="pstats">
+        <div class="pstat"><div class="v" id="pProd">0</div><div class="l">Produits</div></div>
+        <div class="pstat"><div class="v" id="pUp" style="color:var(--red)">0</div><div class="l">Hausses</div></div>
+        <div class="pstat"><div class="v" id="pDown" style="color:var(--green)">0</div><div class="l">Baisses</div></div>
+      </div>
+    </div>
+    <div class="sec-head">
+      <h2 style="font-size:15px">Produits suivis</h2>
+      <span class="badge badge-amber" style="cursor:pointer" onclick="openModal('addPriceModal')">+ Ajouter</span>
+    </div>
+    <div id="priceList"></div>
+  </div>
+  <div class="tab" id="tab-missions">
+    <div class="xp-card">
+      <div class="xp-top">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="lvl-badge" id="lvlBadge">1</div>
+          <div>
+            <div style="font-size:14px;font-weight:700" id="lvlName">Débutant Éco</div>
+            <div style="font-size:11px;color:var(--text2)" id="xpSub">0 / 100 XP</div>
+          </div>
+        </div>
+        <div class="xp-pts" id="totalXP">0 XP</div>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+    </div>
+    <div class="sec-head" style="margin-bottom:8px"><h2 style="font-size:14px;color:var(--text2)">🔥 Série de jours</h2></div>
+    <div class="streak-row" id="streakRow"></div>
+    <div class="sec-head">
+      <h2>🏆 Missions du Jour</h2>
+      <span class="badge badge-amber" id="mDone">0/3</span>
+    </div>
+    <div id="missionList"></div>
+  </div>
+  <div class="tab" id="tab-anti">
+    <div class="ctr-row">
+      <div class="ctr-card"><div class="ctr-val" id="antiCount">0</div><div class="ctr-lbl">Fois utilisé</div></div>
+      <div class="ctr-card"><div class="ctr-val" style="color:var(--green)" id="antiSaved">0 €</div><div class="ctr-lbl">Économies estimées</div></div>
+    </div>
+    <div class="anti-hero">
+      <span class="anti-face" id="antiFace">😩</span>
+      <h2>T'as la flemme ?</h2>
+      <p>Une mini-action de 2 minutes pour sortir du blocage.</p>
+      <button class="anti-btn" onclick="triggerAnti()">Je n'ai pas envie 😪</button>
+    </div>
+    <div id="antiResponse"></div>
+  </div>
+</div>
+<div id="nav">
+  <div class="nav-item active" onclick="switchTab('radar',this)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="11"/></svg>
+    <span>Radar</span>
+  </div>
+  <div class="nav-item" onclick="switchTab('carte',this)">
+    <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    <span>Carte</span>
+  </div>
+  <div class="nav-center-wrap" onclick="openModal('addModal')">
+    <div class="nav-center">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div class="nav-item" onclick="switchTab('missions',this)">
+    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    <span>Missions</span>
+  </div>
+  <div class="nav-item" onclick="switchTab('anti',this)">
+    <svg viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/></svg>
+    <span>Anti-Flemme</span>
+  </div>
+</div>
+</div>
+
+<!-- MODAL ADD DEAL -->
+<div class="modal-overlay" id="addModal" onclick="cmbg(event,'addModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Signaler un Bon Plan</h3>
+    <div class="form-group"><label>Type</label>
+      <div class="type-grid" id="dealTypeGrid">
+        <div class="type-chip sel" data-type="promo" onclick="selType(this,'deal')"><div class="tc-i">🏷️</div><span class="tc-l">Promo</span></div>
+        <div class="type-chip" data-type="gratuit" onclick="selType(this,'deal')"><div class="tc-i">🎁</div><span class="tc-l">Gratuit</span></div>
+        <div class="type-chip" data-type="event" onclick="selType(this,'deal')"><div class="tc-i">📅</div><span class="tc-l">Événement</span></div>
+        <div class="type-chip" data-type="food" onclick="selType(this,'deal')"><div class="tc-i">🍕</div><span class="tc-l">Nourriture</span></div>
+        <div class="type-chip" data-type="service" onclick="selType(this,'deal')"><div class="tc-i">🔧</div><span class="tc-l">Service</span></div>
+        <div class="type-chip" data-type="autre" onclick="selType(this,'deal')"><div class="tc-i">💡</div><span class="tc-l">Autre</span></div>
+      </div>
+    </div>
+    <div class="form-group"><label>Titre *</label><input class="form-input" id="dealTitle" placeholder="Ex: 30% chez Monoprix ce week-end"/></div>
+    <div class="form-group"><label>Lieu / Adresse *</label><input class="form-input" id="dealPlace" placeholder="Ex: Monoprix République, Paris"/></div>
+    <div class="form-group"><label>Description</label><input class="form-input" id="dealDesc" placeholder="Détails, conditions, durée…"/></div>
+    <button class="submit-btn" onclick="submitDeal()">Publier le bon plan 🎯</button>
+  </div>
+</div>
+
+<!-- MODAL ADD PLACE -->
+<div class="modal-overlay" id="addPlaceModal" onclick="cmbg(event,'addPlaceModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Ajouter un Lieu Utile</h3>
+    <div class="form-group"><label>Catégorie</label>
+      <div class="type-grid" id="placeTypeGrid">
+        <div class="type-chip sel" data-type="wc" onclick="selType(this,'place')"><div class="tc-i">🚻</div><span class="tc-l">Toilettes</span></div>
+        <div class="type-chip" data-type="eau" onclick="selType(this,'place')"><div class="tc-i">💧</div><span class="tc-l">Fontaine</span></div>
+        <div class="type-chip" data-type="wifi" onclick="selType(this,'place')"><div class="tc-i">📶</div><span class="tc-l">Wi-Fi</span></div>
+        <div class="type-chip" data-type="prise" onclick="selType(this,'place')"><div class="tc-i">🔌</div><span class="tc-l">Prise</span></div>
+        <div class="type-chip" data-type="parking" onclick="selType(this,'place')"><div class="tc-i">🅿️</div><span class="tc-l">Parking</span></div>
+        <div class="type-chip" data-type="autre" onclick="selType(this,'place')"><div class="tc-i">📍</div><span class="tc-l">Autre</span></div>
+      </div>
+    </div>
+    <div class="form-group"><label>Nom *</label><input class="form-input" id="placeName" placeholder="Ex: Fontaine Trocadéro"/></div>
+    <div class="form-group"><label>Adresse *</label><input class="form-input" id="placeAddr" placeholder="Ex: Place du Trocadéro, Paris"/></div>
+    <button class="submit-btn" onclick="submitPlace()">Ajouter 📍</button>
+  </div>
+</div>
+
+<!-- MODAL ADD PRICE -->
+<div class="modal-overlay" id="addPriceModal" onclick="cmbg(event,'addPriceModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Enregistrer un Prix</h3>
+    <div class="form-group"><label>Produit *</label><input class="form-input" id="prodName" placeholder="Ex: Lait demi-écrémé 1L"/></div>
+    <div class="form-group"><label>Magasin *</label><input class="form-input" id="prodShop" placeholder="Ex: Lidl République"/></div>
+    <div class="form-group"><label>Prix actuel (€) *</label><input class="form-input" id="prodPrice" type="number" step="0.01" placeholder="1.09"/></div>
+    <div class="form-group"><label>Émoji produit</label><input class="form-input" id="prodEmoji" placeholder="🥛" maxlength="2"/></div>
+    <button class="submit-btn" onclick="submitPrice()">Enregistrer 💰</button>
+  </div>
+</div>
+
+<!-- MODAL SETTINGS -->
+<div class="modal-overlay" id="settingsModal" onclick="cmbg(event,'settingsModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>⚙️ Paramètres</h3>
+    <div class="sett-section">
+      <h4>Compte</h4>
+      <div id="authSection"></div>
+    </div>
+    <div class="sett-section">
+      <h4>Apparence</h4>
+      <div class="toggle-row">
+        <div><div class="tl">Thème sombre</div><div class="ts">Économise la batterie</div></div>
+        <div class="tog on" id="themeToggle" onclick="toggleTheme()"></div>
+      </div>
+    </div>
+    <div class="sett-section">
+      <h4>🔗 Temps Réel</h4>
+      <div class="sb-card">
+        <div class="sb-badge on" id="sbBadge">● Supabase connecté</div>
+        <p>Tes bons plans sont partagés en temps réel avec tous les utilisateurs de Boon dans le monde entier.</p>
+      </div>
+    </div>
+    <div class="sett-section">
+      <h4>À propos</h4>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:12px;color:var(--text2);line-height:1.6">
+        <strong style="color:var(--text)">Boon v1.0</strong> — Par tous, pour tous.<br/>Trouve, partage et économise au quotidien.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══ SUPABASE
+var SB_URL='https://vwapbxglpxcmvgcfkxbt.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3YXBieGdscHhjbXZnY2ZreGJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTYyOTksImV4cCI6MjA5MjU3MjI5OX0.3OVOrzOYiik_cA8uQQaHRXBy_V9FZRpwfsJPv0V7Lng';
+var SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+function sbGet(t,q){return fetch(SB_URL+'/rest/v1/'+t+'?'+(q||''),{headers:SBH}).then(function(r){return r.ok?r.json():null}).catch(function(){return null});}
+function sbPost(t,d){fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:SBH,body:JSON.stringify(d)}).catch(function(){});}
+
+// ═══ STORAGE
+function lget(k,def){try{var v=localStorage.getItem('boon3_'+k);return v!==null?JSON.parse(v):def;}catch(e){return def;}}
+function lset(k,v){try{localStorage.setItem('boon3_'+k,JSON.stringify(v));}catch(e){}}
+
+// ═══ SEED DATA
+function defaultDeals(){
+  return [
+    {id:1,type:'promo',title:'50% sur les yaourts Danone',place:'Carrefour Market Nation, Paris 11e',desc:'Valable jusqu\'au dimanche soir — rayon produits laitiers',likes:24,saved:false,liked:false,time:'Il y a 23 min',reviews:[
+      {id:1,user:'Sophie L.',stars:5,text:'Confirmé à 100% ! J\'y suis allée ce matin, les rayons bien fournis. Vaut pour tous les packs même 8-en-1. Personnel très sympa.',time:'Il y a 18 min',source:'google'},
+      {id:2,user:'Marc T.',stars:4,text:'Bon plan vérifié. Attention, pas sur les Bio. Sur les classiques c\'est top, j\'ai économisé 4€ sur mon panier.',time:'Il y a 35 min',source:'google'},
+      {id:3,user:'Amélie R.',stars:5,text:'Cette promo est régulière chez Carrefour Nation sur les Danone. Je l\'ai déjà vue le mois dernier. Valide !',time:'Il y a 1h',source:'google'}
+    ]},
+    {id:2,type:'gratuit',title:'Pain offert à l\'achat d\'une soupe',place:'Brioche Dorée Châtelet, Paris 1er',desc:'Présenter l\'appli Boon en caisse — pain viennois ou baguette',likes:38,saved:true,liked:false,time:'Il y a 1h',reviews:[
+      {id:1,user:'Julie M.',stars:5,text:'Super expérience ! Le personnel a accepté sans hésiter. Pain viennois excellent. La soupe tomate-basilic est top aussi.',time:'Il y a 45 min',source:'google'},
+      {id:2,user:'Karim B.',stars:5,text:'Testé hier midi, ça fonctionne parfaitement. Le staff au Châtelet est au courant. Profitez-en avant l\'affluence de midi !',time:'Il y a 2h',source:'google'}
+    ]},
+    {id:3,type:'event',title:'Concert gratuit — Jazz en Plein Air',place:'Parc Montsouris, Paris 14e',desc:'Demain 15h–18h — Quartette de jazz, accès libre, prévoir un plaid',likes:61,saved:false,liked:true,time:'Il y a 2h',reviews:[
+      {id:1,user:'Nathalie V.',stars:5,text:'Le Parc Montsouris est magnifique pour ce genre d\'événement. J\'y étais l\'été dernier, qualité musicale très élevée. Amenez un pique-nique !',time:'Il y a 1h',source:'google'},
+      {id:2,user:'Théo P.',stars:4,text:'Ambiance top, musiciens de talent. Arriver tôt pour une bonne place sous les arbres. Gratuit et de qualité, c\'est rare à Paris.',time:'Il y a 3h',source:'google'}
+    ]},
+    {id:4,type:'food',title:'Invendus du marché à prix libre',place:'Marché d\'Aligre, Paris 12e',desc:'Chaque dimanche après 13h — fruits, légumes, fromages',likes:44,saved:false,liked:false,time:'Il y a 3h',reviews:[
+      {id:1,user:'Romain D.',stars:5,text:'Marché d\'Aligre, mon préféré de Paris depuis 5 ans. Après 13h les commerçants bradent, parfois à 0€ si vous demandez gentiment. Acte solidaire.',time:'Il y a 1h',source:'google'},
+      {id:2,user:'Fatou K.',stars:4,text:'Attention ça ferme parfois à 12h30 si tout est vendu. Arriver vers 12h45. J\'ai eu 1kg tomates + 1 melon pour 1€ dimanche !',time:'Il y a 2h',source:'google'},
+      {id:3,user:'Pierre-Louis G.',stars:5,text:'Les fromagers d\'Aligre sont les meilleurs de l\'Est parisien. Le dimanche c\'est la journée des bonnes affaires !',time:'Il y a 4h',source:'google'}
+    ]},
+    {id:5,type:'promo',title:'2e café offert avant 10h',place:'Columbus Café Saint-Lazare, Paris 8e',desc:'Avec la carte fidélité Columbus — tous les jours ouvrés',likes:11,saved:false,liked:false,time:'Il y a 5h',reviews:[
+      {id:1,user:'Clara N.',stars:4,text:'Columbus Saint-Lazare idéal pour travailler le matin, prises partout. Avec la carte fidélité le 2e café est vraiment offert, vérifié ce matin.',time:'Il y a 3h',source:'google'}
+    ]}
+  ];
 }
+function defaultPlaces(){
+  return [
+    {id:1,type:'wc',name:'Toilettes Publiques — République',addr:'Place de la République, Paris 11e',dist:'120 m',reviews:[
+      {id:1,user:'Céline R.',stars:4,text:'Toilettes propres, rénovées par la mairie. Ouvertes 7h–22h. Accès PMR côté est. Je les utilise régulièrement.',time:'Il y a 2j',source:'google'},
+      {id:2,user:'David M.',stars:4,text:'Bien entretenues. Savon et papier toujours dispo. Nettoyage toutes les 2h visible. Mieux que la moyenne parisienne.',time:'Il y a 5j',source:'google'},
+      {id:3,user:'Yasmine H.',stars:3,text:'Correctes mais parfois queue aux heures de pointe. La porte automatique peut buguer. Globalement bien.',time:'Il y a 1sem',source:'google'}
+    ]},
+    {id:2,type:'eau',name:'Fontaine Wallace n°42',addr:'Bd Beaumarchais, Paris 3e',dist:'200 m',reviews:[
+      {id:1,user:'Pierre D.',stars:5,text:'Eau fraîche et propre, fontaine historique en parfait état. Je remplis ma gourde ici tous les matins. Eau froide même en été !',time:'Il y a 1j',source:'google'},
+      {id:2,user:'Amina B.',stars:5,text:'Fontaine Wallace iconique du Marais. Eau filtrée directement du réseau parisien, très bonne qualité. Accessible 24h/24.',time:'Il y a 3j',source:'google'},
+      {id:3,user:'Lucas F.',stars:5,text:'Paris a les meilleures fontaines d\'eau gratuites au monde. Cette Wallace est particulièrement bien placée. Incontournable !',time:'Il y a 1sem',source:'google'}
+    ]},
+    {id:3,type:'wifi',name:'Wi-Fi gratuit — Médiathèque',addr:'Mairie du 11e, Place Léon Blum, Paris',dist:'350 m',reviews:[
+      {id:1,user:'Thomas A.',stars:4,text:'Connexion stable, débit ~30 Mbps. Accès sans mot de passe. Espace calme à l\'étage avec prises électriques.',time:'Il y a 4j',source:'google'},
+      {id:2,user:'Sarah K.',stars:5,text:'J\'y viens télétravailler. Le Wi-Fi tient bien même en sous-sol. Personnel de la mairie très accueillant.',time:'Il y a 1sem',source:'google'}
+    ]},
+    {id:4,type:'prise',name:'Prises libres — McDonald\'s Voltaire',addr:'Bd Voltaire, Paris 11e',dist:'400 m',reviews:[
+      {id:1,user:'Hugo C.',stars:4,text:'Tables avec prises intégrées après rénovation. Wi-Fi aussi. Achetez un café si vous restez plus d\'une heure, c\'est fair-play.',time:'Il y a 2j',source:'google'},
+      {id:2,user:'Inès L.',stars:4,text:'Prises partout le long du mur du fond et aux tables hautes. Chargeurs USB au comptoir si vous avez oublié le vôtre.',time:'Il y a 5j',source:'google'}
+    ]},
+    {id:5,type:'parking',name:'Parking Gratuit — Dimanche',addr:'Rue Oberkampf, Paris 11e',dist:'500 m',reviews:[
+      {id:1,user:'Michel P.',stars:5,text:'Rue Oberkampf gratuite le dimanche toute la journée. Facile le matin. Profitez-en !',time:'Il y a 3j',source:'google'},
+      {id:2,user:'Laurence T.',stars:4,text:'Stationnement parisien gratuit le dimanche. Zone 11e très accessible ce jour-là. Je viens faire mes courses à Aligre.',time:'Il y a 1sem',source:'google'}
+    ]},
+    {id:6,type:'eau',name:'Fontaine réfrigérée — Gare de Lyon',addr:'Place Louis Armand, Paris 12e',dist:'800 m',reviews:[
+      {id:1,user:'Emma V.',stars:5,text:'Eau plate ET pétillante, c\'est rare ! Eau vraiment froide même en juillet. Indispensable avant de prendre le train.',time:'Il y a 6j',source:'google'},
+      {id:2,user:'Nicolas B.',stars:5,text:'L\'eau pétillante est un vrai bonus. Propre, accessible 24h/24. Dépannage assuré 7j/7.',time:'Il y a 2sem',source:'google'}
+    ]}
+  ];
+}
+function defaultPrices(){
+  return [
+    {id:1,name:'Lait demi-écrémé 1L',shop:'Lidl',emoji:'🥛',history:[{v:.89,d:'15 mars'},{v:.95,d:'1 avr.'},{v:.99,d:'18 avr.'},{v:.99,d:'Auj.'}]},
+    {id:2,name:'Pain de mie Harrys',shop:'Franprix',emoji:'🍞',history:[{v:2.10,d:'1 mars'},{v:2.10,d:'15 mars'},{v:1.95,d:'5 avr.'},{v:1.95,d:'Auj.'}]},
+    {id:3,name:'Eau minérale Évian 1.5L',shop:'Monoprix',emoji:'💧',history:[{v:.80,d:'1 mars'},{v:.85,d:'20 mars'},{v:.90,d:'10 avr.'},{v:.95,d:'Auj.'}]}
+  ];
+}
+
+// ═══ STATE — tout chargé depuis localStorage
+var S={
+  deals:   lget('deals',  null)||defaultDeals(),
+  places:  lget('places', null)||defaultPlaces(),
+  prices:  lget('prices', null)||defaultPrices(),
+  xp:      lget('xp',     0),
+  streak:  lget('streak', []),
+  mDone:   lget('mDone',  []),
+  antiCount:lget('antiCount',0),
+  antiSaved:lget('antiSaved',0),
+  user:    lget('user',   null),
+  theme:   lget('theme',  'dark')
+};
+function save(k){lset(k,S[k]);}
+
+// ═══ CONFIGS
+var TCFG={promo:{i:'🏷️',c:'#F59E0B',b:'rgba(245,158,11,.15)'},gratuit:{i:'🎁',c:'#10B981',b:'rgba(16,185,129,.15)'},event:{i:'📅',c:'#3B82F6',b:'rgba(59,130,246,.15)'},food:{i:'🍕',c:'#EF4444',b:'rgba(239,68,68,.15)'},service:{i:'🔧',c:'#8B5CF6',b:'rgba(139,92,246,.15)'},autre:{i:'💡',c:'#94A3B8',b:'rgba(148,163,184,.15)'}};
+var CCFG={wc:{i:'🚻',l:'Toilettes',c:'#3B82F6'},eau:{i:'💧',l:'Fontaines',c:'#06B6D4'},wifi:{i:'📶',l:'Wi-Fi',c:'#8B5CF6'},prise:{i:'🔌',l:'Prises',c:'#F59E0B'},parking:{i:'🅿️',l:'Parking',c:'#10B981'},autre:{i:'📍',l:'Autre',c:'#94A3B8'}};
+var LEVELS=[{name:'Débutant Éco',xp:100},{name:'Chasseur Malin',xp:250},{name:'Pro Bons Plans',xp:500},{name:'Économiste Pro',xp:1000},{name:'Légende Boon',xp:9999}];
+var MISSIONS=[{id:'m1',icon:'🏷️',color:'#F59E0B',title:'Signale un bon plan',desc:'Aide la communauté à économiser',xp:25,cta:'Signaler →'},{id:'m2',icon:'💰',color:'#10B981',title:'Enregistre un prix',desc:'Note le prix d\'un produit du quotidien',xp:20,cta:'Enregistrer →'},{id:'m3',icon:'🗺️',color:'#3B82F6',title:'Ajoute un lieu utile',desc:'Fontaine, Wi-Fi, toilettes…',xp:15,cta:'Ajouter →'}];
+var ANTI=[{e:'💪',t:'Micro-action (2 min)',p:'Ouvre ton appli bancaire et note une dépense que tu pourrais éviter cette semaine. Juste une.'},{e:'🎯',t:'Défi maintenant',p:'Cherche un bon plan autour de toi et signale-le. Tu aideras quelqu\'un aujourd\'hui.'},{e:'🧠',t:'Astuce anti-impulsion',p:'Avant ton prochain achat : "Est-ce que j\'en aurai encore besoin dans 48h ?" Si tu hésites, la réponse est non.'},{e:'🚶',t:'Bouge 20 secondes',p:'Lève-toi et fais 20 pas. Ton cerveau se réactive, la flemme passe. Prouvé par les neurosciences.'},{e:'💡',t:'Le chiffre qui claque',p:'3 achats impulsifs en moins par semaine = 150€/mois = 1 800€ par an. Ça fait réfléchir.'},{e:'🔌',t:'Utile pour plus tard',p:'Note un lieu avec une prise ou du Wi-Fi gratuit proche. Ça peut te sauver une journée entière.'},{e:'🎮',t:'Petite mission',p:'Va dans Missions et complète n\'importe laquelle. La plus facile suffit.'},{e:'🛒',t:'Anti-achat impulsif',p:'Ferme tous les onglets shopping ouverts. Reviens dans 24h. Si t\'y repenses encore, c\'est que c\'est utile.'}];
+
+// ═══ VARS
+var curTab='radar',curFilter='all',curCat='all',selDealType='promo',selPlaceType='wc',searchQ='',searchVisible=false,lastAnti=-1,pendingStars={};
+
+function gid(id){return document.getElementById(id);}
+function getPseudo(){return S.user?(S.user.pseudo||S.user.name||'Anonyme'):null;}
+function avgS(revs){if(!revs||!revs.length)return 0;return revs.reduce(function(s,r){return s+r.stars;},0)/revs.length;}
+function starsH(avg,cnt,sm){
+  var sz=sm?11:13,s='<div class="stars-row">';
+  for(var i=1;i<=5;i++)s+='<span class="star-sm '+(i<=Math.round(avg)?'on':'off')+'" style="font-size:'+sz+'px">★</span>';
+  s+='<span class="avg-lbl" style="font-size:'+sz+'px">'+avg.toFixed(1)+'</span>';
+  if(cnt!==undefined)s+='<span class="cnt-lbl">('+cnt+')</span>';
+  return s+'</div>';
+}
+function revH(r){
+  var src=r.source==='google'?'🌐 Google Maps':'✅ Boon';
+  return '<div class="rev-item"><div class="rev-av">'+((r.pseudo||r.user||'?')[0].toUpperCase())+'</div><div class="rev-body"><div class="rev-head"><span class="rev-author">'+(r.pseudo||r.user)+'</span><div class="rev-stars">'+[1,2,3,4,5].map(function(i){return '<span class="rs '+(i<=r.stars?'on':'off')+'">★</span>';}).join('')+'</div></div><div class="rev-text">'+r.text+'</div><div class="rev-time">'+r.time+' · <span style="color:var(--text3)">'+src+'</span></div></div></div>';
+}
+function hl(t){
+  if(!searchQ)return t;
+  var re=new RegExp('('+searchQ.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+  return t.replace(re,'<mark style="background:var(--accent);color:#000;border-radius:2px;padding:0 1px">$1</mark>');
+}
+
+// ═══ TABS
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  gid('tab-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  curTab=name;
+  if(name==='radar')renderDeals();
+  else if(name==='carte')renderPlaces();
+  else if(name==='prix')renderPrices();
+  else if(name==='missions')renderMissions();
+  else if(name==='anti')renderAnti();
+}
+
+// ═══ SEARCH
+function toggleSearch(){
+  searchVisible=!searchVisible;
+  gid('searchWrap').style.display=searchVisible?'block':'none';
+  if(searchVisible)setTimeout(function(){gid('searchInput').focus();},80);
+  else{searchQ='';gid('searchInput').value='';renderDeals();}
+}
+function onSearch(q){searchQ=q.toLowerCase();renderDeals();}
+function clearSearch(){searchQ='';gid('searchInput').value='';renderDeals();}
+
+// ═══ MODULE 1: RADAR
+function filterDeals(el,f){
+  curFilter=f;
+  document.querySelectorAll('#filterBar .chip').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+  renderDeals();
+}
+function renderDeals(){
+  var list=curFilter==='all'?S.deals.slice():S.deals.filter(function(d){return d.type===curFilter;});
+  if(searchQ)list=list.filter(function(d){return d.title.toLowerCase().indexOf(searchQ)>-1||d.place.toLowerCase().indexOf(searchQ)>-1||(d.desc||'').toLowerCase().indexOf(searchQ)>-1;});
+  gid('dealCount').textContent=S.deals.length+' actifs';
+  var el=gid('dealList');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="ei">'+(searchQ?'🔍':'📭')+'</div><p>'+(searchQ?'Aucun résultat pour "'+searchQ+'"':'Aucun bon plan dans cette catégorie')+'</p></div>';return;}
+  el.innerHTML=list.map(function(d){return dealCardH(d);}).join('');
+}
+function dealCardH(d){
+  var t=TCFG[d.type]||TCFG.autre;
+  var revs=d.reviews||[];
+  var userRevs=revs.filter(function(r){return r.source!=='google';});
+  var googleRevs=revs.filter(function(r){return r.source==='google';});
+  var ordered=userRevs.concat(googleRevs);
+  var avg=avgS(revs),nc=revs.length;
+  var ps=pendingStars[d.id]||0;
+  var canComment=!!S.user;
+  return '<div class="deal-card"><div class="deal-header"><div class="deal-icon" style="background:'+t.b+'">'+t.i+'</div><div class="deal-info"><div class="deal-title">'+hl(d.title)+'</div><div class="deal-place">📍 '+hl(d.place)+'</div>'+(d.desc?'<div class="deal-desc">'+hl(d.desc)+'</div>':'')+(avg>0?'<div style="margin-top:5px">'+starsH(avg,nc,true)+'</div>':'')+'</div></div><div class="deal-footer"><div class="deal-actions"><div class="action-btn '+(d.liked?'liked':'')+'" onclick="likeDeal('+d.id+')">❤️ '+d.likes+'</div><div class="action-btn '+(d.saved?'saved':'')+'" onclick="saveDeal('+d.id+')">'+(d.saved?'🔖 Sauvegardé':'🔖 Sauvegarder')+'</div><div class="action-btn '+(nc>0?'hasrev':'')+'" onclick="toggleRevs(\'d\','+d.id+')">💬 '+nc+' avis</div></div><span class="deal-time">'+d.time+'</span></div><div class="revs-section" id="rs-d-'+d.id+'">'+ordered.map(function(r){return revH(r);}).join('')+'<div class="rev-input-wrap"><div class="lbl">Laisser un avis</div><div class="star-pick" id="sp-'+d.id+'">'+[1,2,3,4,5].map(function(i){return '<span class="sp '+(i<=ps?'sel':'')+'" onclick="setStar(\'d\','+d.id+','+i+')">⭐</span>';}).join('')+'</div><textarea class="rev-txt" id="ri-'+d.id+'" rows="2" placeholder="'+(canComment?'Ton avis sur ce bon plan…':'Connecte-toi pour commenter')+'"'+(canComment?'':' disabled')+'></textarea><div class="rev-row"><span style="font-size:11px;color:var(--text3)">'+nc+' avis'+(avg>0?' · '+avg.toFixed(1)+'/5':'')+'</span><button class="rev-btn" onclick="postReview(\'d\','+d.id+')">Publier</button></div></div></div></div>';
+}
+function toggleRevs(ctx,id){var rs=gid('rs-'+ctx+'-'+id);if(rs)rs.classList.toggle('open');}
+function setStar(ctx,id,n){
+  var key=ctx+id;pendingStars[key]=n;
+  var sp=gid('sp-'+id);
+  if(sp)sp.querySelectorAll('.sp').forEach(function(s,i){s.classList.toggle('sel',i<n);});
+}
+function postReview(ctx,id){
+  if(!S.user){toast('❌ Connecte-toi pour laisser un avis');openModal('settingsModal');return;}
+  var inp=gid('ri-'+id);
+  var txt=inp?inp.value.trim():'';
+  if(!txt){toast('❌ Écris quelque chose d\'abord');return;}
+  var stars=pendingStars[ctx+id]||5;
+  var r={id:Date.now(),user:getPseudo(),pseudo:getPseudo(),stars:stars,text:txt,time:'À l\'instant',source:'boon'};
+  if(ctx==='d'){
+    var d=S.deals.find(function(x){return x.id===id;});
+    if(!d)return;
+    d.reviews=d.reviews||[];
+    d.reviews.unshift(r);
+    save('deals');delete pendingStars[ctx+id];
+    renderDeals();
+    setTimeout(function(){var rs=gid('rs-d-'+id);if(rs)rs.classList.add('open');},50);
+  }else{
+    var p=S.places.find(function(x){return x.id===id;});
+    if(!p)return;
+    p.reviews=p.reviews||[];
+    p.reviews.unshift(r);
+    save('places');delete pendingStars[ctx+id];
+    renderPlaces();
+  }
+  toast('⭐ Avis publié !');
+  sbPost('reviews',{context:ctx,ref_id:id,user:getPseudo(),stars:stars,text:txt});
+}
+function likeDeal(id){var d=S.deals.find(function(x){return x.id===id;});if(!d)return;d.liked=!d.liked;d.likes+=d.liked?1:-1;save('deals');renderDeals();}
+function saveDeal(id){var d=S.deals.find(function(x){return x.id===id;});if(!d)return;d.saved=!d.saved;save('deals');renderDeals();toast(d.saved?'🔖 Sauvegardé !':'Retiré des sauvegardes');}
+function selType(el,ctx){
+  var grd=ctx==='deal'?'dealTypeGrid':'placeTypeGrid';
+  document.querySelectorAll('#'+grd+' .type-chip').forEach(function(c){c.classList.remove('sel');});
+  el.classList.add('sel');
+  if(ctx==='deal')selDealType=el.dataset.type;else selPlaceType=el.dataset.type;
+}
+function submitDeal(){
+  var title=gid('dealTitle').value.trim(),place=gid('dealPlace').value.trim();
+  if(!title||!place){toast('❌ Titre et lieu requis');return;}
+  var deal={id:Date.now(),type:selDealType,title:title,place:place,desc:gid('dealDesc').value.trim(),likes:0,saved:false,liked:false,time:'À l\'instant',reviews:[]};
+  S.deals.unshift(deal);save('deals');
+  closeModal('addModal');
+  ['dealTitle','dealPlace','dealDesc'].forEach(function(id){gid(id).value='';});
+  switchTab('radar',document.querySelector('.nav-item'));renderDeals();
+  toast('🎯 Bon plan publié !');completeMission('m1');sbPost('deals',deal);
+}
+
+// ═══ MODULE 2: CARTE
+function renderPlaces(){
+  var viz=gid('mapViz');viz.innerHTML='';
+  var colors=['#F59E0B','#10B981','#3B82F6','#EF4444','#8B5CF6'];
+  for(var i=0;i<8;i++){var dot=document.createElement('div');dot.className='mdot';var c=colors[i%colors.length];dot.style.cssText='left:'+(8+Math.random()*84)+'%;top:'+(8+Math.random()*84)+'%;background:'+c+';color:'+c+';animation-delay:'+(i*.35)+'s';viz.appendChild(dot);}
+  var lbl=document.createElement('div');lbl.className='map-lbl';lbl.innerHTML='<p>📍 Autour de vous</p><span>Données disponibles hors ligne</span>';viz.appendChild(lbl);
+  gid('catGrid').innerHTML='<div class="cat-card '+(curCat==='all'?'active':'')+'" onclick="filterPlaces(this,\'all\')"><div class="ic">🗺️</div><span>Tout</span></div>'+Object.entries(CCFG).map(function(e){var k=e[0],v=e[1];return '<div class="cat-card '+(curCat===k?'active':'')+'" onclick="filterPlaces(this,\''+k+'\')"><div class="ic">'+v.i+'</div><span>'+v.l+'</span></div>';}).join('');
+  var filtered=curCat==='all'?S.places:S.places.filter(function(p){return p.type===curCat;});
+  gid('placeCountLabel').textContent=filtered.length+' lieu(x) référencé(s)';
+  var el=gid('placeList');
+  if(!filtered.length){el.innerHTML='<div class="empty"><div class="ei">📍</div><p>Aucun lieu dans cette catégorie</p></div>';return;}
+  el.innerHTML=filtered.map(function(p){
+    var c=CCFG[p.type]||CCFG.autre;
+    var revs=p.reviews||[];
+    var userRevs=revs.filter(function(r){return r.source!=='google';});
+    var googleRevs=revs.filter(function(r){return r.source==='google';});
+    var ordered=userRevs.concat(googleRevs);
+    var avg=avgS(revs),nc=revs.length;
+    var ps=pendingStars['p'+p.id]||0;
+    var canC=!!S.user;
+    return '<div class="place-item"><div class="place-row"><div class="place-dot" style="background:'+c.c+'22">'+c.i+'</div><div style="flex:1;min-width:0"><div class="place-name">'+p.name+'</div><div class="place-addr">📍 '+p.addr+'</div>'+(avg>0?'<div style="margin-top:3px">'+starsH(avg,nc,true)+'</div>':'')+'<span class="place-rev-btn" onclick="toggleRevs(\'p\','+p.id+')">💬 '+nc+' avis</span></div><div class="place-dist">'+p.dist+'</div></div><div class="revs-section" id="rs-p-'+p.id+'">'+ordered.map(function(r){return revH(r);}).join('')+'<div class="rev-input-wrap"><div class="lbl">Laisser un avis</div><div class="star-pick" id="sp-'+p.id+'p">'+[1,2,3,4,5].map(function(i){return '<span class="sp '+(i<=ps?'sel':'')+'" onclick="setStarP('+p.id+','+i+')">⭐</span>';}).join('')+'</div><textarea class="rev-txt" id="ri-p-'+p.id+'" rows="2" placeholder="'+(canC?'Ton avis sur ce lieu…':'Connecte-toi pour commenter')+'"'+(canC?'':' disabled')+'></textarea><div class="rev-row"><span style="font-size:11px;color:var(--text3)">'+nc+' avis</span><button class="rev-btn" onclick="postRevPlace('+p.id+')">Publier</button></div></div></div></div>';
+  }).join('');
+}
+function setStarP(id,n){pendingStars['p'+id]=n;var sp=gid('sp-'+id+'p');if(sp)sp.querySelectorAll('.sp').forEach(function(s,i){s.classList.toggle('sel',i<n);});}
+function postRevPlace(id){
+  if(!S.user){toast('❌ Connecte-toi pour laisser un avis');openModal('settingsModal');return;}
+  var inp=gid('ri-p-'+id);var txt=inp?inp.value.trim():'';
+  if(!txt){toast('❌ Écris quelque chose d\'abord');return;}
+  var stars=pendingStars['p'+id]||5;
+  var r={id:Date.now(),user:getPseudo(),pseudo:getPseudo(),stars:stars,text:txt,time:'À l\'instant',source:'boon'};
+  var p=S.places.find(function(x){return x.id===id;});if(!p)return;
+  p.reviews=p.reviews||[];p.reviews.unshift(r);
+  save('places');delete pendingStars['p'+id];renderPlaces();
+  toast('⭐ Avis publié !');
+}
+function filterPlaces(el,cat){curCat=cat;renderPlaces();}
+function submitPlace(){
+  var name=gid('placeName').value.trim(),addr=gid('placeAddr').value.trim();
+  if(!name||!addr){toast('❌ Nom et adresse requis');return;}
+  S.places.unshift({id:Date.now(),type:selPlaceType,name:name,addr:addr,dist:'Près de vous',reviews:[]});
+  save('places');closeModal('addPlaceModal');
+  ['placeName','placeAddr'].forEach(function(id){gid(id).value='';});
+  renderPlaces();toast('📍 Lieu ajouté !');completeMission('m3');
+}
+
+// ═══ MODULE 3: PRIX
+function renderPrices(){
+  var up=0,dn=0,sav=0;
+  S.prices.forEach(function(p){var h=p.history;if(h.length>=2){var l=h[h.length-1].v,pv=h[h.length-2].v;if(l>pv)up++;else if(l<pv){dn++;sav+=+(pv-l).toFixed(2);}}});
+  gid('pProd').textContent=S.prices.length;gid('pUp').textContent=up;gid('pDown').textContent=dn;
+  gid('savingsTotal').innerHTML=sav.toFixed(2)+' <span>€ économisés</span>';
+  var el=gid('priceList');
+  if(!S.prices.length){el.innerHTML='<div class="empty"><div class="ei">📦</div><p>Aucun produit suivi.<br>Ajoutez-en un !</p></div>';return;}
+  el.innerHTML=S.prices.map(function(p){
+    var h=p.history,curr=h[h.length-1].v,prev=h.length>=2?h[h.length-2].v:curr,diff=+(curr-prev).toFixed(2);
+    var tc=diff>0?'up':diff<0?'down':'same';
+    var mx=Math.max.apply(null,h.map(function(x){return x.v;}));
+    var bars=h.map(function(x){return '<div class="mini-bar" style="height:'+Math.round((x.v/mx)*100)+'%;background:'+(x===h[h.length-1]?'var(--accent)':'var(--border2)')+'"></div>';}).join('');
+    return '<div class="price-item"><div class="pi-head"><div class="pi-icon">'+(p.emoji||'📦')+'</div><div style="flex:1"><div class="pi-name">'+p.name+'</div><div class="pi-shop">'+p.shop+'</div></div><div style="text-align:right"><div class="pi-price" style="color:'+(diff>0?'var(--red)':diff<0?'var(--green)':'var(--text)')+'">'+curr.toFixed(2)+' €</div><div class="pi-trend '+tc+'">'+(diff>0?'▲':diff<0?'▼':'=')+' '+Math.abs(diff).toFixed(2)+' €</div></div></div><div class="mini-chart">'+bars+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--text3)">MAJ: '+h[h.length-1].d+'</span><span class="badge '+(diff>0?'badge-red':diff<0?'badge-green':'badge-amber')+'" style="cursor:pointer" onclick="updatePrice('+p.id+')">+ Nouveau prix</span></div></div>';
+  }).join('');
+}
+function updatePrice(id){
+  var nv=prompt('Nouveau prix (€) ?');if(!nv||isNaN(+nv))return;
+  var p=S.prices.find(function(x){return x.id===id;});if(!p)return;
+  var today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  p.history.push({v:parseFloat(nv),d:today});save('prices');renderPrices();toast('💰 Prix mis à jour !');
+}
+function submitPrice(){
+  var name=gid('prodName').value.trim(),shop=gid('prodShop').value.trim(),pv=parseFloat(gid('prodPrice').value),emoji=gid('prodEmoji').value||'📦';
+  if(!name||!shop||isNaN(pv)){toast('❌ Remplis tous les champs');return;}
+  var today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  S.prices.push({id:Date.now(),name:name,shop:shop,emoji:emoji,history:[{v:pv,d:today}]});
+  save('prices');closeModal('addPriceModal');
+  ['prodName','prodShop','prodPrice','prodEmoji'].forEach(function(id){gid(id).value='';});
+  renderPrices();toast('💰 Prix enregistré !');completeMission('m2');
+}
+
+// ═══ MODULE 4: MISSIONS
+function renderMissions(){
+  var lvl=0;while(lvl<LEVELS.length-1&&S.xp>=LEVELS[lvl].xp)lvl++;
+  var base=lvl>0?LEVELS[lvl-1].xp:0,next=LEVELS[lvl].xp;
+  var pct=Math.min(100,Math.round(((S.xp-base)/(next-base))*100));
+  gid('lvlBadge').textContent=lvl+1;gid('lvlName').textContent=LEVELS[lvl].name;
+  gid('totalXP').textContent=S.xp+' XP';gid('xpSub').textContent=S.xp+' / '+next+' XP';
+  gid('xpFill').style.width=pct+'%';
+  var days=['L','M','M','J','V','S','D'];
+  gid('streakRow').innerHTML=days.map(function(d,i){return '<div class="streak-day '+(S.streak.indexOf(i)>-1?'done':'')+'"><span>'+d+'</span><div class="sd"></div></div>';}).join('');
+  gid('mDone').textContent=S.mDone.length+'/3';
+  var fc={m1:'var(--accent)',m2:'var(--green)',m3:'var(--blue)'};
+  gid('missionList').innerHTML=MISSIONS.map(function(m){
+    var done=S.mDone.indexOf(m.id)>-1;
+    return '<div class="mission-card '+(done?'done':'')+'" onclick="completeMission(\''+m.id+'\')"><div class="mc-head"><div class="mc-icon" style="background:'+m.color+'22">'+m.icon+'</div><div class="mc-body"><div class="mc-title">'+m.title+'</div><div class="mc-desc">'+m.desc+'</div><div class="mc-prog"><div class="mc-fill" style="width:'+(done?100:0)+'%;background:'+(fc[m.id]||'var(--accent)')+'"></div></div></div></div><div class="mc-foot"><span class="mc-xp">+'+m.xp+' XP</span>'+(done?'<span class="badge badge-green">Complétée ✓</span>':'<span style="font-size:11px;color:var(--blue);font-weight:600">'+m.cta+'</span>')+'</div></div>';
+  }).join('');
+}
+function completeMission(id){
+  if(S.mDone.indexOf(id)>-1)return;
+  S.mDone.push(id);save('mDone');
+  var m=MISSIONS.find(function(x){return x.id===id;});
+  if(m){S.xp+=m.xp;save('xp');toast('🏆 +'+m.xp+' XP — Mission accomplie !');}
+  var day=new Date().getDay();
+  if(S.streak.indexOf(day)===-1){S.streak.push(day);save('streak');}
+  if(curTab==='missions')renderMissions();
+}
+
+// ═══ MODULE 5: ANTI-FLEMME
+function triggerAnti(){
+  var idx;do{idx=Math.floor(Math.random()*ANTI.length);}while(idx===lastAnti);lastAnti=idx;
+  var r=ANTI[idx];
+  S.antiCount++;S.antiSaved=+(S.antiSaved+2.5).toFixed(1);save('antiCount');save('antiSaved');
+  gid('antiCount').textContent=S.antiCount;gid('antiSaved').textContent=S.antiSaved+'€';
+  gid('antiFace').textContent=r.e;
+  gid('antiResponse').innerHTML='<div class="anti-resp"><div class="ae">'+r.e+'</div><h3>'+r.t+'</h3><p>'+r.p+'</p></div><div class="anti-tip"><strong>💡 Rappel :</strong> Chaque blocage surmonté = environ 2,50€ économisés. Continue !</div>';
+}
+function renderAnti(){gid('antiCount').textContent=S.antiCount;gid('antiSaved').textContent=S.antiSaved+'€';}
+
+// ═══ SETTINGS & AUTH
+function renderAuth(){
+  var sec=gid('authSection');
+  if(S.user){
+    var ini=(S.user.pseudo||S.user.name||'?')[0].toUpperCase();
+    sec.innerHTML='<div class="profile-card"><div class="profile-av">'+ini+'</div><div style="flex:1;min-width:0"><div class="profile-name">'+(S.user.pseudo||S.user.name)+'</div><div class="profile-email">'+S.user.email+'</div></div><span class="edit-pseudo-btn" onclick="showEditPseudo()">Modifier</span></div><div id="editPseudoWrap" style="display:none"><div class="pseudo-edit-row"><input id="pseudoInput" placeholder="Nouveau pseudo…" value="'+(S.user.pseudo||S.user.name)+'"/><button onclick="savePseudo()">OK</button></div></div><button class="auth-btn signout" onclick="signOut()">🚪 Se déconnecter</button>';
+  }else{
+    sec.innerHTML='<button class="auth-btn google" onclick="signIn(\'Google\')">G Continuer avec Google</button><button class="auth-btn apple" onclick="signIn(\'Apple\')">🍎 Continuer avec Apple</button><button class="auth-btn facebook" onclick="signIn(\'Facebook\')" style="color:#1877F2">f Continuer avec Facebook</button>';
+  }
+  updateUserBtn();
+}
+function showEditPseudo(){var w=gid('editPseudoWrap');if(w)w.style.display=w.style.display==='none'?'block':'none';}
+function savePseudo(){
+  var inp=gid('pseudoInput');var val=inp?inp.value.trim():'';
+  if(!val){toast('❌ Pseudo vide');return;}
+  S.user.pseudo=val;save('user');renderAuth();toast('✅ Pseudo mis à jour : '+val);
+}
+function signIn(provider){
+  var name=prompt('Connexion via '+provider+'\nChoisis ton pseudo :')||'';
+  if(!name.trim())return;
+  var n=name.trim();
+  S.user={name:n,pseudo:n,email:n.toLowerCase().replace(/\s+/g,'')+'@boon.app',provider:provider};
+  save('user');renderAuth();toast('✅ Bienvenue '+n+' !');
+}
+function signOut(){S.user=null;save('user');renderAuth();toast('👋 Déconnecté');}
+function updateUserBtn(){
+  var btn=gid('userBtn');if(!btn)return;
+  if(S.user){
+    var ini=(S.user.pseudo||S.user.name||'?')[0].toUpperCase();
+    btn.innerHTML='<div style="width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#000">'+ini+'</div>';
+    btn.style.border='2px solid var(--accent)';
+  }else{
+    btn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text2)" stroke-width="2" fill="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+    btn.style.border='1px solid var(--border)';
+  }
+}
+function applyTheme(t){
+  document.documentElement.dataset.theme=t;S.theme=t;save('theme');
+  var tog=gid('themeToggle');if(tog)tog.className='tog'+(t==='dark'?' on':'');
+}
+function toggleTheme(){applyTheme(S.theme==='dark'?'light':'dark');}
+
+// ═══ MODALS
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='settingsModal'){renderAuth();applyTheme(S.theme);}
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function cmbg(e,id){if(e.target.classList.contains('modal-overlay'))closeModal(id);}
+
+// ═══ NETWORK
+function updateNet(){var d=gid('netDot');if(!d)return;d.className='net-dot'+(navigator.onLine?'':' offline');d.title=navigator.onLine?'En ligne':'Hors ligne';}
+window.addEventListener('online',updateNet);window.addEventListener('offline',updateNet);
+
+// ═══ TOAST
+var toastTimer;
+function toast(msg){var el=gid('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},2800);}
+
+// ═══ SUPABASE SYNC
+function syncDeals(){
+  sbGet('deals','order=created_at.desc&limit=30').then(function(remote){
+    if(!remote||!remote.length)return;
+    var localIds=new Set(S.deals.map(function(d){return d.id;}));
+    var newDeals=remote.filter(function(d){return !localIds.has(d.id);});
+    if(newDeals.length){
+      newDeals.forEach(function(d){if(!d.reviews)d.reviews=[];});
+      S.deals=newDeals.concat(S.deals);save('deals');
+      if(curTab==='radar')renderDeals();
+    }
+  });
+}
+setTimeout(syncDeals,1000);
+setInterval(syncDeals,20000);
+
+// ═══ INIT
+applyTheme(S.theme);
+updateNet();
+updateUserBtn();
+renderDeals();
+</script>
+</body>
+</html>
