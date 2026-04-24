@@ -7,423 +7,273 @@ const ss = async (k, v) => { try { await window.storage.set(k, JSON.stringify(v)
 const AVATARS = ["😊","🧔","👩","👩‍🦱","🧑","😎","🧕","👱‍♀️","🧑‍🦲","👩‍🦰","🧑‍🎤","👨‍💼","🧑‍🍳","👩‍💻","🧑‍🎨","🤓"];
 
 const DEALS_INIT = [
-  { id:"d1", type:"promo", title:"Boulangerie Simon : viennoiseries -50% à 19h",
-    desc:"Chaque soir à partir de 19h, les invendus sont bradés. Croissants, pains au chocolat, baguettes fraîches. La boulangère fait souvent un bonus si vous prenez tout le reste du stock.",
-    location:"14 rue du Commerce, Paris 15e", author:"Mathieu R.", avatar:"🧑",
-    date:"22 avr.", up:62, down:3, vote:null, comments:[],
-    reviews:[
-      { id:"r1", source:"google", author:"Marie-Claire D.", avatar:"👩", rating:5, text:"On y va chaque mardi depuis 3 semaines. Les croissants sont encore chauds à 19h et la boulangère est vraiment gentille. Elle fait parfois un bonus si vous prenez tout le reste. À tester absolument !", date:"15 avr.", likes:34 },
-      { id:"r2", source:"google", author:"Karim B.", avatar:"🧔", rating:4, text:"Arrivez vers 18h55 car le stock part vite. Pain aux raisins quasi toujours dispo, les baguettes partent en premier. Comptez 2-4€ pour un gros sac.", date:"18 avr.", likes:18 },
-      { id:"r3", source:"google", author:"Sophie L.", avatar:"👩‍🦱", rating:5, text:"Meilleur bon plan du 15e sans hésiter. 4 viennoiseries pour 3€ hier soir. Le pain au chocolat était encore tiède, vraie surprise.", date:"20 avr.", likes:27 },
-    ]},
-  { id:"d2", type:"promo", title:"Sneakers Nike -40% en magasin",
-    desc:"Stock limité ! Les Air Max 90 à 90€ au lieu de 150€. Montrez ce message au caissier pour avoir la réduction. Disponible jusqu'à épuisement du stock.",
-    location:"Centre Commercial Italie 2, Paris 13e", author:"Sarah K.", avatar:"👩",
-    date:"21 avr.", up:41, down:12, vote:null, comments:[],
-    reviews:[
-      { id:"r4", source:"google", author:"Thomas R.", avatar:"🧑", rating:2, text:"Déçu. Fait le déplacement exprès et le rayon était vide depuis 2 jours. Le vendeur n'était même pas au courant de la promo. Dommage.", date:"21 avr.", likes:41 },
-      { id:"r5", source:"google", author:"Inès M.", avatar:"👩", rating:5, text:"J'ai eu les dernières paires en 41 le lundi matin à l'ouverture ! Foncez tôt, évitez les après-midi. Prix confirmé en caisse sans problème.", date:"17 avr.", likes:33 },
-      { id:"r6", source:"google", author:"Antoine G.", avatar:"🧔", rating:3, text:"Stock très limité mais le bon plan est réel. J'ai trouvé des Air Force 1 en 44. Faut y aller vite avant épuisement.", date:"19 avr.", likes:15 },
-    ]},
-  { id:"d3", type:"event", title:"Concert gratuit au Parc des Buttes-Chaumont",
-    desc:"Trio de jazz tous les samedis en mai de 15h à 17h. Apporter un pique-nique et de quoi s'asseoir. Entrée libre, donations bienvenues.",
-    location:"Parc des Buttes-Chaumont, Paris 19e", author:"Nina M.", avatar:"👩‍🦱",
-    date:"20 avr.", up:89, down:1, vote:null, comments:[],
-    reviews:[
-      { id:"r7", source:"google", author:"Nina R.", avatar:"👩", rating:5, text:"On était plus de 300 personnes samedi ! Le trio joue du jazz manouche, c'est excellent. Le parc est magnifique à cette heure-là. À refaire absolument !", date:"19 avr.", likes:52 },
-      { id:"r8", source:"google", author:"Julien M.", avatar:"🧑", rating:4, text:"Super ambiance, on a amené notre pique-nique. Un peu bondé mais très agréable. Le groupe joue vraiment bien, niveau professionnel.", date:"20 avr.", likes:21 },
-    ]},
-  { id:"d4", type:"service", title:"Coupe + brushing à 25€ — Salon Nova",
-    desc:"Nouveau salon ouvert depuis 2 semaines, prix de lancement. Coupe + brushing à 25€ pour tout type de cheveux. RDV obligatoire sur leur Insta @salon_nova.",
-    location:"34 rue Oberkampf, Paris 11e", author:"Marie D.", avatar:"👩‍🦱",
-    date:"22 avr.", up:31, down:1, vote:null, comments:[],
-    reviews:[
-      { id:"r9", source:"google", author:"Emma T.", avatar:"👩", rating:5, text:"Réservé par Insta hier, coupe + brushing impeccable pour 25€. Salon moderne, personnel très accueillant. Je reviens sans hésiter !", date:"21 avr.", likes:12 },
-      { id:"r10", source:"google", author:"Laura K.", avatar:"👱‍♀️", rating:5, text:"Prix de lancement incroyable. Coupe très propre, exactement ce que j'avais demandé. RDV obligatoire, ils sont déjà très sollicités.", date:"22 avr.", likes:8 },
-    ]},
+  { id:"d1", type:"promo", title:"Boulangerie Simon : viennoiseries -50% à 19h", desc:"Chaque soir à 19h, les invendus sont bradés. Croissants, pains au chocolat, baguettes. La boulangère fait souvent un bonus si vous prenez tout.", location:"14 rue du Commerce, Paris 15e", author:"Mathieu R.", avatar:"🧑", date:"22 avr.", up:62, down:3, vote:null, comments:[], reviews:[
+    { id:"r1", source:"google", author:"Marie-Claire D.", avatar:"👩", rating:5, text:"On y va chaque mardi depuis 3 semaines. Les croissants sont encore chauds à 19h. À tester absolument !", date:"15 avr.", likes:34 },
+    { id:"r2", source:"google", author:"Karim B.", avatar:"🧔", rating:4, text:"Arrivez vers 18h55 car le stock part vite. Pain aux raisins quasi toujours dispo.", date:"18 avr.", likes:18 },
+    { id:"r3", source:"google", author:"Sophie L.", avatar:"👩‍🦱", rating:5, text:"4 viennoiseries pour 3€ hier soir. Le pain au chocolat était encore tiède, vraie surprise.", date:"20 avr.", likes:27 },
+  ]},
+  { id:"d2", type:"promo", title:"Sneakers Nike -40% en magasin", desc:"Stock limité ! Air Max 90 à 90€ au lieu de 150€. Montrez ce message au caissier.", location:"Centre Commercial Italie 2, Paris 13e", author:"Sarah K.", avatar:"👩", date:"21 avr.", up:41, down:12, vote:null, comments:[], reviews:[
+    { id:"r4", source:"google", author:"Thomas R.", avatar:"🧑", rating:2, text:"Déçu. Fait le déplacement exprès et le rayon était vide depuis 2 jours.", date:"21 avr.", likes:41 },
+    { id:"r5", source:"google", author:"Inès M.", avatar:"👩", rating:5, text:"J'ai eu les dernières paires en 41 le lundi matin à l'ouverture ! Foncez tôt.", date:"17 avr.", likes:33 },
+  ]},
+  { id:"d3", type:"event", title:"Concert gratuit au Parc des Buttes-Chaumont", desc:"Trio de jazz tous les samedis en mai de 15h à 17h. Entrée libre, apporter un pique-nique.", location:"Parc des Buttes-Chaumont, Paris 19e", author:"Nina M.", avatar:"👩‍🦱", date:"20 avr.", up:89, down:1, vote:null, comments:[], reviews:[
+    { id:"r6", source:"google", author:"Nina R.", avatar:"👩", rating:5, text:"On était plus de 300 personnes samedi ! Le trio joue du jazz manouche, c'est excellent.", date:"19 avr.", likes:52 },
+    { id:"r7", source:"google", author:"Julien M.", avatar:"🧑", rating:4, text:"Super ambiance. Le groupe joue vraiment bien, niveau professionnel.", date:"20 avr.", likes:21 },
+  ]},
+  { id:"d4", type:"service", title:"Coupe + brushing à 25€ — Salon Nova", desc:"Prix de lancement. Coupe + brushing à 25€ pour tout type de cheveux. RDV sur @salon_nova.", location:"34 rue Oberkampf, Paris 11e", author:"Marie D.", avatar:"👩‍🦱", date:"22 avr.", up:31, down:1, vote:null, comments:[], reviews:[
+    { id:"r8", source:"google", author:"Emma T.", avatar:"👩", rating:5, text:"Coupe + brushing impeccable pour 25€. Salon moderne, personnel très accueillant.", date:"21 avr.", likes:12 },
+  ]},
 ];
 
 const PLACES_INIT = [
-  { id:"p1", cat:"toilettes", icon:"🚻", name:"WC Châtelet - Les Halles", address:"Forum des Halles, Paris 1er", hours:"6h-23h", offline:true,
-    reviews:[
-      { id:"rp1", source:"gmaps", author:"Paul V.", avatar:"🧑", rating:3, text:"Propres en matinée, beaucoup moins après 17h. Agent de sécurité présent en semaine. Gratuit et accessible, c'est l'essentiel.", date:"10 mars", likes:23 },
-      { id:"rp2", source:"gmaps", author:"Amina K.", avatar:"👩", rating:4, text:"Bien indiqués depuis la sortie métro. Jamais eu de problème en 2 ans. Préférez les horaires creuses.", date:"1 avr.", likes:11 },
-    ]},
-  { id:"p2", cat:"fontaine", icon:"💧", name:"Fontaine Pont d'Iéna", address:"Pont d'Iéna, Paris 7e", hours:"Permanent", offline:true,
-    reviews:[
-      { id:"rp3", source:"gmaps", author:"Claire M.", avatar:"👩‍🦱", rating:5, text:"Eau fraîche et bonne toute l'année. Vue sur la Tour Eiffel en prime. Ma fontaine préférée de Paris, j'y viens avec ma gourde tous les jours.", date:"5 avr.", likes:48 },
-      { id:"rp4", source:"gmaps", author:"Marc D.", avatar:"🧑‍🦲", rating:5, text:"Parfaite en été pour remplir sa gourde. Débit correct, eau potable confirmée. Idéale pour les touristes.", date:"20 avr.", likes:31 },
-    ]},
-  { id:"p3", cat:"wifi", icon:"📶", name:"Wi-Fi Paris — Hôtel de Ville", address:"Place de l'Hôtel de Ville, Paris 4e", hours:"Permanent", offline:true,
-    reviews:[
-      { id:"rp5", source:"gmaps", author:"Julie F.", avatar:"👩", rating:4, text:"Connexion stable en journée. Le soir ça ralentit parfois. Idéal pour travailler depuis le square.", date:"12 avr.", likes:14 },
-      { id:"rp6", source:"gmaps", author:"Romain B.", avatar:"🧔", rating:3, text:"Débit moyen mais suffisant pour les emails. Gratuit donc on ne se plaint pas.", date:"18 avr.", likes:9 },
-    ]},
-  { id:"p4", cat:"prise", icon:"🔌", name:"McDonald's Opéra", address:"27 bd des Italiens, Paris 9e", hours:"7h-0h", offline:true,
-    reviews:[
-      { id:"rp7", source:"gmaps", author:"Sarah A.", avatar:"👩", rating:4, text:"Prises accessibles au fond à gauche, 1er étage. Toujours de la place en semaine matin. Commandez un café.", date:"8 avr.", likes:29 },
-      { id:"rp8", source:"gmaps", author:"Tom K.", avatar:"🧑", rating:3, text:"Bondé le midi. Venez entre 9h et 11h, c'est la plage idéale. Personnel tolérant.", date:"17 avr.", likes:16 },
-    ]},
-  { id:"p5", cat:"parking", icon:"🅿️", name:"Parking Décathlon Villette", address:"Av. Corentin Cariou, Paris 19e", hours:"9h-22h", offline:true,
-    reviews:[
-      { id:"rp9", source:"gmaps", author:"Pierre M.", avatar:"🧑", rating:4, text:"Gratuit si vous faites un achat en magasin, sinon 1h gratuite puis payant. Toujours de la place.", date:"14 avr.", likes:8 },
-      { id:"rp10", source:"gmaps", author:"Nadia S.", avatar:"👩", rating:5, text:"Toujours de la place le week-end. Idéal pour éviter le stress du stationnement.", date:"21 avr.", likes:13 },
-    ]},
-  { id:"p6", cat:"eau", icon:"🫧", name:"Fontaine pétillante Roquette", address:"Rue de la Roquette, Paris 11e", hours:"Permanent", offline:true,
-    reviews:[
-      { id:"rp11", source:"gmaps", author:"Alex B.", avatar:"😎", rating:5, text:"La seule fontaine pétillante gratuite que je connaisse à Paris ! Eau légèrement gazeuse, très agréable. Le secret des locaux du 11e.", date:"3 avr.", likes:67 },
-      { id:"rp12", source:"gmaps", author:"Emma R.", avatar:"👩", rating:4, text:"Eau fraîche et pétillante. Ça pétille vraiment ! Accessible toute l'année.", date:"16 avr.", likes:39 },
-    ]},
+  { id:"p1", cat:"toilettes", icon:"🚻", name:"WC Châtelet - Les Halles", address:"Forum des Halles, Paris 1er", hours:"6h-23h", offline:true, reviews:[
+    { id:"rp1", source:"gmaps", author:"Paul V.", avatar:"🧑", rating:3, text:"Propres en matinée, beaucoup moins après 17h. Gratuit et accessible.", date:"10 mars", likes:23 },
+    { id:"rp2", source:"gmaps", author:"Amina K.", avatar:"👩", rating:4, text:"Bien indiqués depuis la sortie métro. Jamais eu de problème en 2 ans.", date:"1 avr.", likes:11 },
+  ]},
+  { id:"p2", cat:"fontaine", icon:"💧", name:"Fontaine Pont d'Iéna", address:"Pont d'Iéna, Paris 7e", hours:"Permanent", offline:true, reviews:[
+    { id:"rp3", source:"gmaps", author:"Claire M.", avatar:"👩‍🦱", rating:5, text:"Eau fraîche et bonne toute l'année. Vue sur la Tour Eiffel en prime.", date:"5 avr.", likes:48 },
+    { id:"rp4", source:"gmaps", author:"Marc D.", avatar:"🧑‍🦲", rating:5, text:"Parfaite en été pour remplir sa gourde. Eau potable confirmée.", date:"20 avr.", likes:31 },
+  ]},
+  { id:"p3", cat:"wifi", icon:"📶", name:"Wi-Fi Paris — Hôtel de Ville", address:"Place de l'Hôtel de Ville, Paris 4e", hours:"Permanent", offline:true, reviews:[
+    { id:"rp5", source:"gmaps", author:"Julie F.", avatar:"👩", rating:4, text:"Connexion stable en journée. Le soir ça ralentit parfois.", date:"12 avr.", likes:14 },
+  ]},
+  { id:"p4", cat:"prise", icon:"🔌", name:"McDonald's Opéra", address:"27 bd des Italiens, Paris 9e", hours:"7h-0h", offline:true, reviews:[
+    { id:"rp6", source:"gmaps", author:"Sarah A.", avatar:"👩", rating:4, text:"Prises accessibles au fond à gauche, 1er étage. Venez entre 9h et 11h.", date:"8 avr.", likes:29 },
+  ]},
+  { id:"p5", cat:"parking", icon:"🅿️", name:"Parking Décathlon Villette", address:"Av. Corentin Cariou, Paris 19e", hours:"9h-22h", offline:true, reviews:[
+    { id:"rp7", source:"gmaps", author:"Pierre M.", avatar:"🧑", rating:4, text:"Gratuit si vous faites un achat. Toujours de la place.", date:"14 avr.", likes:8 },
+  ]},
+  { id:"p6", cat:"eau", icon:"🫧", name:"Fontaine pétillante Roquette", address:"Rue de la Roquette, Paris 11e", hours:"Permanent", offline:true, reviews:[
+    { id:"rp8", source:"gmaps", author:"Alex B.", avatar:"😎", rating:5, text:"La seule fontaine pétillante gratuite que je connaisse à Paris ! Le secret des locaux du 11e.", date:"3 avr.", likes:67 },
+  ]},
 ];
 
-const PLACE_CATS = [
-  {id:"all",label:"Tout",icon:"📍"},{id:"toilettes",label:"Toilettes",icon:"🚻"},
-  {id:"fontaine",label:"Eau plate",icon:"💧"},{id:"eau",label:"Pétillante",icon:"🫧"},
-  {id:"wifi",label:"Wi-Fi",icon:"📶"},{id:"prise",label:"Prises",icon:"🔌"},
-  {id:"parking",label:"Parking",icon:"🅿️"},
-];
-const DEAL_TYPES = [
-  {id:"all",label:"Tous",icon:"📡"},{id:"promo",label:"Promo",icon:"🏷️"},
-  {id:"gratuit",label:"Gratuit",icon:"🎁"},{id:"event",label:"Événement",icon:"🎉"},
-  {id:"nourriture",label:"Nourriture",icon:"🥗"},{id:"service",label:"Service",icon:"🛠️"},
-];
-const MISSIONS_INIT = [
-  {id:"m1",label:"Signaler 1 bon plan",pts:50,icon:"📡",done:false},
-  {id:"m2",label:"Économiser 2€ aujourd'hui",pts:30,icon:"💰",done:false},
-  {id:"m3",label:"Éviter un achat inutile",pts:20,icon:"🛑",done:false},
-  {id:"m4",label:"Trouver un endroit gratuit",pts:40,icon:"🗺️",done:false},
-  {id:"m5",label:"Sauvegarder un bon plan",pts:15,icon:"🔖",done:false},
-];
-const AF_TIPS = [
-  "Vérifie le prix de ton café quotidien — 1€/jour = 365€/an 😮",
-  "Ajoute un bon plan que tu connais. 30 secondes, ça aide tout le monde.",
-  "Regarde si un parc est gratuit près de chez toi pour ta pause déjeuner.",
-  "Télécharge une appli de cashback. 5 min de setup = des économies passives.",
-  "Vérifie ton dernier relevé : tu paies peut-être un abonnement inutile.",
-  "Signale une fontaine d'eau gratuite proche de chez toi sur la carte.",
-  "Prépare ta liste de courses avant d'aller au supermarché.",
-  "Partage Spotto à un ami qui cherche des bons plans 😉",
-];
+const PLACE_CATS = [{id:"all",label:"Tout",icon:"📍"},{id:"toilettes",label:"Toilettes",icon:"🚻"},{id:"fontaine",label:"Eau plate",icon:"💧"},{id:"eau",label:"Pétillante",icon:"🫧"},{id:"wifi",label:"Wi-Fi",icon:"📶"},{id:"prise",label:"Prises",icon:"🔌"},{id:"parking",label:"Parking",icon:"🅿️"}];
+const DEAL_TYPES = [{id:"all",label:"Tous",icon:"📡"},{id:"promo",label:"Promo",icon:"🏷️"},{id:"gratuit",label:"Gratuit",icon:"🎁"},{id:"event",label:"Événement",icon:"🎉"},{id:"nourriture",label:"Nourriture",icon:"🥗"},{id:"service",label:"Service",icon:"🛠️"}];
+const MISSIONS_INIT = [{id:"m1",label:"Signaler 1 bon plan",pts:50,icon:"📡",done:false},{id:"m2",label:"Économiser 2€ aujourd'hui",pts:30,icon:"💰",done:false},{id:"m3",label:"Éviter un achat inutile",pts:20,icon:"🛑",done:false},{id:"m4",label:"Trouver un endroit gratuit",pts:40,icon:"🗺️",done:false},{id:"m5",label:"Sauvegarder un bon plan",pts:15,icon:"🔖",done:false}];
+const AF_TIPS = ["Vérifie le prix de ton café quotidien — 1€/jour = 365€/an 😮","Ajoute un bon plan que tu connais. 30 secondes, ça aide tout le monde.","Regarde si un parc est gratuit près de chez toi pour ta pause déjeuner.","Vérifie ton dernier relevé : tu paies peut-être un abonnement inutile.","Partage Spotto à un ami qui cherche des bons plans 😉","Prépare ta liste de courses avant d'aller au supermarché."];
 const MODS = {
   radar:    {color:"#2563EB",light:"#EFF6FF",label:"Radar",    icon:["M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.14 12 19.79 19.79 0 0 1 1.09 3.18 2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"]},
   carte:    {color:"#0891B2",light:"#ECFEFF",label:"Carte",    icon:["M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z","M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6"]},
   prix:     {color:"#D97706",light:"#FFFBEB",label:"Prix",     icon:["M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z","M7 7h.01"]},
   missions: {color:"#059669",light:"#ECFDF5",label:"Missions", icon:["M13 2L3 14h9l-1 8 10-12h-9l1-8z"]},
-  profil:   {color:"#6366F1",light:"#EEF2FF",label:"Profil",   icon:["M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0-4 4v2","M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"]},
+  profil:   {color:"#6366F1",light:"#EEF2FF",label:"Profil",   icon:["M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2","M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"]},
 };
 
-const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+const CSS=`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --bg:#F4F6FB;--surface:#FFF;--s2:#EEF1F8;--bd:#DDE2EE;
-  --tx:#0D1117;--tx2:#6B7280;--tx3:#9CA3AF;
-  --green:#059669;--gl:#ECFDF5;--red:#DC2626;--rl:#FEF2F2;
-  --amber:#D97706;--al:#FFFBEB;--blue:#2563EB;--bl:#EFF6FF;--bdim:#DBEAFE;
-  --r:14px;--rs:9px;--sh:0 1px 8px rgba(0,0,0,.07);--shl:0 6px 28px rgba(0,0,0,.12);
-  --top:60px;--bot:68px;--t:.2s cubic-bezier(.4,0,.2,1);
-  --mc:#2563EB;--ml:#EFF6FF;
-}
-[data-theme=dark]{
-  --bg:#0C0E1A;--surface:#131625;--s2:#1A1E30;--bd:#252A40;
-  --tx:#F0F4FF;--tx2:#8892A4;--tx3:#4B5563;
-  --gl:#0A2018;--rl:#2A0A0A;--al:#292000;--bl:#1E2840;--bdim:#1E3A5F;
-  --sh:0 1px 8px rgba(0,0,0,.4);--shl:0 6px 28px rgba(0,0,0,.6);
-}
+:root{--bg:#F4F6FB;--sf:#fff;--s2:#EEF1F8;--bd:#DDE2EE;--tx:#0D1117;--t2:#6B7280;--t3:#9CA3AF;--mc:#2563EB;--ml:#EFF6FF;--gn:#059669;--gl:#ECFDF5;--rd:#DC2626;--am:#D97706;--al:#FFFBEB;--bl:#2563EB;--bld:#DBEAFE;--r:14px;--rs:10px;--sh:0 1px 8px rgba(0,0,0,.07);--shl:0 6px 28px rgba(0,0,0,.13);--top:60px;--bot:68px;--tr:.2s cubic-bezier(.4,0,.2,1);}
+[data-theme=dark]{--bg:#0C0E1A;--sf:#131625;--s2:#1A1E30;--bd:#252A40;--tx:#F0F4FF;--t2:#8892A4;--t3:#4B5563;--gl:#0A2018;--al:#292000;--bld:#1E3A5F;--ml:#1A2540;--sh:0 1px 8px rgba(0,0,0,.4);--shl:0 6px 28px rgba(0,0,0,.6);}
 body{background:var(--bg);color:var(--tx);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
-.app{min-height:100vh;background:var(--bg);}
-
-.topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--top);background:var(--surface);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 14px;gap:8px;}
-.logo{font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;color:var(--mc);flex-shrink:0;transition:color var(--t);}
-.logo em{color:var(--tx);font-style:normal;}
-.tsearch{flex:1;display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:8px 11px;}
-.tsearch input{background:none;border:none;outline:none;font-family:'Manrope',sans-serif;font-size:13px;color:var(--tx);width:100%;}
-.tsearch input::placeholder{color:var(--tx3);}
-.ibt{width:38px;height:38px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx);transition:all var(--t);flex-shrink:0;}
-.ibt:hover{background:var(--mc);color:#fff;border-color:var(--mc);}
-.opill{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--tx2);background:var(--s2);flex-shrink:0;}
-.dot{width:7px;height:7px;border-radius:50%;}.dot.on{background:#22C55E;}.dot.off{background:#F59E0B;}
-
-.fbar{position:fixed;top:var(--top);left:0;right:0;z-index:190;background:var(--surface);border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none;padding:9px 0;}
-.fbar::-webkit-scrollbar{display:none;}
-.fbar-inner{display:flex;gap:7px;padding:0 14px;width:max-content;}
-.chip{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;background:var(--s2);color:var(--tx2);border:1px solid var(--bd);cursor:pointer;transition:all var(--t);white-space:nowrap;font-family:'Manrope',sans-serif;}
-.chip.a{background:var(--mc);color:#fff;border-color:var(--mc);}
-.chip:hover:not(.a){border-color:var(--mc);color:var(--mc);}
-
-.botbar{position:fixed;bottom:0;left:0;right:0;z-index:200;height:var(--bot);background:var(--surface);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom);}
-.nbt{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--tx3);padding:6px 12px;border-radius:10px;transition:color var(--t);font-family:'Manrope',sans-serif;}
-.nbt span{font-size:10px;font-weight:600;}
-.nbt.a{color:var(--mc);}
-
-.feed{padding:calc(var(--top)+52px+12px) 14px calc(var(--bot)+14px);max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
-.content{padding:calc(var(--top)+16px) 14px calc(var(--bot)+14px);max-width:560px;margin:0 auto;}
-
-.card{background:var(--surface);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);transition:all var(--t);overflow:hidden;}
-.card.cl{cursor:pointer;}.card.cl:hover{box-shadow:var(--shl);transform:translateY(-1px);}.card.cl:active{transform:scale(.99);}
-
-.dc-top{padding:13px 14px 0;display:flex;align-items:flex-start;gap:9px;}
-.dc-ava{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--mc),#60A5FA);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.dc-meta{flex:1;min-width:0;}
-.dc-author{font-size:12px;font-weight:700;}
-.dc-date{font-size:11px;color:var(--tx3);}
-.dc-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--bdim);color:var(--blue);white-space:nowrap;}
-.dc-body{padding:10px 14px 12px;}
-.dc-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;line-height:1.35;}
-.dc-desc{font-size:13px;color:var(--tx2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.dc-loc{display:flex;align-items:center;gap:4px;margin-top:7px;font-size:12px;color:var(--tx3);}
-.dc-foot{padding:8px 14px 12px;border-top:1px solid var(--bd);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.vb{display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--tx2);padding:5px 9px;border-radius:7px;transition:all var(--t);font-family:'Manrope',sans-serif;}
-.vb:hover{background:var(--s2);}
-.vb.up.on{color:var(--green);}.vb.dn.on{color:var(--red);}
-.sv-btn{background:none;border:none;cursor:pointer;font-size:18px;transition:transform .2s;margin-left:auto;}
-.sv-btn:hover{transform:scale(1.2);}
-.ri{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--tx2);}
-
-.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
-.stat-card{background:var(--surface);border:1px solid var(--bd);border-radius:var(--rs);padding:14px 12px;text-align:center;box-shadow:var(--sh);}
-.stat-val{font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;color:var(--mc);}
-.stat-lbl{font-size:11px;color:var(--tx2);margin-top:2px;font-weight:600;}
-
-.pc{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--surface);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:9px;box-shadow:var(--sh);cursor:pointer;transition:all var(--t);}
+.wrap{min-height:100vh;background:var(--bg);}
+.tb{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--top);background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 14px;gap:8px;}
+.logo{font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;color:var(--mc);flex-shrink:0;transition:color var(--tr);}
+.logo b{color:var(--tx);font-weight:800;}
+.sr{flex:1;display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:8px 11px;}
+.sr input{background:none;border:none;outline:none;font-family:'Manrope',sans-serif;font-size:16px;color:var(--tx);width:100%;}
+.sr input::placeholder{color:var(--t3);}
+.ib{width:38px;height:38px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx);transition:all var(--tr);flex-shrink:0;}
+.ib:hover{background:var(--mc);color:#fff;border-color:var(--mc);}
+.op{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--t2);background:var(--s2);flex-shrink:0;}
+.dt{width:7px;height:7px;border-radius:50%;}.dt.on{background:#22C55E;}.dt.off{background:#F59E0B;}
+.fb{position:fixed;top:var(--top);left:0;right:0;z-index:190;background:var(--sf);border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none;padding:9px 0;}
+.fb::-webkit-scrollbar{display:none;}
+.fbi{display:flex;gap:7px;padding:0 14px;width:max-content;}
+.ch{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;background:var(--s2);color:var(--t2);border:1px solid var(--bd);cursor:pointer;transition:all var(--tr);white-space:nowrap;font-family:'Manrope',sans-serif;}
+.ch.a{background:var(--mc);color:#fff;border-color:var(--mc);}
+.ch:hover:not(.a){border-color:var(--mc);color:var(--mc);}
+.bb{position:fixed;bottom:0;left:0;right:0;z-index:200;height:calc(var(--bot) + env(safe-area-inset-bottom,0px));background:var(--sf);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom,0px);}
+.nb{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--t3);padding:6px 12px;transition:color var(--tr);font-family:'Manrope',sans-serif;}
+.nb span{font-size:10px;font-weight:600;}.nb.a{color:var(--mc);}
+.feed{padding:calc(var(--top) + 52px + 12px) 14px calc(var(--bot) + env(safe-area-inset-bottom,0px) + 14px);max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+.pg{padding:calc(var(--top)+16px) 14px calc(var(--bot) + env(safe-area-inset-bottom,0px) + 14px);max-width:560px;margin:0 auto;}
+.cd{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;transition:all var(--tr);}
+.cd.cl{cursor:pointer;}.cd.cl:hover{box-shadow:var(--shl);transform:translateY(-1px);}.cd.cl:active{transform:scale(.99);}
+.cd-top{padding:13px 14px 0;display:flex;align-items:flex-start;gap:9px;}
+.cd-av{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--mc),#60A5FA);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.cd-mt{flex:1;min-width:0;}.cd-au{font-size:12px;font-weight:700;}.cd-dt{font-size:11px;color:var(--t3);}
+.cd-bg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--bld);color:var(--bl);white-space:nowrap;}
+.cd-bd{padding:10px 14px 12px;}
+.cd-ti{font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;line-height:1.35;}
+.cd-de{font-size:13px;color:var(--t2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.cd-lo{display:flex;align-items:center;gap:4px;margin-top:7px;font-size:12px;color:var(--t3);}
+.cd-ft{padding:8px 14px 12px;border-top:1px solid var(--bd);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.vb{display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--t2);padding:5px 9px;border-radius:7px;transition:all var(--tr);font-family:'Manrope',sans-serif;}
+.vb:hover{background:var(--s2);}.vb.up.on{color:var(--gn);}.vb.dn.on{color:var(--rd);}
+.sv{background:none;border:none;cursor:pointer;font-size:18px;margin-left:auto;transition:transform .2s;}.sv:hover{transform:scale(1.2);}
+.ri{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--t2);}
+.pc{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:9px;box-shadow:var(--sh);cursor:pointer;transition:all var(--tr);}
 .pc:hover{border-color:var(--mc);transform:translateY(-1px);}
-.pc-ico{width:40px;height:40px;border-radius:10px;background:var(--ml);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.pc-info{flex:1;min-width:0;}
-.pc-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pc-addr{font-size:12px;color:var(--tx2);margin-top:1px;}
-.pc-hours{font-size:11px;color:var(--green);font-weight:600;margin-top:2px;}
-.pc-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
-.pc-off{font-size:10px;background:var(--al);color:var(--amber);padding:2px 7px;border-radius:6px;font-weight:700;}
-
-.pi{background:var(--surface);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px;}
+.pc-ic{width:40px;height:40px;border-radius:10px;background:var(--ml);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.pc-in{flex:1;min-width:0;}.pc-nm{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.pc-ad{font-size:12px;color:var(--t2);margin-top:1px;}.pc-hr{font-size:11px;color:var(--gn);font-weight:600;margin-top:2px;}
+.pc-rg{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.pc-of{font-size:10px;background:var(--al);color:var(--am);padding:2px 7px;border-radius:6px;font-weight:700;}
+.pi{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px;}
 .pi-h{padding:13px 14px;display:flex;align-items:center;gap:10px;}
-.pi-emo{width:40px;height:40px;border-radius:10px;background:var(--al);display:flex;align-items:center;justify-content:center;font-size:20px;}
-.pi-nm{font-size:15px;font-weight:700;}
-.pi-st{font-size:12px;color:var(--tx2);}
-.pi-cur{margin-left:auto;text-align:right;}
-.pi-price{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;}
-.pi-tr{font-size:11px;font-weight:700;}
-.pi-tr.up{color:var(--red);}.pi-tr.dn{color:var(--green);}.pi-tr.eq{color:var(--tx3);}
-
-.mh{background:linear-gradient(135deg,#059669 0%,#34D399 100%);border-radius:var(--r);padding:18px 16px;margin-bottom:16px;color:#fff;}
-.mh-pts{font-family:'Outfit',sans-serif;font-size:36px;font-weight:800;line-height:1;}
-.mh-lbl{font-size:13px;opacity:.85;margin-top:3px;}
-.mh-str{font-size:12px;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px;display:inline-block;margin-top:8px;font-weight:600;}
-.mis{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--surface);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:9px;box-shadow:var(--sh);cursor:pointer;transition:all var(--t);}
-.mis:hover{border-color:var(--green);}
-.mis.done{opacity:.6;}
-.mis-ico{width:40px;height:40px;border-radius:10px;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:20px;}
-.mis-tx{flex:1;}
-.mis-nm{font-size:14px;font-weight:600;}
-.mis-rw{font-size:12px;color:var(--green);font-weight:700;margin-top:1px;}
-.mis-ck{width:26px;height:26px;border-radius:8px;border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;transition:all var(--t);}
-.mis-ck.on{background:var(--green);border-color:var(--green);color:#fff;}
-
+.pi-em{width:40px;height:40px;border-radius:10px;background:var(--al);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.pi-nm{font-size:15px;font-weight:700;}.pi-st{font-size:12px;color:var(--t2);}.pi-cr{margin-left:auto;text-align:right;}
+.pi-pr{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;}
+.pi-tr{font-size:11px;font-weight:700;}.pi-tr.up{color:var(--rd);}.pi-tr.dn{color:var(--gn);}.pi-tr.eq{color:var(--t3);}
+.mhd{background:linear-gradient(135deg,#059669,#34D399);border-radius:var(--r);padding:18px 16px;margin-bottom:16px;color:#fff;}
+.mhd-pt{font-family:'Outfit',sans-serif;font-size:36px;font-weight:800;line-height:1;}
+.mhd-lb{font-size:13px;opacity:.85;margin-top:3px;}
+.mhd-st{font-size:12px;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px;display:inline-block;margin-top:8px;font-weight:600;}
+.st-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.stc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:14px 12px;text-align:center;box-shadow:var(--sh);}
+.stc-v{font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;color:var(--mc);}
+.stc-l{font-size:11px;color:var(--t2);margin-top:2px;font-weight:600;}
+.mi{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:9px;box-shadow:var(--sh);cursor:pointer;transition:all var(--tr);}
+.mi:hover{border-color:var(--gn);}.mi.dn{opacity:.6;}
+.mi-ic{width:40px;height:40px;border-radius:10px;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.mi-tx{flex:1;}.mi-nm{font-size:14px;font-weight:600;}.mi-rw{font-size:12px;color:var(--gn);font-weight:700;margin-top:1px;}
+.mi-ck{width:26px;height:26px;border-radius:8px;border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;transition:all var(--tr);}
+.mi-ck.on{background:var(--gn);border-color:var(--gn);color:#fff;}
 .af{background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:var(--r);padding:22px 18px;text-align:center;position:relative;overflow:hidden;margin-top:16px;}
-.af::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(37,99,235,.3),transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(5,150,105,.2),transparent 50%);}
+.af::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(37,99,235,.3),transparent 60%);}
 .af *{position:relative;}
 .af-ti{font-family:'Outfit',sans-serif;font-size:19px;font-weight:800;color:#fff;margin-bottom:5px;}
 .af-su{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:16px;}
-.af-bt{background:#FACC15;color:#0F172A;border:none;border-radius:12px;padding:11px 24px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all var(--t);margin-bottom:14px;}
-.af-bt:hover{transform:scale(1.04);box-shadow:0 4px 20px rgba(250,204,21,.4);}
+.af-bt{background:#FACC15;color:#0F172A;border:none;border-radius:12px;padding:11px 24px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all var(--tr);margin-bottom:14px;display:inline-block;}
+.af-bt:hover{transform:scale(1.04);}
 .af-tp{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 14px;color:rgba(255,255,255,.9);font-size:14px;line-height:1.6;text-align:left;animation:tpin .35s ease;}
 @keyframes tpin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-
-.prc{background:var(--surface);border:1px solid var(--bd);border-radius:var(--r);padding:18px 16px;margin-bottom:14px;box-shadow:var(--sh);}
-.prc-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-.prc-ava{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--mc),#60A5FA);display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:opacity .2s;}
-.prc-ava:hover{opacity:.8;}
+.prc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:18px 16px;margin-bottom:14px;box-shadow:var(--sh);}
+.prc-tp{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.prc-av{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--mc),#60A5FA);display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:opacity .2s;}
+.prc-av:hover{opacity:.8;}
 .prc-nm{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;}
-.prc-em{font-size:12px;color:var(--tx2);margin-top:2px;}
-.pen{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:15px;padding:2px 5px;transition:color .15s;margin-left:4px;}
+.prc-em{font-size:12px;color:var(--t2);margin-top:2px;}
+.pen{background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;padding:2px 5px;transition:color .15s;margin-left:4px;}
 .pen:hover{color:var(--mc);}
-.prc-sts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.prc-st{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .ps{text-align:center;padding:10px;background:var(--s2);border-radius:9px;}
 .ps-v{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:var(--mc);}
-.ps-l{font-size:10px;color:var(--tx2);font-weight:600;margin-top:1px;}
-.ne-row{display:flex;gap:7px;align-items:center;margin-top:5px;}
-.ne-inp{flex:1;padding:8px 12px;background:var(--surface);border:1.5px solid var(--mc);border-radius:9px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:600;color:var(--tx);outline:none;}
-.sm-btn{padding:8px 13px;background:var(--mc);color:#fff;border:none;border-radius:9px;cursor:pointer;font-weight:700;font-size:12px;font-family:'Manrope',sans-serif;}
-.sm-btn.cl{background:var(--bd);color:var(--tx);}
-.avg-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin:10px 0 14px;}
-.ag{width:36px;height:36px;border-radius:10px;background:var(--s2);border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;transition:all var(--t);}
+.ps-l{font-size:10px;color:var(--t2);font-weight:600;margin-top:1px;}
+.ne{display:flex;gap:7px;align-items:center;margin-top:5px;}
+.ne-i{flex:1;padding:8px 12px;background:var(--sf);border:1.5px solid var(--mc);border-radius:9px;font-family:'Manrope',sans-serif;font-size:16px;font-weight:600;color:var(--tx);outline:none;}
+.sm{padding:8px 12px;background:var(--mc);color:#fff;border:none;border-radius:9px;cursor:pointer;font-weight:700;font-size:12px;font-family:'Manrope',sans-serif;}
+.sm.cl{background:var(--bd);color:var(--tx);}
+.avg-g{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin:10px 0 14px;}
+.ag{width:36px;height:36px;border-radius:10px;background:var(--s2);border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all var(--tr);}
 .ag.on{border-color:var(--mc);background:var(--ml);}
-
-.si{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--surface);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:9px;cursor:pointer;transition:all var(--t);}
+.si{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:9px;cursor:pointer;transition:all var(--tr);}
 .si:hover{border-color:var(--mc);}
-.si-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
-.si-lb{font-size:14px;font-weight:600;}
-.si-sb{font-size:12px;color:var(--tx2);}
-.tg{width:42px;height:23px;border-radius:12px;background:var(--bd);position:relative;cursor:pointer;transition:background var(--t);border:none;margin-left:auto;}
+.si-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.si-lb{font-size:14px;font-weight:600;}.si-sb{font-size:12px;color:var(--t2);}
+.tg{width:42px;height:23px;border-radius:12px;background:var(--bd);position:relative;cursor:pointer;transition:background var(--tr);border:none;flex-shrink:0;margin-left:auto;}
 .tg.on{background:var(--mc);}
-.tg::after{content:'';position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:10px;background:#fff;transition:transform var(--t);box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.tg::after{content:'';position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:10px;background:#fff;transition:transform var(--tr);box-shadow:0 1px 4px rgba(0,0,0,.2);}
 .tg.on::after{transform:translateX(19px);}
-
 .ov{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:flex;align-items:flex-end;animation:fo .2s ease;}
 @keyframes fo{from{opacity:0;}to{opacity:1;}}
-.mo{background:var(--surface);border-radius:22px 22px 0 0;width:100%;max-width:560px;margin:0 auto;max-height:93vh;overflow-y:auto;animation:su .3s cubic-bezier(.4,0,.2,1);scrollbar-width:thin;}
+.mo{background:var(--sf);border-radius:22px 22px 0 0;width:100%;max-width:560px;margin:0 auto;max-height:93vh;overflow-y:auto;animation:su .3s cubic-bezier(.4,0,.2,1);scrollbar-width:thin;}
 @keyframes su{from{transform:translateY(60px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.mhd{width:32px;height:4px;background:var(--bd);border-radius:4px;margin:10px auto 0;}
-.mhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bd);}
+.mhd2{width:32px;height:4px;background:var(--bd);border-radius:4px;margin:10px auto 0;}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bd);}
 .mtl{font-family:'Outfit',sans-serif;font-weight:800;font-size:17px;}
-.mbody{padding:18px;}
+.mb{padding:18px;}
 .fg{margin-bottom:13px;}
-.fl{font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.4px;}
-.fi,.fta,.fse{width:100%;padding:10px 13px;background:var(--s2);border:1.5px solid var(--bd);border-radius:var(--rs);outline:none;font-family:'Manrope',sans-serif;font-size:14px;color:var(--tx);transition:border-color var(--t);}
+.fl{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.4px;}
+.fi,.fta,.fse{width:100%;padding:10px 13px;background:var(--s2);border:1.5px solid var(--bd);border-radius:var(--rs);outline:none;font-family:'Manrope',sans-serif;font-size:16px;color:var(--tx);transition:border-color var(--tr);}
 .fi:focus,.fta:focus,.fse:focus{border-color:var(--mc);}
-.fta{resize:vertical;min-height:72px;}
-.fse option{background:var(--surface);color:var(--tx);}
-.btn-p{width:100%;padding:13px;border:none;border-radius:var(--rs);cursor:pointer;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;background:var(--mc);color:#fff;transition:all var(--t);}
-.btn-p:hover{opacity:.9;transform:translateY(-1px);}.btn-p:active{transform:scale(.98);}
-.btn-p:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-
-.fab{position:fixed;bottom:calc(var(--bot)+14px);right:18px;width:54px;height:54px;border-radius:16px;border:none;background:var(--mc);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:all var(--t);z-index:180;}
+.fta{resize:vertical;min-height:70px;font-size:16px;}.fse option{background:var(--sf);color:var(--tx);}
+.bp{width:100%;padding:13px;border:none;border-radius:var(--rs);cursor:pointer;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;background:var(--mc);color:#fff;transition:all var(--tr);}
+.bp:hover{opacity:.9;transform:translateY(-1px);}.bp:active{transform:scale(.98);}.bp:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.fab{position:fixed;bottom:calc(var(--bot) + env(safe-area-inset-bottom,0px) + 14px);right:18px;width:54px;height:54px;border-radius:16px;border:none;background:var(--mc);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:all var(--tr);z-index:180;}
 .fab:hover{transform:scale(1.08) rotate(90deg);}.fab:active{transform:scale(.96);}
-
 .stars{display:flex;gap:1px;align-items:center;}
-.star{font-size:14px;color:#F59E0B;line-height:1;user-select:none;}
-.star.mt{color:var(--bd);}
-.star.lg{font-size:28px;cursor:pointer;transition:transform .15s;}
-.star.lg:hover{transform:scale(1.15);}
-
-.rev{display:flex;gap:9px;padding:11px;border-radius:11px;margin-bottom:8px;background:var(--s2);border:1px solid var(--bd);}
-.rev.app{border-color:#6EE7B7;background:var(--gl);}
-[data-theme=dark] .rev.app{background:#061910;}
-.rev-ava{width:32px;height:32px;border-radius:9px;background:var(--bdim);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-.rev-body{flex:1;min-width:0;}
-.rev-top{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap;}
-.rev-au{font-size:12px;font-weight:700;}
-.rev-dt{font-size:11px;color:var(--tx3);margin-left:auto;}
-.rev-bg{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
-.rev-bg.go{background:var(--bdim);color:var(--blue);}
-.rev-bg.ap{background:#DCFCE7;color:var(--green);}
-[data-theme=dark] .rev-bg.go{background:#1E3A5F;color:#93C5FD;}
-[data-theme=dark] .rev-bg.ap{background:#14532D;color:#6EE7B7;}
-.rev-tx{font-size:13px;line-height:1.5;}
-.rev-lk{font-size:11px;color:var(--tx3);background:none;border:none;cursor:pointer;margin-top:4px;font-family:'Manrope',sans-serif;transition:color .15s;}
-.rev-lk:hover{color:var(--mc);}
-
+.star{font-size:14px;color:#F59E0B;line-height:1;user-select:none;}.star.mt{color:var(--bd);}.star.lg{font-size:28px;cursor:pointer;transition:transform .15s;}.star.lg:hover{transform:scale(1.15);}
+.rv{display:flex;gap:9px;padding:11px;border-radius:11px;margin-bottom:8px;background:var(--s2);border:1px solid var(--bd);}
+.rv.app{border-color:#6EE7B7;background:var(--gl);}
+[data-theme=dark] .rv.app{background:#061910;}
+.rv-av{width:32px;height:32px;border-radius:9px;background:var(--bld);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.rv-bd{flex:1;min-width:0;}
+.rv-tp{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap;}
+.rv-au{font-size:12px;font-weight:700;}.rv-dt{font-size:11px;color:var(--t3);margin-left:auto;}
+.rv-bg{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.rv-bg.go{background:var(--bld);color:var(--bl);}.rv-bg.ap{background:#DCFCE7;color:var(--gn);}
+[data-theme=dark] .rv-bg.go{background:#1E3A5F;color:#93C5FD;}[data-theme=dark] .rv-bg.ap{background:#14532D;color:#6EE7B7;}
+.rv-tx{font-size:13px;line-height:1.5;}
+.rv-lk{font-size:11px;color:var(--t3);background:none;border:none;cursor:pointer;margin-top:4px;font-family:'Manrope',sans-serif;transition:color .15s;}.rv-lk:hover{color:var(--mc);}
 .rb{display:flex;align-items:flex-start;gap:14px;background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
-.rb-big{font-family:'Outfit',sans-serif;font-size:40px;font-weight:800;line-height:1;}
-.rb-sub{font-size:12px;color:var(--tx2);margin-top:3px;}
+.rb-bg{font-family:'Outfit',sans-serif;font-size:40px;font-weight:800;line-height:1;}
+.rb-sb{font-size:12px;color:var(--t2);margin-top:3px;}
 .rf{background:var(--s2);border:1.5px dashed var(--bd);border-radius:12px;padding:14px;margin-top:10px;}
-
 .cmt{display:flex;gap:9px;padding:11px;border-radius:11px;margin-bottom:8px;background:var(--s2);}
-.cmt-ava{width:30px;height:30px;border-radius:8px;background:var(--bdim);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-.cmt-au{font-size:12px;font-weight:700;}
-.cmt-tx{font-size:13px;margin-top:2px;line-height:1.5;}
-.cmt-row{display:flex;gap:8px;align-items:center;margin-top:12px;}
-.cmt-inp{flex:1;padding:9px 12px;background:var(--s2);border:1.5px solid var(--bd);border-radius:10px;outline:none;font-family:'Manrope',sans-serif;font-size:13px;color:var(--tx);transition:border-color var(--t);}
-.cmt-inp:focus{border-color:var(--mc);}
+.cmt-av{width:30px;height:30px;border-radius:8px;background:var(--bld);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.cmt-au{font-size:12px;font-weight:700;}.cmt-tx{font-size:13px;margin-top:2px;line-height:1.5;}
+.cmt-rw{display:flex;gap:8px;align-items:center;margin-top:12px;}
+.cmt-in{flex:1;padding:9px 12px;background:var(--s2);border:1.5px solid var(--bd);border-radius:10px;outline:none;font-family:'Manrope',sans-serif;font-size:16px;color:var(--tx);transition:border-color var(--tr);}
+.cmt-in:focus{border-color:var(--mc);}
 .csend{width:38px;height:38px;border-radius:10px;background:var(--mc);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-
-.sec-ttl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--tx3);margin:18px 0 9px;}
+.sec{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin:18px 0 9px;}
 .dvd{height:1px;background:var(--bd);margin:16px 0;}
-.sh2{font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;margin-bottom:4px;}
-.sh2-sub{font-size:13px;color:var(--tx2);}
-
-.empty{text-align:center;padding:50px 20px;color:var(--tx2);}
-.empty-e{font-size:44px;margin-bottom:10px;}
+.empty{text-align:center;padding:40px 20px;color:var(--t2);}
+.empty-e{font-size:40px;margin-bottom:10px;}
 .empty-t{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;color:var(--tx);margin-bottom:5px;}
-.toast{position:fixed;bottom:calc(var(--bot)+74px);left:50%;transform:translateX(-50%);background:var(--tx);color:var(--surface);padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;animation:tin .3s ease,tout .3s 2.1s forwards;}
+.toast{position:fixed;bottom:calc(var(--bot) + env(safe-area-inset-bottom,0px) + 74px);left:50%;transform:translateX(-50%);background:var(--tx);color:var(--sf);padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;animation:tin .3s ease,tout .3s 2.1s forwards;}
 @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 @keyframes tout{to{opacity:0;transform:translateX(-50%) translateY(8px);}}
-::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}
-`;
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}`;
 
-const Ico = ({d,s=18}) => (
-  <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    {Array.isArray(d)?d.map((p,i)=><path key={i} d={p}/>):<path d={d}/>}
-  </svg>
-);
-const ic = {
-  x:"M18 6L6 18M6 6l12 12",
-  plus:"M12 5v14M5 12h14",
-  arrow:"M19 12H5M12 5l-7 7 7 7",
-  tu:["M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z","M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"],
-  td:["M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z","M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"],
-  cm:"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
-  lo:"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9",
-  ck:"M20 6L9 17l-5-5",
-  se:"M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z",
-  sn:"M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z",
-  ge:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z",
-};
+const Ico=({d,s=18})=>(<svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{Array.isArray(d)?d.map((p,i)=><path key={i} d={p}/>):<path d={d}/>}</svg>);
+const X="M18 6L6 18M6 6l12 12",PLUS="M12 5v14M5 12h14",BACK="M19 12H5M12 5l-7 7 7 7";
+const TU=["M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z","M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"];
+const TD=["M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z","M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"];
+const CM="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z";
+const SE="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z";
+const SN="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z";
+const CK="M20 6L9 17l-5-5";
+const LO="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9";
+const GE="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z";
 
-const avg = (revs=[]) => revs.length ? revs.reduce((s,r)=>s+r.rating,0)/revs.length : 0;
-const Stars = ({rating,lg=false,interactive=false,onRate}) => (
-  <div className="stars">
-    {[1,2,3,4,5].map(n=>(
-      <span key={n} className={`star${n<=Math.round(rating)?"":" mt"}${lg?" lg":""}`}
-        onClick={interactive?()=>onRate?.(n):undefined}>★</span>
-    ))}
-  </div>
-);
+const avgR=(r=[])=>r.length?r.reduce((s,x)=>s+x.rating,0)/r.length:0;
+const Stars=({rating,lg=false,interactive=false,onRate})=>(<div className="stars">{[1,2,3,4,5].map(n=>(<span key={n} className={`star${n<=Math.round(rating)?"":" mt"}${lg?" lg":""}`} onClick={interactive?()=>onRate(n):undefined}>★</span>))}</div>);
 
-export default function App() {
-  const [tab,setTab] = useState("radar");
-  const [theme,setTheme] = useState("light");
-  const [online,setOnline] = useState(true);
-  const [deals,setDeals] = useState(DEALS_INIT);
-  const [places,setPlaces] = useState(PLACES_INIT);
-  const [prices,setPrices] = useState([]);
-  const [missions,setMissions] = useState(MISSIONS_INIT);
-  const [points,setPoints] = useState(0);
-  const [streak,setStreak] = useState(3);
-  const [user,setUser] = useState(null);
-  const [search,setSearch] = useState("");
-  const [dFlt,setDFlt] = useState("all");
-  const [pFlt,setPFlt] = useState("all");
-  const [saved,setSaved] = useState([]);
-  const [toast,setToast] = useState(null);
-  const [modal,setModal] = useState(null);
-  const [sel,setSel] = useState(null);
-  const [selType,setSelType] = useState("deal");
-  const [newCmt,setNewCmt] = useState("");
-  const [newRev,setNewRev] = useState({rating:0,text:""});
-  const [afTip,setAfTip] = useState(null);
-  const [editName,setEditName] = useState(false);
-  const [nameVal,setNameVal] = useState("");
-  const [editAva,setEditAva] = useState(false);
-  const [dForm,setDForm] = useState({type:"promo",title:"",desc:"",location:""});
-  const [pForm,setPForm] = useState({cat:"toilettes",name:"",address:"",hours:""});
-  const [prForm,setPrForm] = useState({name:"",store:"",price:"",emoji:"🛒"});
-  const [prSel,setPrSel] = useState(null);
+export default function App(){
+  const [tab,setTab]=useState("radar");
+  const [theme,setTheme]=useState("light");
+  const [online,setOnline]=useState(true);
+  const [deals,setDeals]=useState(DEALS_INIT);
+  const [places,setPlaces]=useState(PLACES_INIT);
+  const [prices,setPrices]=useState([]);
+  const [missions,setMissions]=useState(MISSIONS_INIT);
+  const [pts,setPts]=useState(0);
+  const [streak]=useState(3);
+  const [user,setUser]=useState(null);
+  const [q,setQ]=useState("");
+  const [dFlt,setDFlt]=useState("all");
+  const [pFlt,setPFlt]=useState("all");
+  const [saved,setSaved]=useState([]);
+  const [toast,setToast]=useState(null);
+  const [modal,setModal]=useState(null);
+  const [sel,setSel]=useState(null);
+  const [sType,setSType]=useState("deal");
+  const [newCmt,setNewCmt]=useState("");
+  const [newRev,setNewRev]=useState({rating:0,text:""});
+  const [afTip,setAfTip]=useState(null);
+  const [editNm,setEditNm]=useState(false);
+  const [nmVal,setNmVal]=useState("");
+  const [editAv,setEditAv]=useState(false);
+  const [dF,setDF]=useState({type:"promo",title:"",desc:"",location:""});
+  const [pF,setPF]=useState({cat:"toilettes",name:"",address:"",hours:""});
+  const [prF,setPrF]=useState({name:"",store:"",price:"",emoji:"🛒"});
+  const [prSel,setPrSel]=useState(null);
 
-  // ── Load all state from storage ──
-  useEffect(()=>{
-    (async()=>{
-      const t=await sg("sp_theme"); if(t) setTheme(t);
-      const u=await sg("sp_user"); if(u) setUser(u);
-      const sv=await sg("sp_saved"); if(sv) setSaved(sv);
-      const pts=await sg("sp_pts"); if(pts!==null) setPoints(Number(pts));
-      const st=await sg("sp_str"); if(st!==null) setStreak(Number(st));
-      const ms=await sg("sp_miss"); if(ms) setMissions(ms);
-      const pr=await sg("sp_prices"); if(pr) setPrices(pr);
-      // Deals: merge base + user changes
-      const dmeta=await sg("sp_dmeta")||{};
-      const xd=await sg("sp_xd")||[];
-      setDeals([
-        ...DEALS_INIT.map(d=>{
-          const m=dmeta[d.id]; if(!m) return d;
-          return {...d,up:m.up??d.up,down:m.down??d.down,vote:m.vote??d.vote,
-            comments:m.comments||d.comments,
-            reviews:[...(m.urevs||[]),...d.reviews]};
-        }),
-        ...xd,
-      ]);
-      // Places: merge base + user reviews
-      const pmeta=await sg("sp_pmeta")||{};
-      const xp=await sg("sp_xp")||[];
-      setPlaces([
-        ...PLACES_INIT.map(p=>{
-          const m=pmeta[p.id]; if(!m) return p;
-          return {...p,reviews:[...(m.urevs||[]),...p.reviews]};
-        }),
-        ...xp,
-      ]);
-    })();
-  },[]);
+  useEffect(()=>{(async()=>{
+    const t=await sg("sp_theme");if(t)setTheme(t);
+    const u=await sg("sp_user");if(u)setUser(u);
+    const sv=await sg("sp_saved");if(sv)setSaved(sv);
+    const p=await sg("sp_pts");if(p!==null)setPts(Number(p));
+    const ms=await sg("sp_miss");if(ms)setMissions(ms);
+    const pr=await sg("sp_prices");if(pr)setPrices(pr);
+    const dm=await sg("sp_dm")||{};
+    const xd=await sg("sp_xd")||[];
+    setDeals([...DEALS_INIT.map(d=>{const m=dm[d.id];if(!m)return d;return{...d,up:m.up??d.up,down:m.down??d.down,vote:m.vote??d.vote,comments:m.comments||d.comments,reviews:[...(m.ur||[]),...d.reviews]};}), ...xd]);
+    const pm=await sg("sp_pm")||{};
+    const xp=await sg("sp_xp")||[];
+    setPlaces([...PLACES_INIT.map(p2=>{const m=pm[p2.id];if(!m)return p2;return{...p2,reviews:[...(m.ur||[]),...p2.reviews]};}), ...xp]);
+  })();},[]);
 
   useEffect(()=>{
     document.documentElement.setAttribute("data-theme",theme);
@@ -435,748 +285,302 @@ export default function App() {
   const msg=(m)=>{setToast(m);setTimeout(()=>setToast(null),2500);};
   const close=()=>{setModal(null);setSel(null);setNewCmt("");setNewRev({rating:0,text:""});};
 
-  // ── Persist deals ──
-  const persistDeals = async(ds) => {
-    const dmeta={},xd=[];
-    for(const d of ds){
-      if(DEALS_INIT.find(x=>x.id===d.id)){
-        dmeta[d.id]={up:d.up,down:d.down,vote:d.vote,comments:d.comments,urevs:d.reviews.filter(r=>r.source==="app")};
-      } else { xd.push(d); }
-    }
-    await ss("sp_dmeta",dmeta); await ss("sp_xd",xd);
+  const saveD=async(ds)=>{const dm={},xd=[];for(const d of ds){if(DEALS_INIT.find(x=>x.id===d.id)){dm[d.id]={up:d.up,down:d.down,vote:d.vote,comments:d.comments,ur:d.reviews.filter(r=>r.source==="app")};}else{xd.push(d);}}await ss("sp_dm",dm);await ss("sp_xd",xd);};
+  const saveP=async(ps)=>{const pm={},xp=[];for(const p of ps){if(PLACES_INIT.find(x=>x.id===p.id)){pm[p.id]={ur:p.reviews.filter(r=>r.source==="app")};}else{xp.push(p);}}await ss("sp_pm",pm);await ss("sp_xp",xp);};
+
+  // FIX: upD/upP appelaient fn(sel) séparément, causant une double exécution
+  // Les votes/likes étaient incrémentés 2x. Maintenant on cache le résultat.
+  const upD=(id,fn)=>{
+    let updated=null;
+    const n=deals.map(d=>{if(d.id===id){updated=fn(d);return updated;}return d;});
+    setDeals(n);
+    if(sel?.id===id&&sType==="deal"&&updated)setSel(updated);
+    return n;
+  };
+  const upP=(id,fn)=>{
+    let updated=null;
+    const n=places.map(p=>{if(p.id===id){updated=fn(p);return updated;}return p;});
+    setPlaces(n);
+    if(sel?.id===id&&sType==="place"&&updated)setSel(updated);
+    return n;
   };
 
-  // ── Persist places ──
-  const persistPlaces = async(ps) => {
-    const pmeta={},xp=[];
-    for(const p of ps){
-      if(PLACES_INIT.find(x=>x.id===p.id)){
-        pmeta[p.id]={urevs:p.reviews.filter(r=>r.source==="app")};
-      } else { xp.push(p); }
-    }
-    await ss("sp_pmeta",pmeta); await ss("sp_xp",xp);
-  };
-
-  // ── Update deal helper ──
-  const updD=(id,fn)=>{
-    const next=deals.map(d=>d.id===id?fn(d):d);
-    setDeals(next);
-    if(sel?.id===id&&selType==="deal") setSel(fn(sel));
-    return next;
-  };
-
-  // ── Update place helper ──
-  const updP=(id,fn)=>{
-    const next=places.map(p=>p.id===id?fn(p):p);
-    setPlaces(next);
-    if(sel?.id===id&&selType==="place") setSel(fn(sel));
-    return next;
-  };
-
-  // ── Vote ──
   const vote=async(id,dir,e)=>{
     e?.stopPropagation();
     if(!user){msg("Connecte-toi pour voter");return;}
-    const next=updD(id,d=>{
+    const n=upD(id,d=>{
       const isUp=d.vote==="up",isDn=d.vote==="down";
-      let up=d.up,dn=d.down,vote=d.vote;
-      if(dir==="up"){if(isUp){up--;vote=null;}else{if(isDn)dn--;up++;vote="up";}}
-      else{if(isDn){dn--;vote=null;}else{if(isUp)up--;dn++;vote="down";}}
-      return{...d,up,down:dn,vote};
+      let up=d.up,down=d.down,vote=d.vote;
+      if(dir==="up"){
+        if(isUp){up--;vote=null;}
+        else{if(isDn)down--;up++;vote="up";}
+      }else{
+        if(isDn){down--;vote=null;}
+        else{if(isUp)up--;down++;vote="down";}
+      }
+      return{...d,up,down,vote};
     });
-    await persistDeals(next);
+    await saveD(n);
   };
 
-  // ── Save/unsave ──
   const toggleSave=async(id,e)=>{
     e?.stopPropagation();
-    const next=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
-    setSaved(next); await ss("sp_saved",next);
-    msg(next.includes(id)?"Sauvegardé 🔖":"Retiré des sauvegardes");
+    const n=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
+    setSaved(n);
+    await ss("sp_saved",n);
+    msg(n.includes(id)?"Sauvegardé 🔖":"Retiré des sauvegardes");
   };
 
-  // ── Add deal ──
   const addDeal=async()=>{
     if(!user){msg("Connecte-toi d'abord");return;}
-    if(!dForm.title.trim()||!dForm.location.trim()){msg("Titre et lieu requis");return;}
-    const d={id:"d"+Date.now(),...dForm,author:user.name,avatar:user.avatar,
-      date:new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}),
-      up:0,down:0,vote:null,comments:[],reviews:[]};
-    const next=[d,...deals];
-    setDeals(next); await persistDeals(next);
-    setDForm({type:"promo",title:"",desc:"",location:""}); setModal(null);
-    msg("Bon plan publié ! 🎉");
+    if(!dF.title.trim()||!dF.location.trim()){msg("Titre et lieu requis");return;}
+    const d={id:"d"+Date.now(),...dF,author:user.name,avatar:user.avatar,date:new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}),up:0,down:0,vote:null,comments:[],reviews:[]};
+    const n=[d,...deals];setDeals(n);await saveD(n);
+    setDF({type:"promo",title:"",desc:"",location:""});setModal(null);msg("Bon plan publié ! 🎉");
   };
 
-  // ── Add place ──
   const addPlace=async()=>{
     if(!user){msg("Connecte-toi d'abord");return;}
-    if(!pForm.name.trim()||!pForm.address.trim()){msg("Nom et adresse requis");return;}
-    const cat=PLACE_CATS.find(c=>c.id===pForm.cat);
-    const p={id:"p"+Date.now(),...pForm,icon:cat?.icon||"📍",offline:true,reviews:[]};
-    const next=[...places,p];
-    setPlaces(next); await persistPlaces(next);
-    setPForm({cat:"toilettes",name:"",address:"",hours:""}); setModal(null);
-    msg("Lieu ajouté ✓");
+    if(!pF.name.trim()||!pF.address.trim()){msg("Nom et adresse requis");return;}
+    const cat=PLACE_CATS.find(c=>c.id===pF.cat);
+    const p={id:"p"+Date.now(),...pF,icon:cat?.icon||"📍",offline:true,reviews:[]};
+    const n=[...places,p];setPlaces(n);await saveP(n);
+    setPF({cat:"toilettes",name:"",address:"",hours:""});setModal(null);msg("Lieu ajouté ✓");
   };
 
-  // ── Add price ──
   const addPrice=async()=>{
-    const val=parseFloat(prForm.price.replace(",","."));
+    const val=parseFloat(prF.price.replace(",","."));
     if(isNaN(val)){msg("Prix invalide");return;}
     const date=new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short"});
     if(prSel){
-      const next=prices.map(p=>p.id===prSel.id?{...p,history:[...p.history,{date,val}],current:val}:p);
-      setPrices(next); await ss("sp_prices",next);
-      setPrSel(null); setModal(null); msg("Prix mis à jour ✓");
-    } else {
-      if(!prForm.name.trim()){msg("Nom requis");return;}
-      const p={id:"pr"+Date.now(),name:prForm.name,store:prForm.store,emoji:prForm.emoji,current:val,history:[{date,val}]};
-      const next=[p,...prices];
-      setPrices(next); await ss("sp_prices",next);
-      setPrForm({name:"",store:"",price:"",emoji:"🛒"}); setModal(null); msg("Produit ajouté ✓");
+      const n=prices.map(p=>p.id===prSel.id?{...p,history:[...p.history,{date,val}],current:val}:p);
+      setPrices(n);await ss("sp_prices",n);setPrSel(null);setModal(null);msg("Prix mis à jour ✓");
+    }else{
+      if(!prF.name.trim()){msg("Nom requis");return;}
+      const p={id:"pr"+Date.now(),name:prF.name,store:prF.store,emoji:prF.emoji,current:val,history:[{date,val}]};
+      const n=[p,...prices];setPrices(n);await ss("sp_prices",n);
+      setPrF({name:"",store:"",price:"",emoji:"🛒"});setModal(null);msg("Produit ajouté ✓");
     }
   };
 
-  // ── Add comment ──
-  const addComment=async()=>{
+  const addCmt=async()=>{
     if(!user){msg("Connecte-toi pour commenter");return;}
-    if(!newCmt.trim()||!sel) return;
+    if(!newCmt.trim()||!sel)return;
     const c={id:"c"+Date.now(),author:user.name,avatar:user.avatar,text:newCmt.trim(),likes:0};
-    const next=updD(sel.id,d=>({...d,comments:[...(d.comments||[]),c]}));
-    await persistDeals(next); setNewCmt(""); msg("Commentaire ajouté ✓");
+    const selId=sel.id;
+    const n=upD(selId,d=>({...d,comments:[...(d.comments||[]),c]}));
+    await saveD(n);setNewCmt("");msg("Commentaire ajouté ✓");
   };
 
-  // ── Add review ──
-  const addReview=async()=>{
+  const addRev=async()=>{
     if(!user){msg("Connecte-toi pour noter");return;}
     if(newRev.rating===0){msg("Choisis une note ⭐");return;}
     if(!newRev.text.trim()){msg("Écris ton avis");return;}
-    if(!sel) return;
-    const r={id:"rev"+Date.now(),source:"app",author:user.name,avatar:user.avatar,
-      rating:newRev.rating,text:newRev.text.trim(),
-      date:new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}),likes:0};
-    if(selType==="deal"){
-      const next=updD(sel.id,d=>({...d,reviews:[r,...d.reviews]}));
-      await persistDeals(next);
-    } else {
-      const next=updP(sel.id,p=>({...p,reviews:[r,...p.reviews]}));
-      await persistPlaces(next);
-    }
-    setNewRev({rating:0,text:""}); msg("Avis publié ! Merci 🙏");
+    if(!sel)return;
+    const r={id:"rev"+Date.now(),source:"app",author:user.name,avatar:user.avatar,rating:newRev.rating,text:newRev.text.trim(),date:new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}),likes:0};
+    if(sType==="deal"){const n=upD(sel.id,d=>({...d,reviews:[r,...d.reviews]}));await saveD(n);}
+    else{const n=upP(sel.id,p=>({...p,reviews:[r,...p.reviews]}));await saveP(n);}
+    setNewRev({rating:0,text:""});msg("Avis publié ! Merci 🙏");
   };
 
-  // ── Like review ──
   const likeRev=async(revId)=>{
-    if(selType==="deal"){
-      const next=updD(sel.id,d=>({...d,reviews:d.reviews.map(r=>r.id===revId?{...r,likes:r.likes+1}:r)}));
-      await persistDeals(next);
-    } else {
-      const next=updP(sel.id,p=>({...p,reviews:p.reviews.map(r=>r.id===revId?{...r,likes:r.likes+1}:r)}));
-      await persistPlaces(next);
-    }
+    if(!sel)return;
+    if(sType==="deal"){const n=upD(sel.id,d=>({...d,reviews:d.reviews.map(r=>r.id===revId?{...r,likes:r.likes+1}:r)}));await saveD(n);}
+    else{const n=upP(sel.id,p=>({...p,reviews:p.reviews.map(r=>r.id===revId?{...r,likes:r.likes+1}:r)}));await saveP(n);}
   };
 
-  // ── Mission ──
   const doMission=async(id)=>{
     if(!user){msg("Connecte-toi d'abord");return;}
-    const m=missions.find(x=>x.id===id&&!x.done); if(!m) return;
-    const next=missions.map(x=>x.id===id?{...x,done:true}:x);
-    const np=points+m.pts;
-    setMissions(next); setPoints(np);
-    await ss("sp_miss",next); await ss("sp_pts",np);
-    msg(`+${m.pts} pts ! 🏆`);
+    const m=missions.find(x=>x.id===id&&!x.done);if(!m)return;
+    const n=missions.map(x=>x.id===id?{...x,done:true}:x);
+    const np=pts+m.pts;setMissions(n);setPts(np);
+    await ss("sp_miss",n);await ss("sp_pts",np);msg(`+${m.pts} pts ! 🏆`);
   };
 
-  // ── Auth ──
-  const login=async(provider)=>{
-    const map={Google:"😊",Apple:"🍎",Facebook:"💙"};
-    const u={name:`Utilisateur ${provider}`,avatar:map[provider],email:`user@${provider.toLowerCase()}.com`,provider};
-    setUser(u); await ss("sp_user",u);
-    setModal(null); msg(`Connecté via ${provider} ✓`);
+  const login=async(prov)=>{
+    const map={Google:"😊",Apple:"⬛",Facebook:"💙"};
+    const u={name:`Utilisateur ${prov}`,avatar:map[prov]||"😊",email:`user@${prov.toLowerCase()}.com`,provider:prov};
+    setUser(u);await ss("sp_user",u);setModal(null);msg(`Connecté via ${prov} ✓`);
   };
+
   const logout=async()=>{setUser(null);await ss("sp_user",null);msg("Déconnecté");};
-  const toggleTheme=async()=>{const n=theme==="light"?"dark":"light";setTheme(n);await ss("sp_theme",n);};
-  const saveName=async()=>{
-    if(!nameVal.trim()) return;
-    const u={...user,name:nameVal.trim()};
-    setUser(u); await ss("sp_user",u);
-    setEditName(false); msg("Pseudo mis à jour ✓");
-  };
-  const saveAva=async(emoji)=>{
-    const u={...user,avatar:emoji};
-    setUser(u); await ss("sp_user",u);
-    setEditAva(false); msg("Avatar mis à jour ✓");
+
+  // FIX: toggleTheme ne prend plus d'event, évite double-déclenchement
+  const toggleTheme=async()=>{
+    const n=theme==="light"?"dark":"light";
+    setTheme(n);await ss("sp_theme",n);
   };
 
-  // ── Derived ──
+  const saveNm=async()=>{
+    if(!nmVal.trim())return;
+    const u={...user,name:nmVal.trim()};setUser(u);await ss("sp_user",u);setEditNm(false);msg("Pseudo mis à jour ✓");
+  };
+
+  const saveAv=async(emoji)=>{
+    const u={...user,avatar:emoji};setUser(u);await ss("sp_user",u);setEditAv(false);msg("Avatar mis à jour ✓");
+  };
+
   const fDeals=deals.filter(d=>{
-    const q=search.toLowerCase();
-    const ms=!q||d.title.toLowerCase().includes(q)||(d.desc||"").toLowerCase().includes(q)||(d.location||"").toLowerCase().includes(q);
-    return ms&&(dFlt==="all"||d.type===dFlt);
+    const s=q.toLowerCase();
+    return(!s||d.title.toLowerCase().includes(s)||(d.desc||"").toLowerCase().includes(s)||(d.location||"").toLowerCase().includes(s))&&(dFlt==="all"||d.type===dFlt);
   });
   const fPlaces=places.filter(p=>{
-    const mc=pFlt==="all"||p.cat===pFlt;
-    const q=search.toLowerCase();
-    return mc&&(!q||p.name.toLowerCase().includes(q)||p.address.toLowerCase().includes(q));
+    const s=q.toLowerCase();
+    return(pFlt==="all"||p.cat===pFlt)&&(!s||p.name.toLowerCase().includes(s)||p.address.toLowerCase().includes(s));
   });
   const trend=(h)=>h.length<2?"eq":h.at(-1).val>h.at(-2).val?"up":"dn";
 
-  // ── Review block component ──
-  const RevSection=({target})=>{
-    const a=avg(target.reviews);
-    const appRevs=target.reviews.filter(r=>r.source==="app");
-    const extRevs=target.reviews.filter(r=>r.source!=="app");
-    return(
-      <div>
-        {target.reviews.length>0&&(
-          <div className="rb">
-            <div style={{textAlign:"center"}}>
-              <div className="rb-big">{a.toFixed(1)}</div>
-              <Stars rating={a}/>
-              <div className="rb-sub">{target.reviews.length} avis</div>
-            </div>
-            <div style={{flex:1}}>
-              {[5,4,3,2,1].map(n=>{
-                const c=target.reviews.filter(r=>Math.round(r.rating)===n).length;
-                const p=target.reviews.length?c/target.reviews.length*100:0;
-                return(
-                  <div key={n} style={{display:"flex",alignItems:"center",gap:5,marginBottom:4}}>
-                    <span style={{fontSize:10,color:"var(--tx3)",minWidth:7}}>{n}</span>
-                    <span style={{fontSize:10,color:"#F59E0B"}}>★</span>
-                    <div style={{flex:1,height:5,background:"var(--bd)",borderRadius:3,overflow:"hidden"}}>
-                      <div style={{height:"100%",width:`${p}%`,background:"#F59E0B",borderRadius:3}}/>
-                    </div>
-                    <span style={{fontSize:10,color:"var(--tx3)",minWidth:14,textAlign:"right"}}>{c}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-        {appRevs.length>0&&<div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:13,color:"#059669",marginBottom:8}}>✓ Avis utilisateurs Spotto</div>}
-        {appRevs.map(r=>(
-          <div key={r.id} className="rev app">
-            <div className="rev-ava">{r.avatar}</div>
-            <div className="rev-body">
-              <div className="rev-top">
-                <span className="rev-au">{r.author}</span>
-                <Stars rating={r.rating}/>
-                <span className="rev-bg ap">✓ Spotto</span>
-                <span className="rev-dt">{r.date}</span>
-              </div>
-              <div className="rev-tx">{r.text}</div>
-              <button className="rev-lk" onClick={()=>likeRev(r.id)}>👍 {r.likes} utile{r.likes!==1?"s":""}</button>
-            </div>
-          </div>
-        ))}
-        {extRevs.length>0&&<div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:13,color:"var(--tx2)",marginBottom:8,marginTop:appRevs.length?12:0}}>🌐 Avis Google Maps</div>}
-        {extRevs.map(r=>(
-          <div key={r.id} className="rev">
-            <div className="rev-ava">{r.avatar}</div>
-            <div className="rev-body">
-              <div className="rev-top">
-                <span className="rev-au">{r.author}</span>
-                <Stars rating={r.rating}/>
-                <span className="rev-bg go">Google</span>
-                <span className="rev-dt">{r.date}</span>
-              </div>
-              <div className="rev-tx">{r.text}</div>
-              <button className="rev-lk" onClick={()=>likeRev(r.id)}>👍 {r.likes} utile{r.likes!==1?"s":""}</button>
-            </div>
-          </div>
-        ))}
-        <div className="rf">
-          <div style={{fontWeight:700,fontSize:13,marginBottom:9}}>⭐ Laisse ton avis</div>
-          <Stars rating={newRev.rating} lg interactive onRate={r=>setNewRev(p=>({...p,rating:r}))}/>
-          <textarea className="fta" style={{marginTop:10,minHeight:60}}
-            placeholder={user?"Partage ton expérience…":"Connecte-toi pour noter"}
-            value={newRev.text} onChange={e=>setNewRev(p=>({...p,text:e.target.value}))} disabled={!user}/>
-          <button className="btn-p" style={{marginTop:8}} onClick={addReview} disabled={!user}>Publier mon avis</button>
-        </div>
-      </div>
-    );
+  const RevBlock=({target})=>{
+    const a=avgR(target.reviews);
+    const appR=target.reviews.filter(r=>r.source==="app");
+    const extR=target.reviews.filter(r=>r.source!=="app");
+    return(<div>
+      {target.reviews.length>0&&(<div className="rb">
+        <div style={{textAlign:"center"}}><div className="rb-bg">{a.toFixed(1)}</div><Stars rating={a}/><div className="rb-sb">{target.reviews.length} avis</div></div>
+        <div style={{flex:1}}>{[5,4,3,2,1].map(n=>{const c=target.reviews.filter(r=>Math.round(r.rating)===n).length;const p=target.reviews.length?c/target.reviews.length*100:0;return(<div key={n} style={{display:"flex",alignItems:"center",gap:5,marginBottom:4}}><span style={{fontSize:10,color:"var(--t3)",minWidth:7}}>{n}</span><span style={{fontSize:10,color:"#F59E0B"}}>★</span><div style={{flex:1,height:5,background:"var(--bd)",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",width:`${p}%`,background:"#F59E0B",borderRadius:3}}/></div><span style={{fontSize:10,color:"var(--t3)",minWidth:12,textAlign:"right"}}>{c}</span></div>);})}</div>
+      </div>)}
+      {appR.length>0&&<div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:13,color:"var(--gn)",marginBottom:8}}>✓ Avis utilisateurs Spotto</div>}
+      {appR.map(r=>(<div key={r.id} className="rv app"><div className="rv-av">{r.avatar}</div><div className="rv-bd"><div className="rv-tp"><span className="rv-au">{r.author}</span><Stars rating={r.rating}/><span className="rv-bg ap">✓ Spotto</span><span className="rv-dt">{r.date}</span></div><div className="rv-tx">{r.text}</div><button className="rv-lk" onClick={()=>likeRev(r.id)}>👍 {r.likes} utile{r.likes!==1?"s":""}</button></div></div>))}
+      {extR.length>0&&<div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:13,color:"var(--t2)",marginBottom:8,marginTop:appR.length?12:0}}>🌐 Avis Google Maps</div>}
+      {extR.map(r=>(<div key={r.id} className="rv"><div className="rv-av">{r.avatar}</div><div className="rv-bd"><div className="rv-tp"><span className="rv-au">{r.author}</span><Stars rating={r.rating}/><span className="rv-bg go">Google</span><span className="rv-dt">{r.date}</span></div><div className="rv-tx">{r.text}</div><button className="rv-lk" onClick={()=>likeRev(r.id)}>👍 {r.likes} utile{r.likes!==1?"s":""}</button></div></div>))}
+      <div className="rf"><div style={{fontWeight:700,fontSize:13,marginBottom:9}}>⭐ Laisse ton avis</div><Stars rating={newRev.rating} lg interactive onRate={n=>setNewRev(p=>({...p,rating:n}))}/><textarea className="fta" style={{marginTop:10,minHeight:60}} placeholder={user?"Partage ton expérience…":"Connecte-toi pour noter"} value={newRev.text} onChange={e=>setNewRev(p=>({...p,text:e.target.value}))} disabled={!user}/><button className="bp" style={{marginTop:8}} onClick={addRev} disabled={!user}>Publier mon avis</button></div>
+    </div>);
   };
 
-  // ── Deal card ──
+  const NmEdit=({compact=false})=>editNm?(<div className="ne"><input className="ne-i" autoFocus value={nmVal} onChange={e=>setNmVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")saveNm();if(e.key==="Escape")setEditNm(false);}} placeholder="Ton pseudo…"/><button className="sm" onClick={saveNm}>✓</button><button className="sm cl" onClick={()=>setEditNm(false)}>✕</button></div>):(<div style={{display:"flex",alignItems:"center"}}><div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:compact?15:17}}>{user?.name}</div><button className="pen" onClick={()=>{setNmVal(user?.name||"");setEditNm(true);}}>✏️</button></div>);
+
+  const AvaGrid=()=>(<div style={{marginTop:10}}><div style={{fontSize:12,fontWeight:700,color:"var(--t2)",marginBottom:7}}>Choisir un avatar</div><div className="avg-g">{AVATARS.map(a=><div key={a} className={`ag ${user?.avatar===a?"on":""}`} onClick={()=>saveAv(a)}>{a}</div>)}</div></div>);
+
   const DCard=({d})=>{
-    const a=avg(d.reviews);
-    const tp=DEAL_TYPES.find(t=>t.id===d.type);
-    return(
-      <div className="card cl" onClick={()=>{setSel(d);setSelType("deal");setModal("detail");}}>
-        <div className="dc-top">
-          <div className="dc-ava">{d.avatar}</div>
-          <div className="dc-meta"><div className="dc-author">{d.author}</div><div className="dc-date">{d.date}</div></div>
-          <span className="dc-badge">{tp?.icon} {tp?.label}</span>
-        </div>
-        <div className="dc-body">
-          <div className="dc-title">{d.title}</div>
-          <div className="dc-desc">{d.desc}</div>
-          {d.location&&<div className="dc-loc">📍 {d.location}</div>}
-        </div>
-        <div className="dc-foot">
-          <button className={`vb up ${d.vote==="up"?"on":""}`} onClick={e=>vote(d.id,"up",e)}><Ico d={ic.tu} s={13}/> {d.up}</button>
-          <button className={`vb dn ${d.vote==="down"?"on":""}`} onClick={e=>vote(d.id,"dn",e)}><Ico d={ic.td} s={13}/> {d.down}</button>
-          <button className="vb" onClick={e=>{e.stopPropagation();setSel(d);setSelType("deal");setModal("detail");}}><Ico d={ic.cm} s={13}/> {d.comments?.length||0}</button>
-          {a>0&&<div className="ri"><span style={{color:"#F59E0B"}}>★</span>{a.toFixed(1)}·{d.reviews.length}</div>}
-          <button className="sv-btn" onClick={e=>toggleSave(d.id,e)}>{saved.includes(d.id)?"🔖":"🏷️"}</button>
-        </div>
+    const a=avgR(d.reviews);const tp=DEAL_TYPES.find(t=>t.id===d.type);
+    return(<div className="cd cl" onClick={()=>{setSel(d);setSType("deal");setModal("detail");}}>
+      <div className="cd-top"><div className="cd-av">{d.avatar}</div><div className="cd-mt"><div className="cd-au">{d.author}</div><div className="cd-dt">{d.date}</div></div><span className="cd-bg">{tp?.icon} {tp?.label}</span></div>
+      <div className="cd-bd"><div className="cd-ti">{d.title}</div><div className="cd-de">{d.desc}</div>{d.location&&<div className="cd-lo">📍 {d.location}</div>}</div>
+      <div className="cd-ft">
+        <button className={`vb up ${d.vote==="up"?"on":""}`} onClick={e=>vote(d.id,"up",e)}><Ico d={TU} s={13}/> {d.up}</button>
+        <button className={`vb dn ${d.vote==="down"?"on":""}`} onClick={e=>vote(d.id,"dn",e)}><Ico d={TD} s={13}/> {d.down}</button>
+        <button className="vb" onClick={e=>{e.stopPropagation();setSel(d);setSType("deal");setModal("detail");}}><Ico d={CM} s={13}/> {d.comments?.length||0}</button>
+        {a>0&&<div className="ri"><span style={{color:"#F59E0B"}}>★</span>{a.toFixed(1)}·{d.reviews.length}</div>}
+        <button className="sv" onClick={e=>toggleSave(d.id,e)}>{saved.includes(d.id)?"🔖":"🏷️"}</button>
       </div>
-    );
+    </div>);
   };
 
-  return(
-    <>
-      <style>{CSS}</style>
-      <div className="app">
+  return(<>
+    <style>{CSS}</style>
+    <div className="wrap">
 
-        {/* TOPBAR */}
-        <header className="topbar">
-          <div className="logo">Spot<em>to</em></div>
-          {(tab==="radar"||tab==="carte")&&(
-            <div className="tsearch">
-              <Ico d={ic.se} s={14}/>
-              <input placeholder={tab==="radar"?"Titre, lieu, description…":"Chercher un lieu…"} value={search} onChange={e=>setSearch(e.target.value)}/>
-            </div>
-          )}
-          <div style={{display:"flex",gap:6,marginLeft:"auto",alignItems:"center"}}>
-            <div className="opill"><div className={`dot ${online?"on":"off"}`}/>{online?"En ligne":"Hors ligne"}</div>
-            <button className="ibt" onClick={()=>setModal("settings")}><Ico d={ic.ge} s={17}/></button>
+      <header className="tb">
+        <div className="logo">Spot<b>to</b></div>
+        {(tab==="radar"||tab==="carte")&&(<div className="sr"><Ico d={SE} s={14}/><input placeholder={tab==="radar"?"Titre, lieu, description…":"Chercher un lieu…"} value={q} onChange={e=>setQ(e.target.value)}/></div>)}
+        <div style={{display:"flex",gap:6,marginLeft:"auto",alignItems:"center"}}>
+          <div className="op"><div className={`dt ${online?"on":"off"}`}/>{online?"En ligne":"Hors ligne"}</div>
+          <button className="ib" onClick={()=>setModal("settings")}><Ico d={GE} s={17}/></button>
+        </div>
+      </header>
+
+      {(tab==="radar"||tab==="carte")&&(<div className="fb"><div className="fbi">
+        {tab==="radar"&&DEAL_TYPES.map(t=><button key={t.id} className={`ch ${dFlt===t.id?"a":""}`} onClick={()=>setDFlt(t.id)}>{t.icon} {t.label}</button>)}
+        {tab==="carte"&&PLACE_CATS.map(c=><button key={c.id} className={`ch ${pFlt===c.id?"a":""}`} onClick={()=>setPFlt(c.id)}>{c.icon} {c.label}</button>)}
+      </div></div>)}
+
+      {tab==="radar"&&(<><div className="feed">{fDeals.length===0?<div className="empty"><div className="empty-e">📡</div><div className="empty-t">Aucun bon plan trouvé</div><p>Sois le premier à en signaler un !</p></div>:fDeals.map(d=><DCard key={d.id} d={d}/>)}</div><button className="fab" onClick={()=>setModal("add-deal")}><Ico d={PLUS} s={22}/></button></>)}
+
+      {tab==="carte"&&(<><div className="feed">
+        <div className="cd" style={{background:`linear-gradient(135deg,var(--mc),#22D3EE)`,padding:16,color:"#fff",border:"none"}}>
+          <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:17,marginBottom:4}}>📍 Carte des lieux utiles</div>
+          <div style={{fontSize:13,opacity:.85}}>Toilettes, eau, Wi-Fi, prises, parkings — disponibles hors ligne.</div>
+          <div style={{marginTop:10,fontSize:12,background:"rgba(255,255,255,.2)",borderRadius:8,padding:"5px 11px",display:"inline-block",fontWeight:700}}>{places.length} lieux répertoriés</div>
+        </div>
+        {fPlaces.length===0?<div className="empty"><div className="empty-e">🗺️</div><div className="empty-t">Aucun lieu trouvé</div></div>:fPlaces.map(p=>{const a=avgR(p.reviews);return(<div key={p.id} className="pc" onClick={()=>{setSel(p);setSType("place");setModal("detail");}}><div className="pc-ic">{p.icon}</div><div className="pc-in"><div className="pc-nm">{p.name}</div><div className="pc-ad">{p.address}</div>{p.hours&&<div className="pc-hr">⏰ {p.hours}</div>}</div><div className="pc-rg">{p.offline&&<div className="pc-of">📥 Offline</div>}{a>0&&<div className="ri"><span style={{color:"#F59E0B"}}>★</span>{a.toFixed(1)}</div>}</div></div>);})}
+      </div><button className="fab" onClick={()=>setModal("add-place")}><Ico d={PLUS} s={22}/></button></>)}
+
+      {tab==="prix"&&(<div className="pg" style={{paddingTop:"calc(var(--top) + 16px)"}}>
+        <div style={{marginBottom:16}}><div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:20}}>💰 Mémoire de Prix</div><div style={{fontSize:13,color:"var(--t2)"}}>Suis l'évolution de tes produits dans le temps</div></div>
+        {prices.length===0?<div className="empty"><div className="empty-e">🏷️</div><div className="empty-t">Aucun produit suivi</div><p>Ajoute un produit pour surveiller son prix.</p></div>:prices.map(p=>{const tr=trend(p.history);const first=p.history[0]?.val;const diff=first?Math.abs(((p.current-first)/first*100)).toFixed(1):0;return(<div key={p.id} className="pi"><div className="pi-h"><div className="pi-em">{p.emoji}</div><div><div className="pi-nm">{p.name}</div>{p.store&&<div className="pi-st">{p.store}</div>}</div><div className="pi-cr"><div className="pi-pr">{p.current.toFixed(2)}€</div><div className={`pi-tr ${tr}`}>{tr==="up"?`▲ +${diff}%`:tr==="dn"?`▼ -${diff}%`:"— stable"}</div></div></div>{p.history.length>1&&(<div style={{padding:"0 14px 14px",height:104}}><ResponsiveContainer width="100%" height={90}><LineChart data={p.history}><Line type="monotone" dataKey="val" stroke={MODS.prix.color} strokeWidth={2} dot={{r:3,fill:MODS.prix.color}}/><XAxis dataKey="date" tick={{fontSize:10,fill:"#9CA3AF"}} axisLine={false} tickLine={false}/><YAxis domain={["auto","auto"]} tick={{fontSize:10,fill:"#9CA3AF"}} axisLine={false} tickLine={false} width={35}/><Tooltip formatter={v=>[`${v}€`]} contentStyle={{background:"var(--sf)",border:"1px solid var(--bd)",borderRadius:8,fontSize:12}}/></LineChart></ResponsiveContainer></div>)}<div style={{padding:"0 14px 12px"}}><button className="bp" style={{padding:9,fontSize:13}} onClick={()=>{setPrSel(p);setPrF({name:p.name,store:p.store||"",price:"",emoji:p.emoji});setModal("add-price");}}>Mettre à jour le prix</button></div></div>);})}
+        <button className="fab" onClick={()=>{setPrSel(null);setModal("add-price");}}><Ico d={PLUS} s={22}/></button>
+      </div>)}
+
+      {tab==="missions"&&(<div className="pg" style={{paddingTop:"calc(var(--top) + 16px)"}}>
+        <div className="mhd"><div className="mhd-pt">{pts} pts</div><div className="mhd-lb">Points accumulés</div><div className="mhd-st">🔥 {streak} jours de suite</div></div>
+        <div className="st-row"><div className="stc"><div className="stc-v">{missions.filter(m=>m.done).length}/{missions.length}</div><div className="stc-l">Missions du jour</div></div><div className="stc"><div className="stc-v">{streak}</div><div className="stc-l">Jours de suite</div></div><div className="stc"><div className="stc-v">{missions.filter(m=>m.done).reduce((a,m)=>a+m.pts,0)}</div><div className="stc-l">Pts aujourd'hui</div></div></div>
+        <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:16,marginBottom:10}}>🎯 Missions du jour</div>
+        {missions.map(m=>(<div key={m.id} className={`mi ${m.done?"dn":""}`} onClick={()=>doMission(m.id)}><div className="mi-ic">{m.icon}</div><div className="mi-tx"><div className="mi-nm">{m.label}</div><div className="mi-rw">+{m.pts} points</div></div><div className={`mi-ck ${m.done?"on":""}`}>{m.done&&<Ico d={CK} s={14}/>}</div></div>))}
+        <div className="af"><div className="af-ti">Je n'ai pas envie…</div><div className="af-su">Un coup de boost en 1 clic</div><button className="af-bt" onClick={()=>setAfTip(AF_TIPS[Math.floor(Math.random()*AF_TIPS.length)])}>💡 Donne-moi une astuce</button>{afTip&&<div className="af-tp" key={afTip}>{afTip}</div>}</div>
+      </div>)}
+
+      {tab==="profil"&&(<div className="pg" style={{paddingTop:"calc(var(--top) + 16px)"}}>
+        {user?(<>
+          <div className="prc">
+            <div className="prc-tp"><div className="prc-av" onClick={()=>setEditAv(a=>!a)}>{user.avatar}</div><div style={{flex:1}}><NmEdit/><div className="prc-em">{user.email}</div></div></div>
+            {editAv&&<AvaGrid/>}
+            <div className="prc-st"><div className="ps"><div className="ps-v">{deals.filter(d=>d.author===user.name).length}</div><div className="ps-l">Plans signalés</div></div><div className="ps"><div className="ps-v">{saved.length}</div><div className="ps-l">Sauvegardés</div></div><div className="ps"><div className="ps-v">{pts}</div><div className="ps-l">Points</div></div></div>
           </div>
-        </header>
+          <div className="sec">Plans sauvegardés</div>
+          {saved.length===0?<div className="empty" style={{padding:"24px 0"}}><div className="empty-e" style={{fontSize:30}}>🔖</div><p>Aucune sauvegarde</p></div>:deals.filter(d=>saved.includes(d.id)).map(d=><DCard key={d.id} d={d}/>)}
+          <div className="sec">Mes bons plans</div>
+          {deals.filter(d=>d.author===user.name).length===0?<div style={{color:"var(--t2)",fontSize:13,padding:"8px 0"}}>Tu n'as pas encore signalé de bon plan.</div>:deals.filter(d=>d.author===user.name).map(d=><DCard key={d.id} d={d}/>)}
+        </>):(<div className="empty"><div className="empty-e">👤</div><div className="empty-t">Non connecté</div><p style={{marginBottom:16}}>Connecte-toi pour accéder à ton profil.</p><button className="bp" style={{maxWidth:240}} onClick={()=>setModal("settings")}>Se connecter</button></div>)}
+      </div>)}
 
-        {/* FILTER BAR */}
-        {(tab==="radar"||tab==="carte")&&(
-          <div className="fbar">
-            <div className="fbar-inner">
-              {tab==="radar"&&DEAL_TYPES.map(t=>(
-                <button key={t.id} className={`chip ${dFlt===t.id?"a":""}`} onClick={()=>setDFlt(t.id)}>{t.icon} {t.label}</button>
-              ))}
-              {tab==="carte"&&PLACE_CATS.map(c=>(
-                <button key={c.id} className={`chip ${pFlt===c.id?"a":""}`} onClick={()=>setPFlt(c.id)}>{c.icon} {c.label}</button>
-              ))}
-            </div>
+      <nav className="bb">{Object.entries(MODS).map(([id,m])=>(<button key={id} className={`nb ${tab===id?"a":""}`} onClick={()=>setTab(id)}><Ico d={m.icon} s={20}/><span>{m.label}</span></button>))}</nav>
+
+      {modal==="settings"&&(<div className="ov" onClick={close}><div className="mo" onClick={e=>e.stopPropagation()}>
+        <div className="mhd2"/>
+        <div className="mh"><span className="mtl">⚙️ Paramètres</span><button className="ib" onClick={close}><Ico d={X} s={16}/></button></div>
+        <div className="mb">
+          {user&&(<div className="prc" style={{marginBottom:16}}><div className="prc-tp" style={{marginBottom:0}}><div className="prc-av" style={{width:44,height:44,fontSize:22,borderRadius:12}} onClick={()=>setEditAv(a=>!a)}>{user.avatar}</div><div style={{flex:1}}><NmEdit compact/><div className="prc-em">{user.email}</div></div></div>{editAv&&<AvaGrid/>}</div>)}
+          <div className="sec">Apparence</div>
+          {/* FIX: le toggle ne propage plus l'événement au div parent pour éviter double déclenchement */}
+          <div className="si" onClick={toggleTheme}>
+            <div className="si-ic" style={{background:theme==="dark"?"#1C1B3A":"#FFF9C4"}}>{theme==="dark"?"🌙":"☀️"}</div>
+            <div><div className="si-lb">Thème {theme==="dark"?"Sombre":"Clair"}</div></div>
+            <button className={`tg ${theme==="dark"?"on":""}`} onClick={e=>{e.stopPropagation();toggleTheme();}}/>
           </div>
-        )}
-
-        {/* ── RADAR ── */}
-        {tab==="radar"&&(
-          <>
-            <div className="feed">
-              {fDeals.length===0
-                ?<div className="empty"><div className="empty-e">📡</div><div className="empty-t">Aucun bon plan trouvé</div><p>Sois le premier à en signaler un !</p></div>
-                :fDeals.map(d=><DCard key={d.id} d={d}/>)
-              }
-            </div>
-            <button className="fab" onClick={()=>setModal("add-deal")}><Ico d={ic.plus} s={22}/></button>
-          </>
-        )}
-
-        {/* ── CARTE ── */}
-        {tab==="carte"&&(
-          <>
-            <div className="feed">
-              <div className="card" style={{background:`linear-gradient(135deg,var(--mc),#22D3EE)`,padding:16,color:"#fff",border:"none"}}>
-                <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:17,marginBottom:4}}>📍 Carte des lieux utiles</div>
-                <div style={{fontSize:13,opacity:.85}}>Toilettes, eau, Wi-Fi, prises, parkings gratuits — disponibles hors ligne.</div>
-                <div style={{marginTop:10,fontSize:12,background:"rgba(255,255,255,.2)",borderRadius:8,padding:"5px 11px",display:"inline-block",fontWeight:700}}>{places.length} lieux répertoriés</div>
-              </div>
-              {fPlaces.length===0
-                ?<div className="empty"><div className="empty-e">🗺️</div><div className="empty-t">Aucun lieu trouvé</div></div>
-                :fPlaces.map(p=>{
-                  const a=avg(p.reviews);
-                  return(
-                    <div key={p.id} className="pc" onClick={()=>{setSel(p);setSelType("place");setModal("detail");}}>
-                      <div className="pc-ico">{p.icon}</div>
-                      <div className="pc-info">
-                        <div className="pc-name">{p.name}</div>
-                        <div className="pc-addr">{p.address}</div>
-                        {p.hours&&<div className="pc-hours">⏰ {p.hours}</div>}
-                      </div>
-                      <div className="pc-right">
-                        {p.offline&&<div className="pc-off">📥 Offline</div>}
-                        {a>0&&<div className="ri"><span style={{color:"#F59E0B"}}>★</span>{a.toFixed(1)}</div>}
-                      </div>
-                    </div>
-                  );
-                })
-              }
-            </div>
-            <button className="fab" onClick={()=>setModal("add-place")}><Ico d={ic.plus} s={22}/></button>
-          </>
-        )}
-
-        {/* ── PRIX ── */}
-        {tab==="prix"&&(
-          <div className="content" style={{paddingTop:"calc(var(--top) + 16px)"}}>
-            <div style={{marginBottom:16}}><div className="sh2">💰 Mémoire de Prix</div><div className="sh2-sub">Suis l'évolution de tes produits dans le temps</div></div>
-            {prices.length===0
-              ?<div className="empty"><div className="empty-e">🏷️</div><div className="empty-t">Aucun produit suivi</div><p>Ajoute un produit pour surveiller son prix.</p></div>
-              :prices.map(p=>{
-                const tr=trend(p.history);
-                const first=p.history[0]?.val;
-                const diff=first?Math.abs(((p.current-first)/first*100)).toFixed(1):0;
-                return(
-                  <div key={p.id} className="pi">
-                    <div className="pi-h">
-                      <div className="pi-emo">{p.emoji}</div>
-                      <div><div className="pi-nm">{p.name}</div>{p.store&&<div className="pi-st">{p.store}</div>}</div>
-                      <div className="pi-cur">
-                        <div className="pi-price">{p.current.toFixed(2)}€</div>
-                        <div className={`pi-tr ${tr}`}>{tr==="up"?`▲ +${diff}%`:tr==="dn"?`▼ -${diff}%`:"— stable"}</div>
-                      </div>
-                    </div>
-                    {p.history.length>1&&(
-                      <div style={{padding:"0 14px 14px",height:104}}>
-                        <ResponsiveContainer width="100%" height={90}>
-                          <LineChart data={p.history}>
-                            <Line type="monotone" dataKey="val" stroke={MODS.prix.color} strokeWidth={2} dot={{r:3,fill:MODS.prix.color}}/>
-                            <XAxis dataKey="date" tick={{fontSize:10,fill:"#9CA3AF"}} axisLine={false} tickLine={false}/>
-                            <YAxis domain={["auto","auto"]} tick={{fontSize:10,fill:"#9CA3AF"}} axisLine={false} tickLine={false} width={35}/>
-                            <Tooltip formatter={v=>[`${v}€`]} contentStyle={{background:"var(--surface)",border:"1px solid var(--bd)",borderRadius:8,fontSize:12}}/>
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-                    <div style={{padding:"0 14px 12px"}}>
-                      <button className="btn-p" style={{padding:9,fontSize:13}} onClick={()=>{setPrSel(p);setPrForm({name:p.name,store:p.store||"",price:"",emoji:p.emoji});setModal("add-price");}}>Mettre à jour le prix</button>
-                    </div>
-                  </div>
-                );
-              })
-            }
-            <button className="fab" onClick={()=>{setPrSel(null);setModal("add-price");}}><Ico d={ic.plus} s={22}/></button>
+          <div className="si" onClick={()=>{setOnline(o=>!o);msg(online?"Mode hors ligne activé":"Mode en ligne activé");}}>
+            <div className="si-ic">📶</div>
+            <div><div className="si-lb">Mode {online?"En ligne":"Hors ligne"}</div><div className="si-sb">Données en cache disponibles hors ligne</div></div>
+            <button className={`tg ${online?"on":""}`} onClick={e=>{e.stopPropagation();setOnline(o=>!o);msg(online?"Mode hors ligne activé":"Mode en ligne activé");}}/>
           </div>
-        )}
+          <div className="sec">Compte</div>
+          {!user?["Google","Apple","Facebook"].map(p=>(<div key={p} className="si" onClick={()=>login(p)}><div className="si-ic">{p==="Google"?"🔴":p==="Apple"?"⬛":"🔵"}</div><div><div className="si-lb">Continuer avec {p}</div></div></div>)):<div className="si" onClick={logout}><div className="si-ic" style={{background:"#FEE2E2"}}><Ico d={LO} s={16}/></div><div><div className="si-lb" style={{color:"#DC2626"}}>Se déconnecter</div><div className="si-sb">Via {user.provider}</div></div></div>}
+          <div className="sec">À propos</div>
+          <div className="si"><div className="si-ic">✨</div><div><div className="si-lb">Spotto v3.1</div><div className="si-sb">La communauté des économies du quotidien</div></div></div>
+        </div>
+      </div></div>)}
 
-        {/* ── MISSIONS ── */}
-        {tab==="missions"&&(
-          <div className="content" style={{paddingTop:"calc(var(--top) + 16px)"}}>
-            <div className="mh">
-              <div className="mh-pts">{points} pts</div>
-              <div className="mh-lbl">Points accumulés</div>
-              <div className="mh-str">🔥 {streak} jours de suite</div>
-            </div>
-            <div className="stat-row">
-              <div className="stat-card"><div className="stat-val">{missions.filter(m=>m.done).length}/{missions.length}</div><div className="stat-lbl">Missions du jour</div></div>
-              <div className="stat-card"><div className="stat-val">{streak}</div><div className="stat-lbl">Jours de suite</div></div>
-              <div className="stat-card"><div className="stat-val">{missions.filter(m=>m.done).reduce((a,m)=>a+m.pts,0)}</div><div className="stat-lbl">Pts aujourd'hui</div></div>
-            </div>
-            <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:16,marginBottom:10}}>🎯 Missions du jour</div>
-            {missions.map(m=>(
-              <div key={m.id} className={`mis ${m.done?"done":""}`} onClick={()=>doMission(m.id)}>
-                <div className="mis-ico">{m.icon}</div>
-                <div className="mis-tx"><div className="mis-nm">{m.label}</div><div className="mis-rw">+{m.pts} points</div></div>
-                <div className={`mis-ck ${m.done?"on":""}`}>{m.done&&<Ico d={ic.ck} s={14}/>}</div>
-              </div>
-            ))}
-            <div className="af">
-              <div className="af-ti">Je n'ai pas envie…</div>
-              <div className="af-su">Un coup de boost en 1 clic</div>
-              <button className="af-bt" onClick={()=>setAfTip(AF_TIPS[Math.floor(Math.random()*AF_TIPS.length)])}>💡 Donne-moi une astuce</button>
-              {afTip&&<div className="af-tp" key={afTip}>{afTip}</div>}
-            </div>
-          </div>
-        )}
+      {modal==="detail"&&sel&&(<div className="ov" onClick={close}><div className="mo" onClick={e=>e.stopPropagation()} style={{maxHeight:"94vh"}}>
+        <div className="mhd2"/>
+        <div className="mh"><button className="ib" onClick={close}><Ico d={BACK} s={16}/></button><span className="mtl" style={{flex:1,textAlign:"center"}}>{sType==="deal"?"Bon Plan":"Lieu Utile"}</span>{sType==="deal"?<button className="ib" onClick={e=>{e.stopPropagation();toggleSave(sel.id);}}>{saved.includes(sel.id)?"🔖":"🏷️"}</button>:<div style={{width:38}}/>}</div>
+        <div className="mb">
+          {sType==="deal"?(<>
+            <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:12}}><div className="cd-av">{sel.avatar}</div><div><div className="cd-au">{sel.author}</div><div className="cd-dt">{sel.date}</div></div></div>
+            <h2 style={{fontFamily:"'Outfit',sans-serif",fontSize:20,fontWeight:800,marginBottom:8,lineHeight:1.3}}>{sel.title}</h2>
+            <p style={{fontSize:14,color:"var(--t2)",lineHeight:1.6,marginBottom:12}}>{sel.desc}</p>
+            {sel.location&&<div style={{background:"var(--s2)",border:"1px solid var(--bd)",borderRadius:10,padding:"10px 13px",fontSize:13,color:"var(--t2)",marginBottom:14}}>📍 {sel.location}</div>}
+            <div style={{display:"flex",gap:8,marginBottom:20}}>{["up","dn"].map(dir=>{const d=deals.find(x=>x.id===sel.id)||sel;const on=d.vote===(dir==="up"?"up":"down");return(<button key={dir} className={`vb ${dir} ${on?"on":""}`} style={{flex:1,justifyContent:"center",borderRadius:10,padding:10,border:"1px solid var(--bd)",background:"var(--s2)"}} onClick={e=>vote(sel.id,dir,e)}><Ico d={dir==="up"?TU:TD} s={15}/> {dir==="up"?`Valide (${d.up??0})`:`Scam (${d.down??0})`}</button>);})}</div>
+            <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:15,marginBottom:12}}>⭐ Notes & Avis</div>
+            <RevBlock target={sel}/>
+            <div className="dvd"/>
+            <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:15,marginBottom:10}}>💬 Commentaires ({sel.comments?.length||0})</div>
+            {(sel.comments||[]).length===0?<div style={{textAlign:"center",padding:14,color:"var(--t3)",fontSize:13}}>Sois le premier à commenter</div>:(sel.comments||[]).map(c=>(<div key={c.id} className="cmt"><div className="cmt-av">{c.avatar||"😊"}</div><div><div className="cmt-au">{c.author}</div><div className="cmt-tx">{c.text}</div></div></div>))}
+            <div className="cmt-rw"><input className="cmt-in" placeholder={user?"Ton commentaire…":"Connecte-toi pour commenter"} value={newCmt} onChange={e=>setNewCmt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addCmt()} disabled={!user}/><button className="csend" onClick={addCmt} disabled={!user}><Ico d={SN} s={14}/></button></div>
+          </>):(<>
+            <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:14}}><div style={{width:52,height:52,borderRadius:14,background:"var(--ml)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>{sel.icon}</div><div><div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:18}}>{sel.name}</div><div style={{fontSize:13,color:"var(--t2)",marginTop:2}}>📍 {sel.address}</div>{sel.hours&&<div style={{fontSize:12,color:"var(--gn)",fontWeight:600,marginTop:3}}>⏰ {sel.hours}</div>}</div></div>
+            {sel.offline&&<div style={{background:"var(--al)",color:"var(--am)",borderRadius:8,padding:"8px 12px",fontSize:12,fontWeight:700,marginBottom:14}}>📥 Disponible hors ligne — données en cache</div>}
+            <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:15,marginBottom:12}}>⭐ Notes & Avis</div>
+            <RevBlock target={sel}/>
+          </>)}
+        </div>
+      </div></div>)}
 
-        {/* ── PROFIL ── */}
-        {tab==="profil"&&(
-          <div className="content" style={{paddingTop:"calc(var(--top) + 16px)"}}>
-            {user?(
-              <>
-                <div className="prc">
-                  <div className="prc-top">
-                    <div className="prc-ava" title="Changer l'avatar" onClick={()=>setEditAva(a=>!a)}>{user.avatar}</div>
-                    <div style={{flex:1}}>
-                      {editName?(
-                        <div className="ne-row">
-                          <input className="ne-inp" autoFocus value={nameVal}
-                            onChange={e=>setNameVal(e.target.value)}
-                            onKeyDown={e=>{if(e.key==="Enter")saveName();if(e.key==="Escape")setEditName(false);}}
-                            placeholder="Ton pseudo…"/>
-                          <button className="sm-btn" onClick={saveName}>✓</button>
-                          <button className="sm-btn cl" onClick={()=>setEditName(false)}>✕</button>
-                        </div>
-                      ):(
-                        <div style={{display:"flex",alignItems:"center"}}>
-                          <div className="prc-nm">{user.name}</div>
-                          <button className="pen" onClick={()=>{setNameVal(user.name);setEditName(true);}}>✏️</button>
-                        </div>
-                      )}
-                      <div className="prc-em">{user.email}</div>
-                    </div>
-                  </div>
-                  {editAva&&(
-                    <div>
-                      <div style={{fontSize:12,fontWeight:700,color:"var(--tx2)",marginBottom:7}}>Choisir un avatar</div>
-                      <div className="avg-grid">
-                        {AVATARS.map(a=><div key={a} className={`ag ${user.avatar===a?"on":""}`} onClick={()=>saveAva(a)}>{a}</div>)}
-                      </div>
-                    </div>
-                  )}
-                  <div className="prc-sts">
-                    <div className="ps"><div className="ps-v">{deals.filter(d=>d.author===user.name).length}</div><div className="ps-l">Plans signalés</div></div>
-                    <div className="ps"><div className="ps-v">{saved.length}</div><div className="ps-l">Sauvegardés</div></div>
-                    <div className="ps"><div className="ps-v">{points}</div><div className="ps-l">Points</div></div>
-                  </div>
-                </div>
-                <div className="sec-ttl">Plans sauvegardés</div>
-                {saved.length===0
-                  ?<div className="empty" style={{padding:"24px 0"}}><div className="empty-e" style={{fontSize:32}}>🔖</div><p>Aucune sauvegarde</p></div>
-                  :deals.filter(d=>saved.includes(d.id)).map(d=><DCard key={d.id} d={d}/>)
-                }
-                <div className="sec-ttl">Mes bons plans</div>
-                {deals.filter(d=>d.author===user.name).length===0
-                  ?<div style={{color:"var(--tx2)",fontSize:13,padding:"8px 0"}}>Tu n'as pas encore signalé de bon plan.</div>
-                  :deals.filter(d=>d.author===user.name).map(d=><DCard key={d.id} d={d}/>)
-                }
-              </>
-            ):(
-              <div className="empty">
-                <div className="empty-e">👤</div>
-                <div className="empty-t">Non connecté</div>
-                <p style={{marginBottom:16}}>Connecte-toi pour accéder à ton profil, tes favoris et tes stats.</p>
-                <button className="btn-p" style={{maxWidth:240}} onClick={()=>setModal("settings")}>Se connecter</button>
-              </div>
-            )}
-          </div>
-        )}
+      {modal==="add-deal"&&(<div className="ov" onClick={()=>setModal(null)}><div className="mo" onClick={e=>e.stopPropagation()}><div className="mhd2"/><div className="mh"><span className="mtl">📡 Signaler un bon plan</span><button className="ib" onClick={()=>setModal(null)}><Ico d={X} s={16}/></button></div><div className="mb">{!user?<div className="empty"><div className="empty-e">🔒</div><div className="empty-t">Connexion requise</div><button className="bp" style={{marginTop:12}} onClick={()=>setModal("settings")}>Se connecter</button></div>:<><div className="fg"><label className="fl">Type</label><select className="fse" value={dF.type} onChange={e=>setDF(f=>({...f,type:e.target.value}))}>{DEAL_TYPES.filter(t=>t.id!=="all").map(t=><option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}</select></div><div className="fg"><label className="fl">Titre *</label><input className="fi" placeholder="Pizza -50%, concert gratuit…" value={dF.title} onChange={e=>setDF(f=>({...f,title:e.target.value}))}/></div><div className="fg"><label className="fl">Description</label><textarea className="fta" placeholder="Détails, conditions, horaires…" value={dF.desc} onChange={e=>setDF(f=>({...f,desc:e.target.value}))}/></div><div className="fg"><label className="fl">Lieu / Adresse *</label><input className="fi" placeholder="12 rue du Commerce, Paris 15e" value={dF.location} onChange={e=>setDF(f=>({...f,location:e.target.value}))}/></div><button className="bp" onClick={addDeal}>Publier le bon plan 🚀</button></>}</div></div></div>)}
 
-        {/* BOTBAR */}
-        <nav className="botbar">
-          {Object.entries(MODS).map(([id,m])=>(
-            <button key={id} className={`nbt ${tab===id?"a":""}`} onClick={()=>setTab(id)}>
-              <Ico d={m.icon} s={20}/><span>{m.label}</span>
-            </button>
-          ))}
-        </nav>
+      {modal==="add-place"&&(<div className="ov" onClick={()=>setModal(null)}><div className="mo" onClick={e=>e.stopPropagation()}><div className="mhd2"/><div className="mh"><span className="mtl">📍 Ajouter un lieu</span><button className="ib" onClick={()=>setModal(null)}><Ico d={X} s={16}/></button></div><div className="mb">{!user?<div className="empty"><div className="empty-e">🔒</div><div className="empty-t">Connexion requise</div><button className="bp" style={{marginTop:12}} onClick={()=>setModal("settings")}>Se connecter</button></div>:<><div className="fg"><label className="fl">Catégorie</label><select className="fse" value={pF.cat} onChange={e=>setPF(f=>({...f,cat:e.target.value}))}>{PLACE_CATS.filter(c=>c.id!=="all").map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}</select></div><div className="fg"><label className="fl">Nom *</label><input className="fi" placeholder="WC Châtelet, Fontaine…" value={pF.name} onChange={e=>setPF(f=>({...f,name:e.target.value}))}/></div><div className="fg"><label className="fl">Adresse *</label><input className="fi" placeholder="14 av. de la République" value={pF.address} onChange={e=>setPF(f=>({...f,address:e.target.value}))}/></div><div className="fg"><label className="fl">Horaires</label><input className="fi" placeholder="6h-22h, Permanent…" value={pF.hours} onChange={e=>setPF(f=>({...f,hours:e.target.value}))}/></div><button className="bp" onClick={addPlace}>Ajouter à la carte 🗺️</button></>}</div></div></div>)}
 
-        {/* ── MODAL SETTINGS ── */}
-        {modal==="settings"&&(
-          <div className="ov" onClick={close}>
-            <div className="mo" onClick={e=>e.stopPropagation()}>
-              <div className="mhd"/>
-              <div className="mhead"><span className="mtl">⚙️ Paramètres</span><button className="ibt" onClick={close}><Ico d={ic.x} s={16}/></button></div>
-              <div className="mbody">
-                {user&&(
-                  <div className="prc" style={{marginBottom:16}}>
-                    <div className="prc-top" style={{marginBottom:0}}>
-                      <div className="prc-ava" style={{width:44,height:44,fontSize:22,borderRadius:12}} onClick={()=>setEditAva(a=>!a)}>{user.avatar}</div>
-                      <div style={{flex:1}}>
-                        {editName?(
-                          <div className="ne-row">
-                            <input className="ne-inp" autoFocus value={nameVal}
-                              onChange={e=>setNameVal(e.target.value)}
-                              onKeyDown={e=>{if(e.key==="Enter")saveName();if(e.key==="Escape")setEditName(false);}}/>
-                            <button className="sm-btn" onClick={saveName}>✓</button>
-                            <button className="sm-btn cl" onClick={()=>setEditName(false)}>✕</button>
-                          </div>
-                        ):(
-                          <div style={{display:"flex",alignItems:"center"}}>
-                            <div className="prc-nm" style={{fontSize:15}}>{user.name}</div>
-                            <button className="pen" onClick={()=>{setNameVal(user.name);setEditName(true);}}>✏️</button>
-                          </div>
-                        )}
-                        <div className="prc-em">{user.email}</div>
-                      </div>
-                    </div>
-                    {editAva&&<div style={{marginTop:10}}><div className="avg-grid">{AVATARS.map(a=><div key={a} className={`ag ${user.avatar===a?"on":""}`} onClick={()=>saveAva(a)}>{a}</div>)}</div></div>}
-                  </div>
-                )}
-                <div className="sec-ttl">Apparence</div>
-                <div className="si" onClick={toggleTheme}>
-                  <div className="si-ico" style={{background:theme==="dark"?"#1C1B3A":"#FFF9C4"}}>{theme==="dark"?"🌙":"☀️"}</div>
-                  <div><div className="si-lb">Thème {theme==="dark"?"Sombre":"Clair"}</div></div>
-                  <button className={`tg ${theme==="dark"?"on":""}`} onClick={e=>{e.stopPropagation();toggleTheme();}}/>
-                </div>
-                <div className="si" onClick={()=>{setOnline(o=>!o);msg(online?"Mode hors ligne activé":"Mode en ligne activé");}}>
-                  <div className="si-ico">📶</div>
-                  <div><div className="si-lb">Mode {online?"En ligne":"Hors ligne"}</div><div className="si-sb">Données en cache disponibles hors ligne</div></div>
-                  <button className={`tg ${online?"on":""}`} onClick={e=>{e.stopPropagation();setOnline(o=>!o);}}/>
-                </div>
-                <div className="sec-ttl">Compte</div>
-                {!user
-                  ?["Google","Apple","Facebook"].map(p=>(
-                    <div key={p} className="si" onClick={()=>login(p)}>
-                      <div className="si-ico">{p==="Google"?"🔴":p==="Apple"?"⬛":"🔵"}</div>
-                      <div><div className="si-lb">Continuer avec {p}</div></div>
-                    </div>
-                  ))
-                  :<div className="si" onClick={logout}>
-                    <div className="si-ico" style={{background:"#FEE2E2"}}><Ico d={ic.lo} s={16}/></div>
-                    <div><div className="si-lb" style={{color:"#DC2626"}}>Se déconnecter</div><div className="si-sb">Connecté via {user.provider}</div></div>
-                  </div>
-                }
-                <div className="sec-ttl">À propos</div>
-                <div className="si">
-                  <div className="si-ico">✨</div>
-                  <div><div className="si-lb">Spotto v3.0</div><div className="si-sb">La communauté des économies du quotidien</div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      {modal==="add-price"&&(<div className="ov" onClick={()=>{setModal(null);setPrSel(null);}}><div className="mo" onClick={e=>e.stopPropagation()}><div className="mhd2"/><div className="mh"><span className="mtl">{prSel?"Nouveau prix":"🏷️ Ajouter un produit"}</span><button className="ib" onClick={()=>{setModal(null);setPrSel(null);}}><Ico d={X} s={16}/></button></div><div className="mb">{!prSel&&<><div className="fg"><label className="fl">Emoji</label><input className="fi" maxLength={2} value={prF.emoji} onChange={e=>setPrF(f=>({...f,emoji:e.target.value}))} style={{fontSize:22,textAlign:"center"}}/></div><div className="fg"><label className="fl">Nom du produit *</label><input className="fi" placeholder="Beurre, iPhone…" value={prF.name} onChange={e=>setPrF(f=>({...f,name:e.target.value}))}/></div><div className="fg"><label className="fl">Magasin</label><input className="fi" placeholder="Carrefour, Amazon…" value={prF.store} onChange={e=>setPrF(f=>({...f,store:e.target.value}))}/></div></>}<div className="fg"><label className="fl">Prix actuel (€) *</label><input className="fi" type="number" step="0.01" placeholder="2.99" value={prF.price} onChange={e=>setPrF(f=>({...f,price:e.target.value}))}/></div><button className="bp" onClick={addPrice}>{prSel?"Enregistrer le prix ✓":"Commencer le suivi 📊"}</button></div></div></div>)}
 
-        {/* ── MODAL DETAIL ── */}
-        {modal==="detail"&&sel&&(
-          <div className="ov" onClick={close}>
-            <div className="mo" onClick={e=>e.stopPropagation()} style={{maxHeight:"94vh"}}>
-              <div className="mhd"/>
-              <div className="mhead">
-                <button className="ibt" onClick={close}><Ico d={ic.arrow} s={16}/></button>
-                <span className="mtl" style={{flex:1,textAlign:"center"}}>{selType==="deal"?"Bon Plan":"Lieu Utile"}</span>
-                {selType==="deal"
-                  ?<button className="ibt" onClick={e=>{e.stopPropagation();toggleSave(sel.id);}}>{saved.includes(sel.id)?"🔖":"🏷️"}</button>
-                  :<div style={{width:38}}/>
-                }
-              </div>
-              <div className="mbody">
-                {selType==="deal"?(
-                  <>
-                    <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:12}}>
-                      <div className="dc-ava">{sel.avatar}</div>
-                      <div><div className="dc-author">{sel.author}</div><div className="dc-date">{sel.date}</div></div>
-                    </div>
-                    <h2 style={{fontFamily:"'Outfit',sans-serif",fontSize:20,fontWeight:800,marginBottom:8,lineHeight:1.3}}>{sel.title}</h2>
-                    <p style={{fontSize:14,color:"var(--tx2)",lineHeight:1.6,marginBottom:12}}>{sel.desc}</p>
-                    {sel.location&&<div style={{background:"var(--s2)",border:"1px solid var(--bd)",borderRadius:10,padding:"10px 13px",fontSize:13,color:"var(--tx2)",marginBottom:14}}>📍 {sel.location}</div>}
-                    <div style={{display:"flex",gap:8,marginBottom:20}}>
-                      {["up","dn"].map(dir=>{
-                        const d=deals.find(x=>x.id===sel.id);
-                        const voted=d?.vote===(dir==="up"?"up":"down");
-                        return(
-                          <button key={dir} className={`vb ${dir} ${voted?"on":""}`}
-                            style={{flex:1,justifyContent:"center",borderRadius:10,padding:10,border:"1px solid var(--bd)",background:"var(--s2)"}}
-                            onClick={e=>vote(sel.id,dir,e)}>
-                            <Ico d={dir==="up"?ic.tu:ic.td} s={15}/> {dir==="up"?`Valide (${d?.up??0})`:`Scam (${d?.down??0})`}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:15,marginBottom:12}}>⭐ Notes & Avis</div>
-                    <RevSection target={sel}/>
-                    <div className="dvd"/>
-                    <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:15,marginBottom:10}}>💬 Commentaires ({sel.comments?.length||0})</div>
-                    {(sel.comments||[]).length===0
-                      ?<div style={{textAlign:"center",padding:16,color:"var(--tx3)",fontSize:13}}>Sois le premier à commenter</div>
-                      :(sel.comments||[]).map(c=>(
-                        <div key={c.id} className="cmt">
-                          <div className="cmt-ava">{c.avatar||"😊"}</div>
-                          <div><div className="cmt-au">{c.author}</div><div className="cmt-tx">{c.text}</div></div>
-                        </div>
-                      ))
-                    }
-                    <div className="cmt-row">
-                      <input className="cmt-inp" placeholder={user?"Ton commentaire…":"Connecte-toi pour commenter"}
-                        value={newCmt} onChange={e=>setNewCmt(e.target.value)}
-                        onKeyDown={e=>e.key==="Enter"&&addComment()} disabled={!user}/>
-                      <button className="csend" onClick={addComment} disabled={!user}><Ico d={ic.sn} s={14}/></button>
-                    </div>
-                  </>
-                ):(
-                  <>
-                    <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:14}}>
-                      <div style={{width:52,height:52,borderRadius:14,background:"var(--ml)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>{sel.icon}</div>
-                      <div>
-                        <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:18}}>{sel.name}</div>
-                        <div style={{fontSize:13,color:"var(--tx2)",marginTop:2}}>📍 {sel.address}</div>
-                        {sel.hours&&<div style={{fontSize:12,color:"#059669",fontWeight:600,marginTop:3}}>⏰ {sel.hours}</div>}
-                      </div>
-                    </div>
-                    {sel.offline&&<div style={{background:"var(--al)",color:"#D97706",borderRadius:8,padding:"8px 12px",fontSize:12,fontWeight:700,marginBottom:14}}>📥 Disponible hors ligne — données en cache</div>}
-                    <div style={{fontFamily:"'Outfit',sans-serif",fontWeight:800,fontSize:15,marginBottom:12}}>⭐ Notes & Avis</div>
-                    <RevSection target={sel}/>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── MODAL ADD DEAL ── */}
-        {modal==="add-deal"&&(
-          <div className="ov" onClick={()=>setModal(null)}>
-            <div className="mo" onClick={e=>e.stopPropagation()}>
-              <div className="mhd"/>
-              <div className="mhead"><span className="mtl">📡 Signaler un bon plan</span><button className="ibt" onClick={()=>setModal(null)}><Ico d={ic.x} s={16}/></button></div>
-              <div className="mbody">
-                {!user
-                  ?<div className="empty"><div className="empty-e">🔒</div><div className="empty-t">Connexion requise</div><button className="btn-p" style={{marginTop:12}} onClick={()=>setModal("settings")}>Se connecter</button></div>
-                  :<>
-                    <div className="fg"><label className="fl">Type</label>
-                      <select className="fse" value={dForm.type} onChange={e=>setDForm(f=>({...f,type:e.target.value}))}>
-                        {DEAL_TYPES.filter(t=>t.id!=="all").map(t=><option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}
-                      </select></div>
-                    <div className="fg"><label className="fl">Titre *</label>
-                      <input className="fi" placeholder="Pizza -50%, concert gratuit…" value={dForm.title} onChange={e=>setDForm(f=>({...f,title:e.target.value}))}/></div>
-                    <div className="fg"><label className="fl">Description</label>
-                      <textarea className="fta" placeholder="Détails, conditions, horaires…" value={dForm.desc} onChange={e=>setDForm(f=>({...f,desc:e.target.value}))}/></div>
-                    <div className="fg"><label className="fl">Lieu / Adresse *</label>
-                      <input className="fi" placeholder="12 rue du Commerce, Paris 15e" value={dForm.location} onChange={e=>setDForm(f=>({...f,location:e.target.value}))}/></div>
-                    <button className="btn-p" onClick={addDeal}>Publier le bon plan 🚀</button>
-                  </>
-                }
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── MODAL ADD PLACE ── */}
-        {modal==="add-place"&&(
-          <div className="ov" onClick={()=>setModal(null)}>
-            <div className="mo" onClick={e=>e.stopPropagation()}>
-              <div className="mhd"/>
-              <div className="mhead"><span className="mtl">📍 Ajouter un lieu</span><button className="ibt" onClick={()=>setModal(null)}><Ico d={ic.x} s={16}/></button></div>
-              <div className="mbody">
-                {!user
-                  ?<div className="empty"><div className="empty-e">🔒</div><div className="empty-t">Connexion requise</div><button className="btn-p" style={{marginTop:12}} onClick={()=>setModal("settings")}>Se connecter</button></div>
-                  :<>
-                    <div className="fg"><label className="fl">Catégorie</label>
-                      <select className="fse" value={pForm.cat} onChange={e=>setPForm(f=>({...f,cat:e.target.value}))}>
-                        {PLACE_CATS.filter(c=>c.id!=="all").map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
-                      </select></div>
-                    <div className="fg"><label className="fl">Nom *</label>
-                      <input className="fi" placeholder="WC Châtelet, Fontaine Branly…" value={pForm.name} onChange={e=>setPForm(f=>({...f,name:e.target.value}))}/></div>
-                    <div className="fg"><label className="fl">Adresse *</label>
-                      <input className="fi" placeholder="14 av. de la République" value={pForm.address} onChange={e=>setPForm(f=>({...f,address:e.target.value}))}/></div>
-                    <div className="fg"><label className="fl">Horaires</label>
-                      <input className="fi" placeholder="6h-22h, Permanent…" value={pForm.hours} onChange={e=>setPForm(f=>({...f,hours:e.target.value}))}/></div>
-                    <button className="btn-p" onClick={addPlace}>Ajouter à la carte 🗺️</button>
-                  </>
-                }
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── MODAL ADD PRICE ── */}
-        {modal==="add-price"&&(
-          <div className="ov" onClick={()=>{setModal(null);setPrSel(null);}}>
-            <div className="mo" onClick={e=>e.stopPropagation()}>
-              <div className="mhd"/>
-              <div className="mhead">
-                <span className="mtl">{prSel?"Nouveau prix":"🏷️ Ajouter un produit"}</span>
-                <button className="ibt" onClick={()=>{setModal(null);setPrSel(null);}}><Ico d={ic.x} s={16}/></button>
-              </div>
-              <div className="mbody">
-                {!prSel&&<>
-                  <div className="fg"><label className="fl">Emoji</label>
-                    <input className="fi" maxLength={2} value={prForm.emoji} onChange={e=>setPrForm(f=>({...f,emoji:e.target.value}))} style={{fontSize:22,textAlign:"center"}}/></div>
-                  <div className="fg"><label className="fl">Nom du produit *</label>
-                    <input className="fi" placeholder="Beurre, iPhone…" value={prForm.name} onChange={e=>setPrForm(f=>({...f,name:e.target.value}))}/></div>
-                  <div className="fg"><label className="fl">Magasin</label>
-                    <input className="fi" placeholder="Carrefour, Amazon…" value={prForm.store} onChange={e=>setPrForm(f=>({...f,store:e.target.value}))}/></div>
-                </>}
-                <div className="fg"><label className="fl">Prix actuel (€) *</label>
-                  <input className="fi" type="number" step="0.01" placeholder="2.99" value={prForm.price} onChange={e=>setPrForm(f=>({...f,price:e.target.value}))}/></div>
-                <button className="btn-p" onClick={addPrice}>{prSel?"Enregistrer le prix ✓":"Commencer le suivi 📊"}</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {toast&&<div className="toast">{toast}</div>}
-      </div>
-    </>
-  );
+      {toast&&<div className="toast">{toast}</div>}
+    </div>
+  </>);
 }
