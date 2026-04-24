@@ -1,1085 +1,1115 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<meta name="theme-color" content="#080D1A"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="description" content="Radar Bons Plans — Économise au quotidien"/>
-<title>Radar Bons Plans</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-<style>
-:root {
-  --bg: #080D1A;
-  --surface: #0F1623;
-  --card: #161F30;
-  --card2: #1C2840;
-  --border: #243048;
-  --border2: #2E3D5C;
-  --accent: #F59E0B;
-  --accent2: #FCD34D;
-  --accent-dim: rgba(245,158,11,0.12);
-  --green: #10B981;
-  --green-dim: rgba(16,185,129,0.12);
-  --red: #EF4444;
-  --red-dim: rgba(239,68,68,0.12);
-  --blue: #3B82F6;
-  --blue-dim: rgba(59,130,246,0.12);
-  --purple: #8B5CF6;
-  --text: #F1F5F9;
-  --text2: #94A3B8;
-  --text3: #64748B;
-  --nav-h: 68px;
-  --top-h: 56px;
-  --r: 14px;
-  --r2: 20px;
-  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+import { useState, useEffect, useRef } from "react";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+
+// ── Storage ──────────────────────────────────────────────────────────────────
+const sg = async (k) => { try { const r = await window.storage.get(k, true); return r ? JSON.parse(r.value) : null; } catch { return null; } };
+const ss = async (k, v) => { try { await window.storage.set(k, JSON.stringify(v), true); } catch {} };
+
+// ── Sample Data ───────────────────────────────────────────────────────────────
+const SAMPLE_DEALS = [
+  { id:"d1", type:"promo", title:"Boulangerie Simon : viennoiseries -50% à 19h", desc:"Chaque soir à partir de 19h, invendus bradés. Croissants, pains au chocolat, baguettes.", location:"14 rue du Commerce, Paris 15e", author:"Mathieu R.", avatar:"🧑", date:"2025-04-22", up:62, down:3, vote:null, saved:false, comments:[
+    { id:"c1", author:"Léa B.", text:"Confirmé hier ! Y'avait encore des croissants à 18h55 😄", likes:14 },
+    { id:"c2", author:"Ahmed T.", text:"La boulangère est sympa, elle fait un paquet avec tout ce qui reste.", likes:8 },
+  ]},
+  { id:"d2", type:"gratuit", title:"Bibliothèque de la Mairie : livres gratuits à donner", desc:"Box dehors avec des livres en libre service, ça tourne tous les jours.", location:"Place de la Mairie, Lyon 3e", author:"Sarah K.", avatar:"👩", date:"2025-04-21", up:41, down:2, vote:null, saved:false, comments:[]},
+  { id:"d3", type:"event", title:"Concert gratuit au Parc des Buttes-Chaumont", desc:"Trio de jazz tous les samedis en mai de 15h à 17h. Apporter un pique-nique.", location:"Parc des Buttes-Chaumont, Paris 19e", author:"Nina M.", avatar:"👩‍🦱", date:"2025-04-20", up:89, down:1, vote:null, saved:false, comments:[
+    { id:"c3", author:"Tom R.", text:"Y'était top la semaine dernière ! On était 200 personnes.", likes:22 },
+  ]},
+];
+
+const SAMPLE_PLACES = [
+  { id:"p1", cat:"toilettes", label:"Toilettes Publiques", icon:"🚻", name:"WC Châtelet - Les Halles", address:"Forum des Halles, Paris 1er", hours:"6h-23h", offline:true },
+  { id:"p2", cat:"fontaine", label:"Fontaine d'eau", icon:"💧", name:"Fontaine Branly", address:"Pont d'Iéna, Paris 7e", hours:"Permanent", offline:true },
+  { id:"p3", cat:"wifi", label:"Wi-Fi gratuit", icon:"📶", name:"Wi-Fi Mairie de Paris - Hôtel de Ville", address:"Place de l'Hôtel de Ville, Paris 4e", hours:"Permanent", offline:true },
+  { id:"p4", cat:"prise", label:"Prise électrique", icon:"🔌", name:"McDonald's Opéra", address:"27 bd des Italiens, Paris 9e", hours:"7h-0h", offline:true },
+  { id:"p5", cat:"parking", label:"Parking gratuit", icon:"🅿️", name:"Parking Décathlon Porte de la Villette", address:"Av. Corentin Cariou, Paris 19e", hours:"9h-22h", offline:true },
+  { id:"p6", cat:"eau", label:"Fontaine Pétillante", icon:"🫧", name:"Fontaine pétillante Square de la Roquette", address:"Rue de la Roquette, Paris 11e", hours:"Permanent", offline:true },
+];
+
+const PLACE_CATS = [
+  { id:"all", label:"Tout", icon:"📍" },
+  { id:"toilettes", label:"Toilettes", icon:"🚻" },
+  { id:"fontaine", label:"Eau plate", icon:"💧" },
+  { id:"eau", label:"Eau pétillante", icon:"🫧" },
+  { id:"wifi", label:"Wi-Fi", icon:"📶" },
+  { id:"prise", label:"Prises", icon:"🔌" },
+  { id:"parking", label:"Parking", icon:"🅿️" },
+];
+
+const DEAL_TYPES = [
+  { id:"all", label:"Tous", icon:"📡" },
+  { id:"promo", label:"Promo", icon:"🏷️" },
+  { id:"gratuit", label:"Gratuit", icon:"🎁" },
+  { id:"event", label:"Événement", icon:"🎉" },
+  { id:"nourriture", label:"Nourriture", icon:"🥗" },
+  { id:"service", label:"Service", icon:"🛠️" },
+];
+
+const MISSIONS = [
+  { id:"m1", label:"Signaler 1 bon plan", pts:50, icon:"📡", done:false },
+  { id:"m2", label:"Économiser 2€ aujourd'hui", pts:30, icon:"💰", done:false },
+  { id:"m3", label:"Éviter un achat inutile", pts:20, icon:"🛑", done:false },
+  { id:"m4", label:"Trouver un endroit gratuit", pts:40, icon:"🗺️", done:false },
+  { id:"m5", label:"Sauvegarder un bon plan", pts:15, icon:"🔖", done:false },
+];
+
+const ANTI_FLEMME = [
+  "Vérifie le prix de ton café quotidien — 1€/jour = 365€/an 😮",
+  "Ajoute un bon plan que tu connais. 30 secondes, ça aide tout le monde.",
+  "Regarde si un parc est gratuit près de toi pour ta pause déjeuner.",
+  "Télécharge une appli de cashback. 5 min de setup = des économies passives.",
+  "Cherche si ton musée préféré a des nocturnes gratuites ce mois-ci.",
+  "Vérifie ton dernier relevé bancaire — tu abonnes-tu à quelque chose d'inutile ?",
+  "Signale une fontaine d'eau gratuite proche de chez toi sur la carte.",
+  "Prépare ta liste de courses avant d'aller au supermarché. Ça réduit les achats impulsifs.",
+  "Cherche une recette avec ce qui traîne dans ton frigo avant de commander.",
+  "Partage Spotto à un ami qui cherche des bons plans 😉",
+];
+
+// ── CSS ───────────────────────────────────────────────────────────────────────
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F4F6FB;--surface:#FFFFFF;--surface2:#EEF1F8;--border:#DDE2EE;
+  --text:#0D1117;--text2:#6B7280;--text3:#9CA3AF;
+  --blue:#2563EB;--blue-light:#EFF6FF;--blue-dim:#DBEAFE;
+  --teal:#0891B2;--teal-light:#ECFEFF;
+  --amber:#D97706;--amber-light:#FFFBEB;
+  --green:#059669;--green-light:#ECFDF5;
+  --red:#DC2626;--red-light:#FEF2F2;
+  --radius:14px;--radius-sm:9px;
+  --shadow:0 1px 8px rgba(0,0,0,.07);--shadow-lg:0 6px 28px rgba(0,0,0,.12);
+  --topbar:60px;--botbar:68px;
+  --t:.2s cubic-bezier(.4,0,.2,1);
+  --mod-color:var(--blue);--mod-light:var(--blue-light);
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:var(--bg);color:var(--text)}
-#app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+[data-theme=dark]{
+  --bg:#0C0E1A;--surface:#131625;--surface2:#1A1E30;--border:#252A40;
+  --text:#F0F4FF;--text2:#8892A4;--text3:#4B5563;
+  --blue-light:#1E2840;--blue-dim:#1E3A5F;
+  --teal-light:#0C2A33;--amber-light:#292000;--green-light:#0A2018;--red-light:#2A0A0A;
+  --shadow:0 1px 8px rgba(0,0,0,.4);--shadow-lg:0 6px 28px rgba(0,0,0,.6);
+}
+body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
+.app{min-height:100vh;background:var(--bg);transition:background var(--t),color var(--t);}
 
 /* TOPBAR */
-#topbar{
-  flex-shrink:0;height:var(--top-h);display:flex;align-items:center;
-  padding:0 16px;background:var(--surface);
-  border-bottom:1px solid var(--border);
-  position:relative;z-index:10;
-}
-.tb-logo{display:flex;align-items:center;gap:8px;flex:1}
-.tb-logo .dot{width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.tb-logo span{font-size:15px;font-weight:700;letter-spacing:-0.3px}
-.tb-logo span em{color:var(--accent);font-style:normal}
-.tb-right{display:flex;align-items:center;gap:8px}
-.offline-badge{
-  display:flex;align-items:center;gap:4px;padding:3px 8px;
-  background:var(--green-dim);border:1px solid var(--green);
-  border-radius:20px;font-size:11px;font-weight:600;color:var(--green);
-  transition:all .3s;
-}
-.offline-badge.offline{background:var(--red-dim);border-color:var(--red);color:var(--red)}
-.offline-badge .dot-pulse{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border2);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--topbar);
+  background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 16px;gap:10px;}
+.logo{font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;color:var(--mod-color);transition:color var(--t);}
+.logo em{color:var(--text);font-style:normal;}
+.topbar-search{flex:1;display:flex;align-items:center;gap:7px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:8px 11px;max-width:300px;}
+.topbar-search input{background:none;border:none;outline:none;font-family:'Manrope',sans-serif;
+  font-size:13px;color:var(--text);width:100%;}
+.topbar-search input::placeholder{color:var(--text3);}
+.ibt{width:38px;height:38px;border-radius:10px;background:var(--surface2);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text);transition:all var(--t);}
+.ibt:hover{background:var(--mod-color);color:#fff;border-color:var(--mod-color);}
+.offline-dot{width:8px;height:8px;border-radius:50%;background:#F59E0B;
+  box-shadow:0 0 0 2px var(--surface);margin-left:4px;}
+.online-dot{background:var(--green);}
 
-/* MAIN SCROLL AREA */
-#main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-#main::-webkit-scrollbar{display:none}
-
-/* BOTTOM NAV */
-#nav{
-  flex-shrink:0;height:var(--nav-h);display:flex;
+/* BOTBAR */
+.botbar{position:fixed;bottom:0;left:0;right:0;z-index:200;height:var(--botbar);
   background:var(--surface);border-top:1px solid var(--border);
-  position:relative;z-index:10;padding-bottom:env(safe-area-inset-bottom);
-}
-.nav-item{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;cursor:pointer;transition:all .2s;padding:6px 0;position:relative;
-}
-.nav-item svg{width:22px;height:22px;stroke:var(--text3);stroke-width:1.8;fill:none;transition:all .2s}
-.nav-item span{font-size:10px;font-weight:500;color:var(--text3);transition:all .2s}
-.nav-item.active svg{stroke:var(--accent)}
-.nav-item.active span{color:var(--accent)}
-.nav-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--accent);border-radius:0 0 4px 4px}
-.nav-item.center-btn{flex:0 0 72px}
-.nav-center{
-  width:48px;height:48px;border-radius:16px;background:var(--accent);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  box-shadow:0 4px 20px rgba(245,158,11,0.4);transition:transform .15s;
-}
-.nav-center:active{transform:scale(0.93)}
-.nav-center svg{width:22px;height:22px;stroke:#000;stroke-width:2.5;fill:none}
+  display:flex;align-items:center;justify-content:space-around;
+  padding-bottom:env(safe-area-inset-bottom);}
+.nbt{display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;cursor:pointer;color:var(--text3);
+  padding:6px 14px;border-radius:10px;transition:color var(--t);font-family:'Manrope',sans-serif;}
+.nbt span{font-size:10px;font-weight:600;letter-spacing:.2px;}
+.nbt.a{color:var(--mod-color);}
 
-/* TABS */
-.tab{display:none;padding:16px 16px calc(16px + var(--nav-h))}
-.tab.active{display:block}
+/* FEED / CONTENT */
+.feed{padding:calc(var(--topbar) + 52px + 12px) 14px calc(var(--botbar) + 14px);
+  max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+.content{padding:calc(var(--topbar) + 12px) 14px calc(var(--botbar) + 14px);
+  max-width:560px;margin:0 auto;}
 
-/* SECTION HEADERS */
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.sec-head h2{font-size:18px;font-weight:700;letter-spacing:-0.3px}
-.sec-head a{font-size:12px;color:var(--accent);font-weight:600;cursor:pointer}
-.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-green{background:var(--green-dim);color:var(--green)}
-.badge-amber{background:var(--accent-dim);color:var(--accent)}
-.badge-blue{background:var(--blue-dim);color:var(--blue)}
-.badge-red{background:var(--red-dim);color:var(--red)}
-.badge-purple{background:rgba(139,92,246,0.12);color:var(--purple)}
+/* FILTER BAR */
+.fbar{position:fixed;top:var(--topbar);left:0;right:0;z-index:190;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  overflow-x:auto;scrollbar-width:none;padding:9px 0;}
+.fbar::-webkit-scrollbar{display:none;}
+.fbar-inner{display:flex;gap:7px;padding:0 14px;width:max-content;}
+.chip{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;
+  background:var(--surface2);color:var(--text2);border:1px solid var(--border);
+  cursor:pointer;transition:all var(--t);white-space:nowrap;font-family:'Manrope',sans-serif;}
+.chip.a{background:var(--mod-color);color:#fff;border-color:var(--mod-color);}
+.chip:hover:not(.a){border-color:var(--mod-color);color:var(--mod-color);}
 
 /* CARDS */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
-.card2{background:var(--card2);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);transition:all var(--t);overflow:hidden;}
+.card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.card.clickable{cursor:pointer;}
+.card:active{transform:scale(.99);}
 
-/* ========== MODULE 1 : RADAR ========== */
-.filter-bar{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px}
-.filter-bar::-webkit-scrollbar{display:none}
-.chip{
-  flex-shrink:0;padding:6px 12px;border-radius:20px;
-  font-size:12px;font-weight:600;cursor:pointer;
-  background:var(--card);border:1px solid var(--border);color:var(--text2);
-  transition:all .2s;
-}
-.chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
-.deal-card{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r2);padding:14px;margin-bottom:10px;
-  transition:border-color .2s;
-}
-.deal-card:active{border-color:var(--border2)}
-.deal-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
-.deal-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.deal-info{flex:1}
-.deal-title{font-size:14px;font-weight:700;margin-bottom:2px;line-height:1.3}
-.deal-meta{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px}
-.deal-meta span{display:flex;align-items:center;gap:2px}
-.deal-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
-.deal-actions{display:flex;gap:6px}
-.action-btn{
-  display:flex;align-items:center;gap:4px;padding:6px 10px;
-  border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
-  border:1px solid var(--border);background:var(--card2);color:var(--text2);
-  transition:all .2s;
-}
-.action-btn.liked{background:var(--red-dim);border-color:var(--red);color:var(--red)}
-.action-btn.saved{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
-.deal-time{font-size:11px;color:var(--text3)}
+/* DEAL CARD */
+.dc-top{padding:13px 14px 0;display:flex;align-items:flex-start;gap:9px;}
+.dc-ava{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--mod-color),#60A5FA);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.dc-meta{flex:1;min-width:0;}
+.dc-author{font-size:12px;font-weight:700;color:var(--text);}
+.dc-date{font-size:11px;color:var(--text3);}
+.dc-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;
+  background:var(--blue-dim);color:var(--blue);white-space:nowrap;}
+.dc-body{padding:10px 14px 12px;}
+.dc-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;
+  color:var(--text);margin-bottom:4px;line-height:1.35;}
+.dc-desc{font-size:13px;color:var(--text2);line-height:1.55;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.dc-loc{display:flex;align-items:center;gap:4px;margin-top:7px;font-size:12px;color:var(--text3);}
+.dc-foot{padding:8px 14px 12px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;}
+.vb{display:flex;align-items:center;gap:4px;background:none;border:none;
+  cursor:pointer;font-size:12px;font-weight:700;color:var(--text2);
+  padding:5px 9px;border-radius:7px;transition:all var(--t);font-family:'Manrope',sans-serif;}
+.vb:hover{background:var(--surface2);}
+.vb.up.on{color:var(--green);}
+.vb.dn.on{color:var(--red);}
+.saved-btn{margin-left:auto;background:none;border:none;cursor:pointer;
+  font-size:18px;transition:transform .2s;}
+.saved-btn:hover{transform:scale(1.2);}
 
-/* ========== MODULE 2 : CARTE ========== */
-.map-hero{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r2);overflow:hidden;margin-bottom:14px;
-}
-.map-placeholder{
-  height:160px;background:linear-gradient(135deg,#0F2027,#203A43,#2C5364);
-  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
-}
-.map-dots{position:absolute;inset:0}
-.map-dot{position:absolute;width:8px;height:8px;border-radius:50%;animation:map-ping 2s infinite}
-.map-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid currentColor;animation:map-ring 2s infinite;opacity:0}
-@keyframes map-ping{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-@keyframes map-ring{0%{transform:scale(0.8);opacity:.8}100%{transform:scale(2);opacity:0}}
-.map-label{
-  background:rgba(8,13,26,0.8);backdrop-filter:blur(8px);
-  border:1px solid var(--border);border-radius:10px;padding:8px 12px;text-align:center;
-}
-.map-label p{font-size:13px;font-weight:600;margin-bottom:2px}
-.map-label span{font-size:11px;color:var(--text2)}
-.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.cat-card{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r);padding:12px 8px;text-align:center;cursor:pointer;
-  transition:all .2s;
-}
-.cat-card.active{border-color:var(--accent);background:var(--accent-dim)}
-.cat-card .icon{font-size:24px;margin-bottom:4px}
-.cat-card span{font-size:11px;font-weight:600;color:var(--text2);display:block}
-.cat-card.active span{color:var(--accent)}
-.place-item{
-  display:flex;align-items:center;gap:12px;padding:12px;
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:all .2s;
-}
-.place-item:active{border-color:var(--border2)}
-.place-dot{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.place-info{flex:1}
-.place-name{font-size:13px;font-weight:700;margin-bottom:2px}
-.place-addr{font-size:11px;color:var(--text2)}
-.place-dist{font-size:11px;font-weight:600;color:var(--accent)}
+/* SECTION HEADER */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;
+  padding-top:18px;}
+.sh h2{font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;color:var(--text);}
+.sh-sub{font-size:13px;color:var(--text2);margin-top:2px;}
 
-/* ========== MODULE 3 : PRIX ========== */
-.price-hero{
-  background:linear-gradient(135deg,var(--card) 0%,var(--card2) 100%);
-  border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:14px;
-}
-.price-hero-title{font-size:13px;color:var(--text2);margin-bottom:4px}
-.price-hero-val{font-size:32px;font-weight:800;color:var(--accent);letter-spacing:-1px}
-.price-hero-val span{font-size:14px;font-weight:500;color:var(--text2)}
-.price-hero-row{display:flex;gap:12px;margin-top:12px}
-.price-stat{flex:1;background:rgba(0,0,0,0.2);border-radius:10px;padding:10px;text-align:center}
-.price-stat .val{font-size:16px;font-weight:700}
-.price-stat .lbl{font-size:10px;color:var(--text2);margin-top:2px}
-.price-item{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r);padding:14px;margin-bottom:8px;
-}
-.price-item-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.price-item-icon{width:40px;height:40px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px}
-.price-item-info{flex:1}
-.price-item-name{font-size:13px;font-weight:700}
-.price-item-shop{font-size:11px;color:var(--text2)}
-.price-item-price{font-size:18px;font-weight:800}
-.price-trend{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600}
-.price-trend.up{color:var(--red)}
-.price-trend.down{color:var(--green)}
-.price-trend.same{color:var(--text3)}
-.mini-chart{display:flex;align-items:flex-end;gap:3px;height:32px;margin-top:8px}
-.mini-bar{flex:1;border-radius:3px 3px 0 0;transition:height .3s;min-height:4px}
+/* STAT ROW */
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px 12px;text-align:center;box-shadow:var(--shadow);}
+.stat-val{font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;color:var(--mod-color);}
+.stat-lbl{font-size:11px;color:var(--text2);margin-top:2px;font-weight:600;}
 
-/* ========== MODULE 4 : MISSIONS ========== */
-.xp-bar-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:14px}
-.xp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.xp-level{display:flex;align-items:center;gap:8px}
-.level-badge{
-  width:36px;height:36px;border-radius:10px;background:var(--accent);
+/* PLACE CARD */
+.pc{display:flex;align-items:center;gap:11px;padding:12px 14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  margin-bottom:9px;box-shadow:var(--shadow);}
+.pc-icon{width:40px;height:40px;border-radius:10px;background:var(--mod-light);
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.pc-info{flex:1;min-width:0;}
+.pc-name{font-size:14px;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pc-addr{font-size:12px;color:var(--text2);margin-top:1px;}
+.pc-hours{font-size:11px;color:var(--green);font-weight:600;margin-top:2px;}
+.pc-offline{font-size:10px;background:var(--amber-light);color:var(--amber);
+  padding:2px 7px;border-radius:6px;font-weight:700;white-space:nowrap;}
+
+/* PRICE TRACKER */
+.price-item{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px;}
+.pi-head{padding:13px 14px;display:flex;align-items:center;gap:10px;}
+.pi-emoji{width:40px;height:40px;border-radius:10px;background:var(--amber-light);
+  display:flex;align-items:center;justify-content:center;font-size:20px;}
+.pi-name{font-size:15px;font-weight:700;color:var(--text);}
+.pi-store{font-size:12px;color:var(--text2);}
+.pi-current{margin-left:auto;text-align:right;}
+.pi-price{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:var(--text);}
+.pi-trend{font-size:11px;font-weight:700;}
+.pi-trend.up{color:var(--red);}
+.pi-trend.dn{color:var(--green);}
+.pi-trend.eq{color:var(--text3);}
+.pi-chart{padding:0 14px 14px;height:90px;}
+
+/* MISSIONS */
+.miss-header{background:linear-gradient(135deg,var(--green) 0%,#34D399 100%);
+  border-radius:var(--radius);padding:18px 16px;margin-bottom:16px;color:#fff;}
+.miss-pts{font-family:'Outfit',sans-serif;font-size:36px;font-weight:800;line-height:1;}
+.miss-lbl{font-size:13px;opacity:.85;margin-top:3px;}
+.miss-streak{font-size:12px;background:rgba(255,255,255,.2);
+  padding:3px 10px;border-radius:20px;display:inline-block;margin-top:8px;font-weight:600;}
+.mission{display:flex;align-items:center;gap:12px;padding:13px 14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  margin-bottom:9px;box-shadow:var(--shadow);cursor:pointer;transition:all var(--t);}
+.mission:hover{border-color:var(--green);}
+.mission.done{opacity:.6;}
+.miss-ico{width:40px;height:40px;border-radius:10px;background:var(--green-light);
+  display:flex;align-items:center;justify-content:center;font-size:20px;}
+.miss-txt{flex:1;}
+.miss-name{font-size:14px;font-weight:600;color:var(--text);}
+.miss-reward{font-size:12px;color:var(--green);font-weight:700;margin-top:1px;}
+.miss-check{width:26px;height:26px;border-radius:8px;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;transition:all var(--t);}
+.miss-check.on{background:var(--green);border-color:var(--green);color:#fff;}
+
+/* ANTI-FLEMME */
+.af-card{background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);
+  border-radius:var(--radius);padding:24px 20px;text-align:center;margin-bottom:16px;
+  position:relative;overflow:hidden;}
+.af-card::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 40%,rgba(37,99,235,.3),transparent 60%),
+              radial-gradient(ellipse at 80% 80%,rgba(5,150,105,.2),transparent 50%);}
+.af-card *{position:relative;}
+.af-btn{background:#FACC15;color:#0F172A;border:none;border-radius:12px;
+  padding:14px 28px;font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;
+  cursor:pointer;transition:all var(--t);display:inline-block;margin-bottom:16px;}
+.af-btn:hover{transform:scale(1.04);box-shadow:0 4px 20px rgba(250,204,21,.4);}
+.af-btn:active{transform:scale(.98);}
+.af-tip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;padding:14px 16px;color:rgba(255,255,255,.9);
+  font-size:14px;line-height:1.6;text-align:left;transition:all .4s;}
+.af-tip.entering{animation:tipIn .4s ease;}
+@keyframes tipIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.af-title{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;}
+.af-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:18px;}
+
+/* PROFILE */
+.prof-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 16px;margin-bottom:14px;box-shadow:var(--shadow);}
+.prof-top{display:flex;align-items:center;gap:13px;margin-bottom:16px;}
+.prof-ava{width:58px;height:58px;border-radius:16px;
+  background:linear-gradient(135deg,var(--blue),#60A5FA);
+  display:flex;align-items:center;justify-content:center;font-size:28px;}
+.prof-name{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;}
+.prof-email{font-size:12px;color:var(--text2);margin-top:2px;}
+.prof-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.ps{text-align:center;padding:10px;background:var(--surface2);border-radius:9px;}
+.ps-val{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:var(--blue);}
+.ps-lbl{font-size:10px;color:var(--text2);font-weight:600;margin-top:1px;}
+
+/* SETTINGS ITEMS */
+.si{display:flex;align-items:center;gap:11px;padding:12px 14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  margin-bottom:9px;cursor:pointer;transition:all var(--t);}
+.si:hover{border-color:var(--mod-color);}
+.si-ico{width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;}
+.si-lbl{font-size:14px;font-weight:600;color:var(--text);}
+.si-sub{font-size:12px;color:var(--text2);}
+.toggle{width:42px;height:23px;border-radius:12px;background:var(--border);
+  position:relative;cursor:pointer;transition:background var(--t);border:none;margin-left:auto;}
+.toggle.on{background:var(--mod-color);}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:19px;height:19px;
+  border-radius:10px;background:#fff;transition:transform var(--t);box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle.on::after{transform:translateX(19px);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.55);
+  backdrop-filter:blur(4px);display:flex;align-items:flex-end;animation:fo .2s ease;}
+@keyframes fo{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--surface);border-radius:22px 22px 0 0;
+  width:100%;max-width:560px;margin:0 auto;max-height:90vh;overflow-y:auto;
+  animation:su .3s cubic-bezier(.4,0,.2,1);scrollbar-width:thin;}
+@keyframes su{from{transform:translateY(60px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.mhandle{width:32px;height:4px;background:var(--border);border-radius:4px;margin:10px auto 0;}
+.mhead{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);}
+.mtitle{font-family:'Outfit',sans-serif;font-weight:800;font-size:17px;}
+.mbody{padding:18px;}
+.fg{margin-bottom:13px;}
+.flbl{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.4px;}
+.fi,.fta,.fsel{width:100%;padding:10px 13px;background:var(--surface2);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);outline:none;
+  font-family:'Manrope',sans-serif;font-size:14px;color:var(--text);transition:border-color var(--t);}
+.fi:focus,.fta:focus,.fsel:focus{border-color:var(--mod-color);}
+.fta{resize:vertical;min-height:72px;}
+.fsel option{background:var(--surface);color:var(--text);}
+.btn-p{width:100%;padding:13px;border:none;border-radius:var(--radius-sm);cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;
+  background:var(--mod-color);color:#fff;transition:all var(--t);margin-top:4px;}
+.btn-p:hover{opacity:.9;transform:translateY(-1px);}
+.btn-p:active{transform:scale(.98);}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(var(--botbar) + 14px);right:18px;
+  width:54px;height:54px;border-radius:16px;border:none;
+  background:var(--mod-color);color:#fff;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  font-size:14px;font-weight:800;color:#000;
-}
-.xp-name{font-size:14px;font-weight:700}
-.xp-sub{font-size:11px;color:var(--text2)}
-.xp-pts{font-size:24px;font-weight:800;color:var(--accent)}
-.xp-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:8px}
-.xp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width 1s cubic-bezier(.34,1.56,.64,1)}
-.mission-card{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r);padding:14px;margin-bottom:8px;
-  transition:all .2s;cursor:pointer;
-}
-.mission-card.done{opacity:.5;pointer-events:none}
-.mission-card.done .mc-title::after{content:' ✓';color:var(--green)}
-.mc-head{display:flex;align-items:flex-start;gap:10px}
-.mc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.mc-body{flex:1}
-.mc-title{font-size:13px;font-weight:700;margin-bottom:2px}
-.mc-desc{font-size:11px;color:var(--text2);margin-bottom:8px}
-.mc-progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
-.mc-fill{height:100%;border-radius:3px;transition:width .5s}
-.mc-reward{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
-.mc-xp{font-size:12px;font-weight:700;color:var(--accent)}
-.mc-cta{font-size:11px;color:var(--blue);font-weight:600}
-.streak-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
-.streak-day{
-  aspect-ratio:1;border-radius:8px;background:var(--card);border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3);
-  font-weight:600;flex-direction:column;gap:1px;
-}
-.streak-day.done{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
-.streak-day .day-dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
-.streak-day.done .day-dot{background:var(--accent)}
+  box-shadow:0 4px 20px color-mix(in srgb,var(--mod-color) 50%,transparent);
+  transition:all var(--t);z-index:180;}
+.fab:hover{transform:scale(1.08) rotate(90deg);}
+.fab:active{transform:scale(.96);}
 
-/* ========== MODULE 5 : ANTI-FLEMME ========== */
-.anti-hero{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r2);padding:24px;text-align:center;margin-bottom:16px;
-}
-.anti-face{font-size:64px;margin-bottom:12px;display:block;animation:float 3s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.anti-hero h2{font-size:20px;font-weight:800;margin-bottom:6px}
-.anti-hero p{font-size:13px;color:var(--text2);max-width:260px;margin:0 auto 20px}
-.anti-btn{
-  width:100%;padding:16px;border-radius:14px;font-size:16px;font-weight:700;
-  font-family:'Sora',sans-serif;cursor:pointer;border:none;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:#000;transition:transform .15s;
-}
-.anti-btn:active{transform:scale(0.97)}
-.anti-response{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r2);padding:20px;margin-bottom:12px;
-  animation:slide-up .4s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes slide-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.anti-response .emoji{font-size:40px;margin-bottom:8px}
-.anti-response h3{font-size:15px;font-weight:700;margin-bottom:4px}
-.anti-response p{font-size:13px;color:var(--text2);line-height:1.5}
-.anti-tip{
-  background:var(--green-dim);border:1px solid var(--green);
-  border-radius:var(--r);padding:12px 14px;margin-bottom:8px;
-  font-size:12px;color:var(--text);
-}
-.anti-tip strong{color:var(--green)}
-.counter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.counter-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
-.counter-val{font-size:28px;font-weight:800;color:var(--accent)}
-.counter-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+/* COMMENT */
+.cmt{display:flex;gap:9px;margin-bottom:10px;padding:11px;
+  background:var(--surface2);border-radius:10px;}
+.cmt-ava{width:30px;height:30px;border-radius:8px;background:var(--blue-dim);
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.cmt-author{font-size:12px;font-weight:700;}
+.cmt-text{font-size:13px;color:var(--text);margin-top:2px;line-height:1.5;}
+.cmt-like{font-size:11px;color:var(--text3);background:none;border:none;
+  cursor:pointer;margin-top:4px;font-family:'Manrope',sans-serif;}
+.cmt-row{display:flex;gap:8px;align-items:center;margin-top:14px;}
+.cmt-input{flex:1;padding:9px 12px;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:10px;outline:none;font-family:'Manrope',sans-serif;font-size:13px;color:var(--text);
+  transition:border-color var(--t);}
+.cmt-input:focus{border-color:var(--mod-color);}
+.csend{width:38px;height:38px;border-radius:10px;background:var(--mod-color);
+  color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
-/* ========== MODAL ========== */
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
-  z-index:100;display:none;align-items:flex-end;padding:0;
-  animation:fade-in .2s;
-}
-.modal-overlay.open{display:flex}
-@keyframes fade-in{from{opacity:0}to{opacity:1}}
-.modal{
-  width:100%;max-height:90vh;background:var(--surface);border-radius:24px 24px 0 0;
-  border-top:1px solid var(--border);padding:20px 16px;
-  animation:slide-modal .3s cubic-bezier(.34,1.56,.64,1);
-  overflow-y:auto;
-}
-@keyframes slide-modal{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 16px}
-.modal h3{font-size:17px;font-weight:700;margin-bottom:16px}
-.form-group{margin-bottom:12px}
-.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px}
-.form-input{
-  width:100%;padding:12px;background:var(--card);border:1px solid var(--border);
-  border-radius:10px;font-size:14px;color:var(--text);font-family:'Sora',sans-serif;
-  outline:none;transition:border-color .2s;
-}
-.form-input:focus{border-color:var(--accent)}
-.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.type-chip{
-  padding:10px 6px;border-radius:10px;text-align:center;cursor:pointer;
-  background:var(--card);border:1px solid var(--border);transition:all .2s;
-}
-.type-chip .tc-icon{font-size:20px}
-.type-chip .tc-label{font-size:11px;color:var(--text2);display:block;margin-top:3px;font-weight:600}
-.type-chip.sel{border-color:var(--accent);background:var(--accent-dim)}
-.type-chip.sel .tc-label{color:var(--accent)}
-.submit-btn{
-  width:100%;padding:14px;border-radius:12px;font-size:14px;font-weight:700;
-  font-family:'Sora',sans-serif;cursor:pointer;border:none;margin-top:8px;
-  background:var(--accent);color:#000;transition:opacity .2s;
-}
-.submit-btn:active{opacity:.8}
-
-/* EMPTY STATE */
-.empty{text-align:center;padding:40px 20px;color:var(--text3)}
-.empty .emoji{font-size:40px;margin-bottom:8px}
-.empty p{font-size:13px}
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--text2);}
+.empty-e{font-size:44px;margin-bottom:10px;}
+.empty-t{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;color:var(--text);margin-bottom:5px;}
 
 /* TOAST */
-#toast{
-  position:fixed;bottom:calc(var(--nav-h) + 16px);left:50%;transform:translateX(-50%) translateY(20px);
-  background:var(--card2);border:1px solid var(--border2);border-radius:12px;
-  padding:10px 16px;font-size:13px;font-weight:600;z-index:200;
-  opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;
-}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast{position:fixed;bottom:calc(var(--botbar)+74px);left:50%;transform:translateX(-50%);
+  background:var(--text);color:var(--surface);padding:9px 18px;border-radius:20px;
+  font-size:13px;font-weight:600;z-index:999;white-space:nowrap;
+  animation:tin .3s ease,tout .3s 2.1s ease forwards;}
+@keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+@keyframes tout{to{opacity:0;transform:translateX(-50%) translateY(8px);}}
 
-/* SCROLLBAR HIDDEN */
-.tab::-webkit-scrollbar{display:none}
-</style>
-</head>
-<body>
-<div id="app">
+.sec-ttl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--text3);margin:18px 0 9px;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+`;
 
-  <!-- TOPBAR -->
-  <div id="topbar">
-    <div class="tb-logo">
-      <div class="dot">🎯</div>
-      <span>Radar <em>Bons Plans</em></span>
-    </div>
-    <div class="tb-right">
-      <div class="offline-badge" id="netBadge">
-        <div class="dot-pulse"></div>
-        <span id="netLabel">En ligne</span>
-      </div>
-      <div class="icon-btn" onclick="openModal('addModal')">
-        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </div>
-    </div>
-  </div>
+// ── SVG Icon ──────────────────────────────────────────────────────────────────
+const I = ({ d, s = 18, c = "" }) => (
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={c}>
+    {Array.isArray(d) ? d.map((p, i) => <path key={i} d={p} />) : <path d={d} />}
+  </svg>
+);
 
-  <!-- MAIN -->
-  <div id="main">
+const ic = {
+  radar: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.14 12 19.79 19.79 0 0 1 1.09 3.18 2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z",
+  map: ["M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z","M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6"],
+  tag: "M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z M7 7h.01",
+  zap: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
+  user: ["M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2","M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"],
+  plus: "M12 5v14M5 12h14",
+  x: "M18 6L6 18M6 6l12 12",
+  gear: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z",
+  search: "M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z",
+  thumb_up: "M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3",
+  thumb_dn: "M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17",
+  bookmark: "M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z",
+  comment: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
+  arrow: "M19 12H5M12 5l-7 7 7 7",
+  trend_up: "M23 6l-9.5 9.5-5-5L1 18 M17 6h6v6",
+  trend_dn: "M23 18l-9.5-9.5-5 5L1 6 M17 18h6v-6",
+  check: "M20 6L9 17l-5-5",
+  send: "M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z",
+  sun: "M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42 M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z",
+  moon: "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z",
+  logout: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9",
+  wifi: "M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01",
+};
 
-    <!-- TAB 1: RADAR -->
-    <div class="tab active" id="tab-radar">
-      <div class="sec-head">
-        <h2>🎯 Radar</h2>
-        <span class="badge badge-green" id="dealCount">0 actifs</span>
-      </div>
-      <div class="filter-bar" id="filterBar">
-        <div class="chip active" data-filter="all" onclick="filterDeals(this,'all')">Tout</div>
-        <div class="chip" data-filter="promo" onclick="filterDeals(this,'promo')">🏷️ Promo</div>
-        <div class="chip" data-filter="gratuit" onclick="filterDeals(this,'gratuit')">🎁 Gratuit</div>
-        <div class="chip" data-filter="event" onclick="filterDeals(this,'event')">📅 Événement</div>
-        <div class="chip" data-filter="food" onclick="filterDeals(this,'food')">🍕 Nourriture</div>
-        <div class="chip" data-filter="service" onclick="filterDeals(this,'service')">🔧 Service</div>
-      </div>
-      <div id="dealList"></div>
-    </div>
+// Module config
+const MODS = {
+  radar:   { color:"#2563EB", light:"#EFF6FF",  label:"Radar",    icon: ic.radar },
+  carte:   { color:"#0891B2", light:"#ECFEFF",  label:"Carte",    icon: ic.map },
+  prix:    { color:"#D97706", light:"#FFFBEB",  label:"Prix",     icon: ic.tag },
+  missions:{ color:"#059669", light:"#ECFDF5",  label:"Missions", icon: ic.zap },
+  profil:  { color:"#6366F1", light:"#EEF2FF",  label:"Profil",   icon: ic.user },
+};
 
-    <!-- TAB 2: CARTE -->
-    <div class="tab" id="tab-carte">
-      <div class="sec-head"><h2>🗺️ Lieux Utiles</h2></div>
-      <div class="map-hero">
-        <div class="map-placeholder">
-          <div class="map-dots" id="mapDots"></div>
-          <div class="map-label">
-            <p>📍 Autour de vous</p>
-            <span>Activez la localisation pour plus de précision</span>
+// ── Main ──────────────────────────────────────────────────────────────────────
+export default function App() {
+  const [tab, setTab] = useState("radar");
+  const [theme, setTheme] = useState("light");
+  const [online, setOnline] = useState(true);
+  const [deals, setDeals] = useState(SAMPLE_DEALS);
+  const [places, setPlaces] = useState(SAMPLE_PLACES);
+  const [prices, setPrices] = useState([]);
+  const [missions, setMissions] = useState(MISSIONS);
+  const [points, setPoints] = useState(0);
+  const [streak, setStreak] = useState(3);
+  const [user, setUser] = useState(null);
+  const [search, setSearch] = useState("");
+  const [dealFilter, setDealFilter] = useState("all");
+  const [placeFilter, setPlaceFilter] = useState("all");
+  const [savedIds, setSavedIds] = useState([]);
+  const [toast, setToast] = useState(null);
+  const [modal, setModal] = useState(null); // 'add-deal'|'add-place'|'add-price'|'deal-detail'|'settings'
+  const [selected, setSelected] = useState(null);
+  const [newComment, setNewComment] = useState("");
+  const [afTip, setAfTip] = useState(null);
+  const [afAnim, setAfAnim] = useState(false);
+
+  // Forms
+  const [dealForm, setDealForm] = useState({ type:"promo", title:"", desc:"", location:"" });
+  const [placeForm, setPlaceForm] = useState({ cat:"toilettes", name:"", address:"", hours:"" });
+  const [priceForm, setPriceForm] = useState({ name:"", store:"", price:"", emoji:"🛒" });
+
+  // Load storage
+  useEffect(() => {
+    (async () => {
+      const t = await sg("sp_theme"); if (t) setTheme(t);
+      const u = await sg("sp_user"); if (u) setUser(u);
+      const d = await sg("sp_deals"); if (d) setDeals(d);
+      const pl = await sg("sp_places"); if (pl) setPlaces(pl);
+      const pr = await sg("sp_prices"); if (pr) setPrices(pr);
+      const ms = await sg("sp_missions"); if (ms) setMissions(ms);
+      const pts = await sg("sp_points"); if (pts !== null) setPoints(pts);
+      const sv = await sg("sp_saved"); if (sv) setSavedIds(sv);
+      const st = await sg("sp_streak"); if (st !== null) setStreak(st);
+    })();
+  }, []);
+
+  // Apply theme + module color to CSS vars
+  useEffect(() => {
+    const m = MODS[tab];
+    const root = document.documentElement;
+    root.setAttribute("data-theme", theme);
+    root.style.setProperty("--mod-color", m.color);
+    root.style.setProperty("--mod-light", m.light);
+  }, [theme, tab]);
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
+
+  // ── Radar ──
+  const filteredDeals = deals.filter(d => {
+    const q = search.toLowerCase();
+    const ms = !q || d.title.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q) || d.location.toLowerCase().includes(q);
+    const mf = dealFilter === "all" || d.type === dealFilter;
+    const msv = tab !== "profil" || savedIds.includes(d.id);
+    return ms && mf && (tab !== "profil" || msv);
+  });
+
+  const vote = (id, dir) => {
+    if (!user) { showToast("Connecte-toi pour voter"); return; }
+    const next = deals.map(d => {
+      if (d.id !== id) return d;
+      const wasUp = d.vote === "up", wasDown = d.vote === "down";
+      let up = d.up, dn = d.down, vote = d.vote;
+      if (dir === "up") { if (wasUp) { up--; vote = null; } else { if (wasDown) dn--; up++; vote = "up"; } }
+      else { if (wasDown) { dn--; vote = null; } else { if (wasUp) up--; dn++; vote = "down"; } }
+      return { ...d, up, down: dn, vote };
+    });
+    setDeals(next); ss("sp_deals", next);
+    if (selected?.id === id) setSelected(next.find(x => x.id === id));
+  };
+
+  const toggleSave = (id) => {
+    const next = savedIds.includes(id) ? savedIds.filter(x => x !== id) : [...savedIds, id];
+    setSavedIds(next); ss("sp_saved", next);
+    showToast(next.includes(id) ? "Sauvegardé 🔖" : "Retiré des sauvegardes");
+  };
+
+  const addDeal = async () => {
+    if (!user) { showToast("Connecte-toi d'abord"); return; }
+    if (!dealForm.title.trim() || !dealForm.location.trim()) { showToast("Titre et lieu requis"); return; }
+    const d = { id:"d"+Date.now(), ...dealForm, desc:dealForm.desc, author:user.name, avatar:user.avatar,
+      date:new Date().toISOString().slice(0,10), up:0, down:0, vote:null, saved:false, comments:[] };
+    const next = [d, ...deals];
+    setDeals(next); await ss("sp_deals", next);
+    setDealForm({ type:"promo", title:"", desc:"", location:"" });
+    setModal(null); showToast("Bon plan publié ! 🎉");
+  };
+
+  const addComment = async () => {
+    if (!user) { showToast("Connecte-toi pour commenter"); return; }
+    if (!newComment.trim()) return;
+    const c = { id:"c"+Date.now(), author:user.name, text:newComment.trim(), likes:0 };
+    const next = deals.map(d => d.id === selected.id ? { ...d, comments:[...d.comments, c] } : d);
+    setDeals(next); await ss("sp_deals", next);
+    setSelected(next.find(x => x.id === selected.id));
+    setNewComment("");
+  };
+
+  // ── Carte ──
+  const filteredPlaces = places.filter(p => placeFilter === "all" || p.cat === placeFilter);
+
+  const addPlace = async () => {
+    if (!user) { showToast("Connecte-toi d'abord"); return; }
+    if (!placeForm.name.trim() || !placeForm.address.trim()) { showToast("Nom et adresse requis"); return; }
+    const cat = PLACE_CATS.find(c => c.id === placeForm.cat);
+    const p = { id:"p"+Date.now(), ...placeForm,
+      label: cat?.label || placeForm.cat, icon: cat?.icon || "📍", offline: true };
+    const next = [...places, p];
+    setPlaces(next); await ss("sp_places", next);
+    setPlaceForm({ cat:"toilettes", name:"", address:"", hours:"" });
+    setModal(null); showToast("Lieu ajouté à la carte ✓");
+  };
+
+  // ── Prix ──
+  const addPrice = async () => {
+    if (!priceForm.name.trim() || !priceForm.price.trim()) { showToast("Nom et prix requis"); return; }
+    const val = parseFloat(priceForm.price.replace(",", "."));
+    if (isNaN(val)) { showToast("Prix invalide"); return; }
+    const date = new Date().toLocaleDateString("fr-FR", { day:"2-digit", month:"short" });
+    const existing = prices.find(p => p.id === selected?.id);
+    if (selected && existing) {
+      const next = prices.map(p => p.id === selected.id
+        ? { ...p, history:[...p.history, { date, val }], current: val }
+        : p);
+      setPrices(next); await ss("sp_prices", next);
+      setSelected(null); setModal(null); showToast("Prix mis à jour ✓");
+    } else {
+      const p = { id:"pr"+Date.now(), name:priceForm.name, store:priceForm.store,
+        emoji:priceForm.emoji, current:val,
+        history:[{ date, val }] };
+      const next = [p, ...prices];
+      setPrices(next); await ss("sp_prices", next);
+      setPriceForm({ name:"", store:"", price:"", emoji:"🛒" });
+      setModal(null); showToast("Produit ajouté ✓");
+    }
+  };
+
+  // ── Missions ──
+  const completeMission = async (id) => {
+    if (!user) { showToast("Connecte-toi d'abord"); return; }
+    const next = missions.map(m => m.id === id && !m.done ? { ...m, done:true } : m);
+    const gained = missions.find(m => m.id === id && !m.done)?.pts || 0;
+    const newPoints = points + gained;
+    setMissions(next); setPoints(newPoints);
+    await ss("sp_missions", next); await ss("sp_points", newPoints);
+    if (gained > 0) showToast(`+${gained} pts gagnés ! 🏆`);
+  };
+
+  // ── Anti-Flemme ──
+  const triggerAf = () => {
+    const tip = ANTI_FLEMME[Math.floor(Math.random() * ANTI_FLEMME.length)];
+    setAfAnim(false); setTimeout(() => { setAfTip(tip); setAfAnim(true); }, 50);
+  };
+
+  // ── Auth ──
+  const login = async (provider) => {
+    const emojis = { Google:"😊", Apple:"🍎", Facebook:"💙" };
+    const u = { name:`Utilisateur ${provider}`, avatar:emojis[provider], email:`user@${provider.toLowerCase()}.com`, provider };
+    setUser(u); await ss("sp_user", u);
+    setModal(null); showToast(`Connecté via ${provider} ✓`);
+  };
+  const logout = async () => {
+    setUser(null); await ss("sp_user", null);
+    showToast("Déconnecté");
+  };
+
+  const toggleTheme = async () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next); await ss("sp_theme", next);
+  };
+
+  // ── Render helpers ──────────────────────────────────────────────────────────
+  const mod = MODS[tab];
+
+  // Price trend
+  const priceTrend = (history) => {
+    if (history.length < 2) return "eq";
+    return history[history.length-1].val > history[history.length-2].val ? "up" : "dn";
+  };
+
+  // ── RENDER ──────────────────────────────────────────────────────────────────
+  return (
+    <>
+      <style>{CSS}</style>
+      <div className="app">
+
+        {/* TOPBAR */}
+        <header className="topbar">
+          <div className="logo">Spot<em>to</em></div>
+          {(tab === "radar" || tab === "carte") && (
+            <div className="topbar-search">
+              <I d={ic.search} s={14} />
+              <input placeholder={tab === "radar" ? "Chercher un bon plan…" : "Chercher un lieu…"}
+                value={search} onChange={e => setSearch(e.target.value)} />
+            </div>
+          )}
+          <div style={{ display:"flex", gap:6, marginLeft:"auto" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+              <div className={`offline-dot ${online ? "online-dot" : ""}`} title={online ? "En ligne" : "Hors ligne"} />
+            </div>
+            <button className="ibt" onClick={() => setModal("settings")}><I d={ic.gear} s={17} /></button>
           </div>
-        </div>
-        <div style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border)">
-          <span style="font-size:12px;color:var(--text2)" id="placeCountLabel">Chargement…</span>
-          <span class="badge badge-blue" onclick="openModal('addPlaceModal')" style="cursor:pointer">+ Ajouter</span>
-        </div>
-      </div>
-      <div class="category-grid" id="catGrid"></div>
-      <div id="placeList"></div>
-    </div>
+        </header>
 
-    <!-- TAB 3: PRIX -->
-    <div class="tab" id="tab-prix">
-      <div class="sec-head"><h2>💰 Mémoire de Prix</h2></div>
-      <div class="price-hero">
-        <div class="price-hero-title">Économies détectées ce mois</div>
-        <div class="price-hero-val"><span id="savingsTotal">0</span> <span>€ économisés</span></div>
-        <div class="price-hero-row">
-          <div class="price-stat">
-            <div class="val" id="priceProdCount">0</div>
-            <div class="lbl">Produits suivis</div>
-          </div>
-          <div class="price-stat">
-            <div class="val" id="priceAlertCount" style="color:var(--red)">0</div>
-            <div class="lbl">Hausses détectées</div>
-          </div>
-          <div class="price-stat">
-            <div class="val" id="priceDipCount" style="color:var(--green)">0</div>
-            <div class="lbl">Baisses détectées</div>
-          </div>
-        </div>
-      </div>
-      <div class="sec-head">
-        <h2 style="font-size:15px">Produits suivis</h2>
-        <span class="badge badge-amber" onclick="openModal('addPriceModal')" style="cursor:pointer">+ Ajouter</span>
-      </div>
-      <div id="priceList"></div>
-    </div>
+        {/* ── MODULE: RADAR ── */}
+        {tab === "radar" && (
+          <>
+            <div className="fbar">
+              <div className="fbar-inner">
+                {DEAL_TYPES.map(t => (
+                  <button key={t.id} className={`chip ${dealFilter === t.id ? "a" : ""}`}
+                    onClick={() => setDealFilter(t.id)}>{t.icon} {t.label}</button>
+                ))}
+              </div>
+            </div>
+            <div className="feed">
+              {filteredDeals.length === 0
+                ? <div className="empty"><div className="empty-e">📡</div><div className="empty-t">Aucun bon plan trouvé</div><p>Sois le premier à en signaler un !</p></div>
+                : filteredDeals.map(d => (
+                  <div key={d.id} className="card clickable" onClick={() => { setSelected(d); setModal("deal-detail"); }}>
+                    <div className="dc-top">
+                      <div className="dc-ava">{d.avatar}</div>
+                      <div className="dc-meta">
+                        <div className="dc-author">{d.author}</div>
+                        <div className="dc-date">{d.date}</div>
+                      </div>
+                      <span className="dc-badge">{DEAL_TYPES.find(t => t.id === d.type)?.icon} {DEAL_TYPES.find(t => t.id === d.type)?.label}</span>
+                    </div>
+                    <div className="dc-body">
+                      <div className="dc-title">{d.title}</div>
+                      <div className="dc-desc">{d.desc}</div>
+                      <div className="dc-loc"><I d={ic.map} s={11} />📍 {d.location}</div>
+                    </div>
+                    <div className="dc-foot">
+                      <button className={`vb up ${d.vote === "up" ? "on" : ""}`} onClick={e => { e.stopPropagation(); vote(d.id, "up"); }}>
+                        <I d={ic.thumb_up} s={13} /> {d.up}
+                      </button>
+                      <button className={`vb dn ${d.vote === "down" ? "on" : ""}`} onClick={e => { e.stopPropagation(); vote(d.id, "dn"); }}>
+                        <I d={ic.thumb_dn} s={13} /> {d.down}
+                      </button>
+                      <button className={`vb`} onClick={e => { e.stopPropagation(); setSelected(d); setModal("deal-detail"); }}>
+                        <I d={ic.comment} s={13} /> {d.comments?.length || 0}
+                      </button>
+                      <button className="saved-btn" onClick={e => { e.stopPropagation(); toggleSave(d.id); }}>
+                        {savedIds.includes(d.id) ? "🔖" : "🏷️"}
+                      </button>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+            <button className="fab" onClick={() => setModal("add-deal")}><I d={ic.plus} s={22} /></button>
+          </>
+        )}
 
-    <!-- TAB 4: MISSIONS -->
-    <div class="tab" id="tab-missions">
-      <div class="xp-bar-wrap">
-        <div class="xp-header">
-          <div class="xp-level">
-            <div class="level-badge" id="levelBadge">1</div>
-            <div>
-              <div class="xp-name" id="levelName">Débutant Éco</div>
-              <div class="xp-sub" id="xpSub">0 / 100 XP</div>
+        {/* ── MODULE: CARTE ── */}
+        {tab === "carte" && (
+          <>
+            <div className="fbar">
+              <div className="fbar-inner">
+                {PLACE_CATS.map(c => (
+                  <button key={c.id} className={`chip ${placeFilter === c.id ? "a" : ""}`}
+                    onClick={() => setPlaceFilter(c.id)}>{c.icon} {c.label}</button>
+                ))}
+              </div>
+            </div>
+            <div className="feed">
+              <div className="card" style={{ background:"linear-gradient(135deg,var(--mod-color),#22D3EE)", padding:"16px", color:"#fff", border:"none" }}>
+                <div style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:17, marginBottom:4 }}>
+                  📍 Carte des lieux utiles
+                </div>
+                <div style={{ fontSize:13, opacity:.85 }}>
+                  Toilettes, eau, Wi-Fi, prises, parkings gratuits — disponibles hors ligne.
+                </div>
+                <div style={{ marginTop:10, fontSize:12, background:"rgba(255,255,255,.2)", borderRadius:8, padding:"5px 11px", display:"inline-block", fontWeight:700 }}>
+                  {places.length} lieux répertoriés
+                </div>
+              </div>
+              {filteredPlaces.filter(p =>
+                !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.address.toLowerCase().includes(search.toLowerCase())
+              ).length === 0
+                ? <div className="empty"><div className="empty-e">🗺️</div><div className="empty-t">Aucun lieu trouvé</div></div>
+                : filteredPlaces.filter(p =>
+                    !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.address.toLowerCase().includes(search.toLowerCase())
+                  ).map(p => (
+                  <div key={p.id} className="pc">
+                    <div className="pc-icon">{p.icon}</div>
+                    <div className="pc-info">
+                      <div className="pc-name">{p.name}</div>
+                      <div className="pc-addr">{p.address}</div>
+                      {p.hours && <div className="pc-hours">⏰ {p.hours}</div>}
+                    </div>
+                    {p.offline && <div className="pc-offline">📥 Offline</div>}
+                  </div>
+                ))
+              }
+            </div>
+            <button className="fab" onClick={() => setModal("add-place")}><I d={ic.plus} s={22} /></button>
+          </>
+        )}
+
+        {/* ── MODULE: PRIX ── */}
+        {tab === "prix" && (
+          <div className="content" style={{ paddingTop:"calc(var(--topbar) + 16px)" }}>
+            <div className="sh">
+              <div>
+                <h2>💰 Mémoire de Prix</h2>
+                <div className="sh-sub">Suis l'évolution de tes produits</div>
+              </div>
+            </div>
+            {prices.length === 0 ? (
+              <div className="empty"><div className="empty-e">🏷️</div><div className="empty-t">Aucun produit suivi</div>
+                <p>Ajoute un produit pour suivre son prix dans le temps.</p></div>
+            ) : prices.map(p => {
+              const trend = priceTrend(p.history);
+              const first = p.history[0]?.val;
+              const diff = first ? ((p.current - first) / first * 100).toFixed(1) : 0;
+              return (
+                <div key={p.id} className="price-item">
+                  <div className="pi-head">
+                    <div className="pi-emoji">{p.emoji}</div>
+                    <div>
+                      <div className="pi-name">{p.name}</div>
+                      {p.store && <div className="pi-store">{p.store}</div>}
+                    </div>
+                    <div className="pi-current">
+                      <div className="pi-price">{p.current.toFixed(2)}€</div>
+                      <div className={`pi-trend ${trend}`}>
+                        {trend === "up" ? `▲ +${Math.abs(diff)}%` : trend === "dn" ? `▼ -${Math.abs(diff)}%` : "— stable"}
+                      </div>
+                    </div>
+                  </div>
+                  {p.history.length > 1 && (
+                    <div className="pi-chart">
+                      <ResponsiveContainer width="100%" height={80}>
+                        <LineChart data={p.history}>
+                          <Line type="monotone" dataKey="val" stroke={MODS.prix.color} strokeWidth={2} dot={{ r:3, fill:MODS.prix.color }} />
+                          <XAxis dataKey="date" tick={{ fontSize:10, fill:"#9CA3AF" }} axisLine={false} tickLine={false} />
+                          <YAxis domain={["auto","auto"]} tick={{ fontSize:10, fill:"#9CA3AF" }} axisLine={false} tickLine={false} width={35} />
+                          <Tooltip formatter={v => [`${v}€`]} labelStyle={{ fontSize:11 }} contentStyle={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:8, fontSize:12 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+                  <div style={{ padding:"0 14px 12px", display:"flex", gap:8 }}>
+                    <button className="btn-p" style={{ flex:1, padding:"9px", fontSize:13 }}
+                      onClick={() => { setSelected(p); setPriceForm({ name:p.name, store:p.store||"", price:"", emoji:p.emoji }); setModal("add-price"); }}>
+                      Mettre à jour le prix
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            <button className="fab" onClick={() => { setSelected(null); setModal("add-price"); }}><I d={ic.plus} s={22} /></button>
+          </div>
+        )}
+
+        {/* ── MODULE: MISSIONS ── */}
+        {tab === "missions" && (
+          <div className="content" style={{ paddingTop:"calc(var(--topbar) + 16px)" }}>
+            <div className="miss-header">
+              <div className="miss-pts">{points} pts</div>
+              <div className="miss-lbl">Points accumulés</div>
+              <div className="miss-streak">🔥 {streak} jours de suite</div>
+            </div>
+
+            <div className="stat-row">
+              <div className="stat-card">
+                <div className="stat-val">{missions.filter(m=>m.done).length}/{missions.length}</div>
+                <div className="stat-lbl">Missions du jour</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-val">{streak}</div>
+                <div className="stat-lbl">Jours de suite</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-val">{missions.filter(m=>m.done).reduce((a,m)=>a+m.pts,0)}</div>
+                <div className="stat-lbl">Pts aujourd'hui</div>
+              </div>
+            </div>
+
+            <div style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:16, marginBottom:10 }}>
+              🎯 Missions du jour
+            </div>
+            {missions.map(m => (
+              <div key={m.id} className={`mission ${m.done ? "done" : ""}`} onClick={() => completeMission(m.id)}>
+                <div className="miss-ico">{m.icon}</div>
+                <div className="miss-txt">
+                  <div className="miss-name">{m.label}</div>
+                  <div className="miss-reward">+{m.pts} points</div>
+                </div>
+                <div className={`miss-check ${m.done ? "on" : ""}`}>
+                  {m.done && <I d={ic.check} s={14} />}
+                </div>
+              </div>
+            ))}
+
+            <div className="sec-ttl">Anti-Flemme</div>
+            <div className="af-card">
+              <div className="af-title">Je n'ai pas envie…</div>
+              <div className="af-sub">Un coup de boost en 1 clic</div>
+              <button className="af-btn" onClick={triggerAf}>💡 Donne-moi une astuce</button>
+              {afTip && (
+                <div className={`af-tip ${afAnim ? "entering" : ""}`}>{afTip}</div>
+              )}
             </div>
           </div>
-          <div class="xp-pts" id="totalXP">0 XP</div>
-        </div>
-        <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
-      </div>
+        )}
 
-      <div class="sec-head" style="margin-bottom:8px">
-        <h2 style="font-size:14px;color:var(--text2)">🔥 Série de jours</h2>
-      </div>
-      <div class="streak-row" id="streakRow"></div>
+        {/* ── MODULE: PROFIL ── */}
+        {tab === "profil" && (
+          <div className="content" style={{ paddingTop:"calc(var(--topbar) + 16px)" }}>
+            {user ? (
+              <>
+                <div className="prof-card">
+                  <div className="prof-top">
+                    <div className="prof-ava">{user.avatar}</div>
+                    <div>
+                      <div className="prof-name">{user.name}</div>
+                      <div className="prof-email">{user.email}</div>
+                    </div>
+                  </div>
+                  <div className="prof-stats">
+                    <div className="ps"><div className="ps-val">{deals.filter(d=>d.author===user.name).length}</div><div className="ps-lbl">Plans signalés</div></div>
+                    <div className="ps"><div className="ps-val">{savedIds.length}</div><div className="ps-lbl">Sauvegardés</div></div>
+                    <div className="ps"><div className="ps-val">{points}</div><div className="ps-lbl">Points</div></div>
+                  </div>
+                </div>
 
-      <div class="sec-head">
-        <h2>🏆 Missions du Jour</h2>
-        <span class="badge badge-amber" id="missionsDone">0/3</span>
-      </div>
-      <div id="missionList"></div>
-    </div>
-
-    <!-- TAB 5: ANTI-FLEMME -->
-    <div class="tab" id="tab-anti">
-      <div class="counter-row">
-        <div class="counter-card">
-          <div class="counter-val" id="antiCount">0</div>
-          <div class="counter-lbl">Fois utilisé</div>
-        </div>
-        <div class="counter-card">
-          <div class="counter-val" style="color:var(--green)" id="antiSaved">0 €</div>
-          <div class="counter-lbl">Potentiellement économisés</div>
-        </div>
-      </div>
-
-      <div class="anti-hero">
-        <span class="anti-face" id="antiFace">😩</span>
-        <h2>T'as la flemme ?</h2>
-        <p>Appuie sur le bouton et on te donne une mini-action à faire maintenant.</p>
-        <button class="anti-btn" onclick="triggerAnti()">Je n'ai pas envie 😪</button>
-      </div>
-      <div id="antiResponse"></div>
-    </div>
-
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <div id="nav">
-    <div class="nav-item active" onclick="switchTab('radar',this)">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="11"/></svg>
-      <span>Radar</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('carte',this)">
-      <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-      <span>Carte</span>
-    </div>
-    <div class="nav-item center-btn" onclick="openModal('addModal')">
-      <div class="nav-center">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </div>
-    </div>
-    <div class="nav-item" onclick="switchTab('missions',this)">
-      <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-      <span>Missions</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('anti',this)">
-      <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      <span>Anti-Flemme</span>
-    </div>
-  </div>
-
-</div>
-
-<!-- MODAL: ADD DEAL -->
-<div class="modal-overlay" id="addModal" onclick="closeModalIfBg(event,'addModal')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h3>Signaler un Bon Plan</h3>
-    <div class="form-group">
-      <label>Type de bon plan</label>
-      <div class="type-grid" id="dealTypeGrid">
-        <div class="type-chip sel" data-type="promo" onclick="selType(this)"><div class="tc-icon">🏷️</div><span class="tc-label">Promo</span></div>
-        <div class="type-chip" data-type="gratuit" onclick="selType(this)"><div class="tc-icon">🎁</div><span class="tc-label">Gratuit</span></div>
-        <div class="type-chip" data-type="event" onclick="selType(this)"><div class="tc-icon">📅</div><span class="tc-label">Événement</span></div>
-        <div class="type-chip" data-type="food" onclick="selType(this)"><div class="tc-icon">🍕</div><span class="tc-label">Nourriture</span></div>
-        <div class="type-chip" data-type="service" onclick="selType(this)"><div class="tc-icon">🔧</div><span class="tc-label">Service</span></div>
-        <div class="type-chip" data-type="autre" onclick="selType(this)"><div class="tc-icon">💡</div><span class="tc-label">Autre</span></div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Titre du bon plan</label>
-      <input class="form-input" id="dealTitle" placeholder="Ex: 30% chez Monoprix jusqu'à vendredi"/>
-    </div>
-    <div class="form-group">
-      <label>Lieu / adresse</label>
-      <input class="form-input" id="dealPlace" placeholder="Ex: Monoprix République, Paris"/>
-    </div>
-    <div class="form-group">
-      <label>Description (optionnel)</label>
-      <input class="form-input" id="dealDesc" placeholder="Infos supplémentaires…"/>
-    </div>
-    <button class="submit-btn" onclick="submitDeal()">Publier le bon plan 🎯</button>
-  </div>
-</div>
-
-<!-- MODAL: ADD PLACE -->
-<div class="modal-overlay" id="addPlaceModal" onclick="closeModalIfBg(event,'addPlaceModal')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h3>Ajouter un Lieu Utile</h3>
-    <div class="form-group">
-      <label>Catégorie</label>
-      <div class="type-grid" id="placeTypeGrid">
-        <div class="type-chip sel" data-type="wc" onclick="selPlaceType(this)"><div class="tc-icon">🚻</div><span class="tc-label">Toilettes</span></div>
-        <div class="type-chip" data-type="eau" onclick="selPlaceType(this)"><div class="tc-icon">💧</div><span class="tc-label">Fontaine</span></div>
-        <div class="type-chip" data-type="wifi" onclick="selPlaceType(this)"><div class="tc-icon">📶</div><span class="tc-label">Wi-Fi</span></div>
-        <div class="type-chip" data-type="prise" onclick="selPlaceType(this)"><div class="tc-icon">🔌</div><span class="tc-label">Prise</span></div>
-        <div class="type-chip" data-type="parking" onclick="selPlaceType(this)"><div class="tc-icon">🅿️</div><span class="tc-label">Parking</span></div>
-        <div class="type-chip" data-type="autre" onclick="selPlaceType(this)"><div class="tc-icon">📍</div><span class="tc-label">Autre</span></div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Nom du lieu</label>
-      <input class="form-input" id="placeName" placeholder="Ex: Fontaine Trocadéro"/>
-    </div>
-    <div class="form-group">
-      <label>Adresse</label>
-      <input class="form-input" id="placeAddr" placeholder="Ex: Place du Trocadéro, Paris"/>
-    </div>
-    <button class="submit-btn" onclick="submitPlace()">Ajouter le lieu 📍</button>
-  </div>
-</div>
-
-<!-- MODAL: ADD PRICE -->
-<div class="modal-overlay" id="addPriceModal" onclick="closeModalIfBg(event,'addPriceModal')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h3>Enregistrer un Prix</h3>
-    <div class="form-group">
-      <label>Produit</label>
-      <input class="form-input" id="prodName" placeholder="Ex: Lait demi-écrémé 1L"/>
-    </div>
-    <div class="form-group">
-      <label>Magasin</label>
-      <input class="form-input" id="prodShop" placeholder="Ex: Lidl République"/>
-    </div>
-    <div class="form-group">
-      <label>Prix actuel (€)</label>
-      <input class="form-input" id="prodPrice" type="number" step="0.01" placeholder="1.09"/>
-    </div>
-    <div class="form-group">
-      <label>Émoji produit (optionnel)</label>
-      <input class="form-input" id="prodEmoji" placeholder="🥛" maxlength="2"/>
-    </div>
-    <button class="submit-btn" onclick="submitPrice()">Enregistrer le prix 💰</button>
-  </div>
-</div>
-
-<div id="toast">✓ Enregistré</div>
-
-<script>
-// ============================================================
-// STATE & STORAGE
-// ============================================================
-const S = {
-  deals: [],
-  places: [],
-  prices: [],
-  xp: 0,
-  streak: [],
-  missions: [],
-  antiCount: 0,
-  antiSaved: 0,
-  missionsDone: [],
-};
-
-function save(key){ localStorage.setItem('rbp_'+key, JSON.stringify(S[key])); }
-function load(key,def){ const d=localStorage.getItem('rbp_'+key); return d?JSON.parse(d):def; }
-
-function initState(){
-  S.deals = load('deals', defaultDeals());
-  S.places = load('places', defaultPlaces());
-  S.prices = load('prices', defaultPrices());
-  S.xp = load('xp', 0);
-  S.streak = load('streak', []);
-  S.missionsDone = load('missionsDone', []);
-  S.antiCount = load('antiCount', 0);
-  S.antiSaved = load('antiSaved', 0);
-  S.missions = dailyMissions();
-}
-
-function defaultDeals(){
-  return [
-    {id:1,type:'promo',title:'50% sur les yaourts Danone',place:'Carrefour Market Nation',desc:'Valable jusqu\'au dimanche soir',likes:12,saved:false,liked:false,time:'Il y a 23 min'},
-    {id:2,type:'gratuit',title:'Pain offert à l\'achat d\'une soupe',place:'Brioche Dorée Châtelet',desc:'Présenter l\'appli en caisse',likes:28,saved:true,liked:false,time:'Il y a 1h'},
-    {id:3,type:'event',title:'Concert gratuit — Jazz en plein air',place:'Parc Montsouris, Paris',desc:'Demain de 15h à 18h, accès libre',likes:47,saved:false,liked:true,time:'Il y a 2h'},
-    {id:4,type:'food',title:'Invendus du marché à prix libre',place:'Marché d\'Aligre, Paris 12e',desc:'Chaque dimanche après 13h',likes:33,saved:false,liked:false,time:'Il y a 3h'},
-    {id:5,type:'promo',title:'2ème café offert avant 10h',place:'Columbus Café Saint-Lazare',desc:'Avec la carte fidélité',likes:9,saved:false,liked:false,time:'Il y a 5h'},
-  ];
-}
-
-function defaultPlaces(){
-  return [
-    {id:1,type:'wc',name:'Toilettes Publiques',addr:'Place de la République, Paris',dist:'120 m'},
-    {id:2,type:'eau',name:'Fontaine Wallace',addr:'Bd Beaumarchais, Paris 3e',dist:'200 m'},
-    {id:3,type:'wifi',name:'Wi-Fi Mairie du 11e',addr:'Place Léon Blum, Paris',dist:'350 m'},
-    {id:4,type:'prise',name:'Prises — McDonald\'s',addr:'Bd Voltaire, Paris 11e',dist:'400 m'},
-    {id:5,type:'parking',name:'Parking gratuit — Dimanche',addr:'Rue Oberkampf, Paris',dist:'500 m'},
-    {id:6,type:'eau',name:'Fontaine réfrigérée Gare de Lyon',addr:'Place Louis Armand, Paris 12e',dist:'800 m'},
-  ];
-}
-
-function defaultPrices(){
-  return [
-    {id:1,name:'Lait demi-écrémé 1L',shop:'Lidl',emoji:'🥛',history:[{v:0.89,d:'15 mars'},{v:0.95,d:'1 avr.'},{v:0.99,d:'18 avr.'},{v:0.99,d:'Aujourd\'hui'}]},
-    {id:2,name:'Pain de mie Harrys',shop:'Franprix',emoji:'🍞',history:[{v:2.10,d:'1 mars'},{v:2.10,d:'15 mars'},{v:1.95,d:'5 avr.'},{v:1.95,d:'Aujourd\'hui'}]},
-    {id:3,name:'Eau minérale 1.5L Évian',shop:'Monoprix',emoji:'💧',history:[{v:0.80,d:'1 mars'},{v:0.85,d:'20 mars'},{v:0.90,d:'10 avr.'},{v:0.95,d:'Aujourd\'hui'}]},
-  ];
-}
-
-function dailyMissions(){
-  return [
-    {id:'m1',icon:'🏷️',color:'#F59E0B',title:'Signale un bon plan',desc:'Aide la communauté à économiser',xp:25,progress:0,goal:1,cta:'Signaler maintenant'},
-    {id:'m2',icon:'💰',color:'#10B981',title:'Enregistre un prix',desc:'Note le prix d\'un produit du quotidien',xp:20,progress:0,goal:1,cta:'Enregistrer'},
-    {id:'m3',icon:'🗺️',color:'#3B82F6',title:'Ajoute un lieu utile',desc:'Fontaine, Wi-Fi, toilettes…',xp:15,progress:0,goal:1,cta:'Ajouter un lieu'},
-  ];
-}
-
-// ============================================================
-// TABS
-// ============================================================
-let currentTab = 'radar';
-function switchTab(name, el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  if(el) el.classList.add('active');
-  currentTab = name;
-  if(name==='radar') renderDeals();
-  if(name==='carte') renderPlaces();
-  if(name==='prix') renderPrices();
-  if(name==='missions') renderMissions();
-  if(name==='anti') renderAnti();
-}
-
-// ============================================================
-// MODULE 1: RADAR
-// ============================================================
-const typeConfig = {
-  promo:{icon:'🏷️',color:'#F59E0B',bg:'rgba(245,158,11,0.15)'},
-  gratuit:{icon:'🎁',color:'#10B981',bg:'rgba(16,185,129,0.15)'},
-  event:{icon:'📅',color:'#3B82F6',bg:'rgba(59,130,246,0.15)'},
-  food:{icon:'🍕',color:'#EF4444',bg:'rgba(239,68,68,0.15)'},
-  service:{icon:'🔧',color:'#8B5CF6',bg:'rgba(139,92,246,0.15)'},
-  autre:{icon:'💡',color:'#94A3B8',bg:'rgba(148,163,184,0.15)'},
-};
-
-let currentFilter = 'all';
-function filterDeals(el, f){
-  currentFilter = f;
-  document.querySelectorAll('#filterBar .chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  renderDeals();
-}
-
-function renderDeals(){
-  const list = document.getElementById('dealList');
-  const filtered = currentFilter==='all' ? S.deals : S.deals.filter(d=>d.type===currentFilter);
-  document.getElementById('dealCount').textContent = S.deals.length+' actifs';
-  if(!filtered.length){ list.innerHTML = `<div class="empty"><div class="emoji">🔍</div><p>Aucun bon plan dans cette catégorie</p></div>`; return; }
-  list.innerHTML = filtered.map(d => {
-    const t = typeConfig[d.type]||typeConfig.autre;
-    return `<div class="deal-card">
-      <div class="deal-header">
-        <div class="deal-icon" style="background:${t.bg}">${t.icon}</div>
-        <div class="deal-info">
-          <div class="deal-title">${d.title}</div>
-          <div class="deal-meta">
-            <span>📍 ${d.place}</span>
+                <div className="sec-ttl">Plans sauvegardés</div>
+                {savedIds.length === 0
+                  ? <div className="empty"><div className="empty-e">🔖</div><div className="empty-t">Aucune sauvegarde</div></div>
+                  : deals.filter(d => savedIds.includes(d.id)).map(d => (
+                    <div key={d.id} className="card clickable" style={{ marginBottom:10 }}
+                      onClick={() => { setSelected(d); setModal("deal-detail"); }}>
+                      <div className="dc-body" style={{ paddingTop:13 }}>
+                        <div className="dc-title">{d.title}</div>
+                        <div className="dc-loc">📍 {d.location}</div>
+                      </div>
+                    </div>
+                  ))
+                }
+              </>
+            ) : (
+              <div className="empty">
+                <div className="empty-e">👤</div>
+                <div className="empty-t">Non connecté</div>
+                <p style={{ marginBottom:16 }}>Connecte-toi pour accéder à ton profil</p>
+                <button className="btn-p" style={{ maxWidth:240 }} onClick={() => setModal("settings")}>Se connecter</button>
+              </div>
+            )}
           </div>
-          ${d.desc?`<div style="font-size:11px;color:var(--text2);margin-top:3px">${d.desc}</div>`:''}
-        </div>
-      </div>
-      <div class="deal-footer">
-        <div class="deal-actions">
-          <div class="action-btn ${d.liked?'liked':''}" onclick="likeDeal(${d.id})">
-            ❤️ ${d.likes}
+        )}
+
+        {/* BOTBAR */}
+        <nav className="botbar">
+          {Object.entries(MODS).map(([id, m]) => (
+            <button key={id} className={`nbt ${tab===id?"a":""}`} onClick={() => setTab(id)}>
+              <I d={m.icon} s={21} />
+              <span>{m.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        {/* ── MODALS ── */}
+
+        {/* SETTINGS */}
+        {modal === "settings" && (
+          <div className="overlay" onClick={() => setModal(null)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <div className="mhandle" />
+              <div className="mhead">
+                <span className="mtitle">⚙️ Paramètres</span>
+                <button className="ibt" onClick={() => setModal(null)}><I d={ic.x} s={16} /></button>
+              </div>
+              <div className="mbody">
+                {user && (
+                  <div className="prof-card" style={{ marginBottom:16 }}>
+                    <div className="prof-top" style={{ marginBottom:0 }}>
+                      <div className="prof-ava" style={{ width:44, height:44, fontSize:22, borderRadius:12 }}>{user.avatar}</div>
+                      <div>
+                        <div className="prof-name" style={{ fontSize:15 }}>{user.name}</div>
+                        <div className="prof-email">{user.email}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="sec-ttl">Apparence</div>
+                <div className="si" onClick={toggleTheme}>
+                  <div className="si-ico" style={{ background: theme==="dark"?"#1C1B3A":"#FFF9C4" }}>{theme==="dark"?"🌙":"☀️"}</div>
+                  <div><div className="si-lbl">Thème {theme==="dark"?"Sombre":"Clair"}</div></div>
+                  <button className={`toggle ${theme==="dark"?"on":""}`} onClick={toggleTheme} />
+                </div>
+                <div className="si" onClick={() => { setOnline(o => !o); showToast(online ? "Mode hors ligne activé" : "Mode en ligne activé"); }}>
+                  <div className="si-ico">📶</div>
+                  <div><div className="si-lbl">Mode {online?"En ligne":"Hors ligne"}</div><div className="si-sub">Simuler la connexion</div></div>
+                  <button className={`toggle ${online?"on":""}`} />
+                </div>
+
+                <div className="sec-ttl">Compte</div>
+                {!user ? (
+                  ["Google","Apple","Facebook"].map(p => (
+                    <button key={p} className="si" style={{ width:"100%", justifyContent:"flex-start" }} onClick={() => login(p)}>
+                      <div className="si-ico">{p==="Google"?"🔴":p==="Apple"?"⬛":"🔵"}</div>
+                      <div><div className="si-lbl">Continuer avec {p}</div></div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="si" onClick={logout}>
+                    <div className="si-ico" style={{ background:"#FEE2E2" }}><I d={ic.logout} s={16} c="" /></div>
+                    <div><div className="si-lbl" style={{ color:"#DC2626" }}>Se déconnecter</div><div className="si-sub">Via {user.provider}</div></div>
+                  </div>
+                )}
+
+                <div className="sec-ttl">À propos</div>
+                <div className="si">
+                  <div className="si-ico">✨</div>
+                  <div><div className="si-lbl">Spotto v1.0</div><div className="si-sub">La communauté des économies du quotidien</div></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="action-btn ${d.saved?'saved':''}" onclick="saveDeal(${d.id})">
-            ${d.saved?'🔖 Sauvegardé':'🔖 Sauvegarder'}
+        )}
+
+        {/* ADD DEAL */}
+        {modal === "add-deal" && (
+          <div className="overlay" onClick={() => setModal(null)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <div className="mhandle" />
+              <div className="mhead">
+                <span className="mtitle">📡 Signaler un bon plan</span>
+                <button className="ibt" onClick={() => setModal(null)}><I d={ic.x} s={16} /></button>
+              </div>
+              <div className="mbody">
+                {!user ? (
+                  <div className="empty"><div className="empty-e">🔒</div><div className="empty-t">Connexion requise</div>
+                    <button className="btn-p" onClick={() => setModal("settings")}>Se connecter</button></div>
+                ) : (<>
+                  <div className="fg">
+                    <label className="flbl">Type</label>
+                    <select className="fsel" value={dealForm.type} onChange={e => setDealForm(f=>({...f,type:e.target.value}))}>
+                      {DEAL_TYPES.filter(t=>t.id!=="all").map(t=><option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="fg">
+                    <label className="flbl">Titre *</label>
+                    <input className="fi" placeholder="Pizza -50%, concert gratuit…" value={dealForm.title} onChange={e=>setDealForm(f=>({...f,title:e.target.value}))} />
+                  </div>
+                  <div className="fg">
+                    <label className="flbl">Description</label>
+                    <textarea className="fta" placeholder="Détails, conditions, horaires…" value={dealForm.desc} onChange={e=>setDealForm(f=>({...f,desc:e.target.value}))} />
+                  </div>
+                  <div className="fg">
+                    <label className="flbl">Lieu / Adresse *</label>
+                    <input className="fi" placeholder="12 rue du Commerce, Paris 15e" value={dealForm.location} onChange={e=>setDealForm(f=>({...f,location:e.target.value}))} />
+                  </div>
+                  <button className="btn-p" onClick={addDeal}>Publier le bon plan 🚀</button>
+                </>)}
+              </div>
+            </div>
           </div>
-        </div>
-        <span class="deal-time">${d.time}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
+        )}
 
-function likeDeal(id){
-  const d = S.deals.find(x=>x.id===id);
-  if(!d) return;
-  d.liked = !d.liked;
-  d.likes += d.liked ? 1 : -1;
-  save('deals'); renderDeals();
-}
-function saveDeal(id){
-  const d = S.deals.find(x=>x.id===id);
-  if(!d) return;
-  d.saved = !d.saved;
-  save('deals'); renderDeals();
-  toast(d.saved ? '🔖 Bon plan sauvegardé !' : 'Supprimé des sauvegardes');
-}
-
-let selDealType = 'promo';
-function selType(el){
-  document.querySelectorAll('#dealTypeGrid .type-chip').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
-  selDealType = el.dataset.type;
-}
-function submitDeal(){
-  const title = document.getElementById('dealTitle').value.trim();
-  const place = document.getElementById('dealPlace').value.trim();
-  if(!title || !place){ toast('❌ Titre et lieu requis'); return; }
-  const d = {
-    id: Date.now(), type: selDealType,
-    title, place, desc: document.getElementById('dealDesc').value.trim(),
-    likes:0, saved:false, liked:false, time:'À l\'instant'
-  };
-  S.deals.unshift(d);
-  save('deals');
-  closeModal('addModal');
-  document.getElementById('dealTitle').value='';
-  document.getElementById('dealPlace').value='';
-  document.getElementById('dealDesc').value='';
-  switchTab('radar', document.querySelector('.nav-item'));
-  renderDeals();
-  toast('🎯 Bon plan publié !');
-  completeMission('m1');
-}
-
-// ============================================================
-// MODULE 2: CARTE
-// ============================================================
-const catConfig = {
-  wc:{icon:'🚻',label:'Toilettes',color:'#3B82F6'},
-  eau:{icon:'💧',label:'Fontaines',color:'#06B6D4'},
-  wifi:{icon:'📶',label:'Wi-Fi',color:'#8B5CF6'},
-  prise:{icon:'🔌',label:'Prises',color:'#F59E0B'},
-  parking:{icon:'🅿️',label:'Parking',color:'#10B981'},
-  autre:{icon:'📍',label:'Autre',color:'#94A3B8'},
-};
-
-let currentCat = 'all';
-function renderPlaces(){
-  // Map dots
-  const dots = document.getElementById('mapDots');
-  const cols = ['#F59E0B','#10B981','#3B82F6','#EF4444','#8B5CF6'];
-  dots.innerHTML = Array.from({length:8},(_,i) => {
-    const x = 10+Math.random()*80, y = 10+Math.random()*80, c = cols[i%cols.length];
-    return `<div class="map-dot" style="left:${x}%;top:${y}%;background:${c};color:${c};animation-delay:${i*0.4}s"></div>`;
-  }).join('');
-
-  // Category grid
-  const cats = ['all',...Object.keys(catConfig)];
-  document.getElementById('catGrid').innerHTML = `
-    <div class="cat-card ${currentCat==='all'?'active':''}" onclick="filterPlaces(this,'all')">
-      <div class="icon">🗺️</div><span>Tout</span>
-    </div>
-    ${Object.entries(catConfig).map(([k,v])=>`
-    <div class="cat-card ${currentCat===k?'active':''}" onclick="filterPlaces(this,'${k}')">
-      <div class="icon">${v.icon}</div><span>${v.label}</span>
-    </div>`).join('')}`;
-
-  const filtered = currentCat==='all' ? S.places : S.places.filter(p=>p.type===currentCat);
-  document.getElementById('placeCountLabel').textContent = `${filtered.length} lieu(x) référencé(s)`;
-  const list = document.getElementById('placeList');
-  if(!filtered.length){ list.innerHTML=`<div class="empty"><div class="emoji">📍</div><p>Aucun lieu dans cette catégorie</p></div>`; return; }
-  list.innerHTML = filtered.map(p=>{
-    const c = catConfig[p.type]||catConfig.autre;
-    return `<div class="place-item">
-      <div class="place-dot" style="background:rgba(${hexToRgb(c.color)},0.15)">${c.icon}</div>
-      <div class="place-info">
-        <div class="place-name">${p.name}</div>
-        <div class="place-addr">📍 ${p.addr}</div>
-      </div>
-      <div class="place-dist">${p.dist}</div>
-    </div>`;
-  }).join('');
-}
-function hexToRgb(hex){
-  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return `${r},${g},${b}`;
-}
-function filterPlaces(el, cat){
-  currentCat = cat;
-  renderPlaces();
-}
-
-let selPlType = 'wc';
-function selPlaceType(el){
-  document.querySelectorAll('#placeTypeGrid .type-chip').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
-  selPlType = el.dataset.type;
-}
-function submitPlace(){
-  const name = document.getElementById('placeName').value.trim();
-  const addr = document.getElementById('placeAddr').value.trim();
-  if(!name||!addr){ toast('❌ Nom et adresse requis'); return; }
-  S.places.unshift({id:Date.now(),type:selPlType,name,addr,dist:'Près de vous'});
-  save('places');
-  closeModal('addPlaceModal');
-  document.getElementById('placeName').value='';
-  document.getElementById('placeAddr').value='';
-  renderPlaces();
-  toast('📍 Lieu ajouté !');
-  completeMission('m3');
-}
-
-// ============================================================
-// MODULE 3: PRIX
-// ============================================================
-function renderPrices(){
-  let totalUp=0, totalDown=0, savings=0;
-  S.prices.forEach(p=>{
-    const h = p.history;
-    if(h.length>=2){
-      const last=h[h.length-1].v, prev=h[h.length-2].v;
-      if(last>prev) totalUp++;
-      else if(last<prev){ totalDown++; savings+=+(prev-last).toFixed(2); }
-    }
-  });
-  document.getElementById('priceProdCount').textContent = S.prices.length;
-  document.getElementById('priceAlertCount').textContent = totalUp;
-  document.getElementById('priceDipCount').textContent = totalDown;
-  document.getElementById('savingsTotal').textContent = savings.toFixed(2);
-
-  const list = document.getElementById('priceList');
-  if(!S.prices.length){ list.innerHTML=`<div class="empty"><div class="emoji">📦</div><p>Aucun produit suivi.<br>Ajoutez-en un pour commencer !</p></div>`; return; }
-  list.innerHTML = S.prices.map(p=>{
-    const h = p.history;
-    const curr = h[h.length-1].v;
-    const prev = h.length>=2 ? h[h.length-2].v : curr;
-    const diff = curr - prev;
-    const trendClass = diff>0?'up':diff<0?'down':'same';
-    const trendIcon = diff>0?'▲ ':diff<0?'▼ ':'= ';
-    const maxV = Math.max(...h.map(x=>x.v));
-    const bars = h.map(x=>{
-      const pct = Math.round((x.v/maxV)*100);
-      const col = x===h[h.length-1] ? 'var(--accent)' : 'var(--border2)';
-      return `<div class="mini-bar" style="height:${pct}%;background:${col}" title="${x.v}€ — ${x.d}"></div>`;
-    }).join('');
-    return `<div class="price-item">
-      <div class="price-item-head">
-        <div class="price-item-icon">${p.emoji||'📦'}</div>
-        <div class="price-item-info">
-          <div class="price-item-name">${p.name}</div>
-          <div class="price-item-shop">${p.shop}</div>
-        </div>
-        <div>
-          <div class="price-item-price" style="color:${diff>0?'var(--red)':diff<0?'var(--green)':'var(--text)'}">${curr.toFixed(2)} €</div>
-          <div class="price-trend ${trendClass}">${trendIcon}${Math.abs(diff).toFixed(2)} €</div>
-        </div>
-      </div>
-      <div class="mini-chart">${bars}</div>
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
-        <span style="font-size:11px;color:var(--text3)">${h[h.length-1].d}</span>
-        <span class="badge ${diff>0?'badge-red':diff<0?'badge-green':'badge-amber'}">${diff>0?'⚠️ Hausse':diff<0?'✅ Baisse':'Stable'}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function submitPrice(){
-  const name = document.getElementById('prodName').value.trim();
-  const shop = document.getElementById('prodShop').value.trim();
-  const priceVal = parseFloat(document.getElementById('prodPrice').value);
-  const emoji = document.getElementById('prodEmoji').value||'📦';
-  if(!name||!shop||isNaN(priceVal)){ toast('❌ Remplis tous les champs'); return; }
-  const today = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
-  S.prices.push({id:Date.now(),name,shop,emoji,history:[{v:priceVal,d:today}]});
-  save('prices'); closeModal('addPriceModal');
-  ['prodName','prodShop','prodPrice','prodEmoji'].forEach(id=>document.getElementById(id).value='');
-  renderPrices(); toast('💰 Prix enregistré !');
-  completeMission('m2');
-}
-
-// ============================================================
-// MODULE 4: MISSIONS
-// ============================================================
-const levels = [
-  {name:'Débutant Éco',xp:100},{name:'Chasseur de Promos',xp:250},
-  {name:'Maître des Bons Plans',xp:500},{name:'Économiste Pro',xp:1000},
-  {name:'Légende des Économies',xp:9999},
-];
-
-function renderMissions(){
-  let lvl=0;
-  while(lvl<levels.length-1 && S.xp>=levels[lvl].xp) lvl++;
-  const base = lvl>0?levels[lvl-1].xp:0;
-  const next = levels[lvl].xp;
-  const pct = Math.min(100,Math.round(((S.xp-base)/(next-base))*100));
-  document.getElementById('levelBadge').textContent = lvl+1;
-  document.getElementById('levelName').textContent = levels[lvl].name;
-  document.getElementById('totalXP').textContent = S.xp+' XP';
-  document.getElementById('xpSub').textContent = `${S.xp} / ${next} XP`;
-  document.getElementById('xpFill').style.width = pct+'%';
-
-  // Streak
-  const days = ['L','M','M','J','V','S','D'];
-  const today = new Date().getDay();
-  document.getElementById('streakRow').innerHTML = days.map((d,i)=>{
-    const done = S.streak.includes(i);
-    return `<div class="streak-day ${done?'done':''}"><span>${d}</span><div class="day-dot"></div></div>`;
-  }).join('');
-
-  // Missions
-  const done = S.missionsDone;
-  document.getElementById('missionsDone').textContent = `${done.length}/3`;
-  document.getElementById('missionList').innerHTML = S.missions.map(m=>{
-    const isDone = done.includes(m.id);
-    const fillColors = {m1:'var(--accent)',m2:'var(--green)',m3:'var(--blue)'};
-    return `<div class="mission-card ${isDone?'done':''}" onclick="completeMission('${m.id}')">
-      <div class="mc-head">
-        <div class="mc-icon" style="background:${m.color}22">${m.icon}</div>
-        <div class="mc-body">
-          <div class="mc-title">${m.title}</div>
-          <div class="mc-desc">${m.desc}</div>
-          <div class="mc-progress">
-            <div class="mc-fill" style="width:${isDone?100:0}%;background:${fillColors[m.id]||'var(--accent)'}"></div>
+        {/* ADD PLACE */}
+        {modal === "add-place" && (
+          <div className="overlay" onClick={() => setModal(null)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <div className="mhandle" />
+              <div className="mhead">
+                <span className="mtitle">📍 Ajouter un lieu</span>
+                <button className="ibt" onClick={() => setModal(null)}><I d={ic.x} s={16} /></button>
+              </div>
+              <div className="mbody">
+                {!user ? (
+                  <div className="empty"><div className="empty-e">🔒</div><div className="empty-t">Connexion requise</div>
+                    <button className="btn-p" onClick={() => setModal("settings")}>Se connecter</button></div>
+                ) : (<>
+                  <div className="fg">
+                    <label className="flbl">Catégorie</label>
+                    <select className="fsel" value={placeForm.cat} onChange={e=>setPlaceForm(f=>({...f,cat:e.target.value}))}>
+                      {PLACE_CATS.filter(c=>c.id!=="all").map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="fg">
+                    <label className="flbl">Nom *</label>
+                    <input className="fi" placeholder="WC Châtelet, Fontaine Branly…" value={placeForm.name} onChange={e=>setPlaceForm(f=>({...f,name:e.target.value}))} />
+                  </div>
+                  <div className="fg">
+                    <label className="flbl">Adresse *</label>
+                    <input className="fi" placeholder="14 av. de la République" value={placeForm.address} onChange={e=>setPlaceForm(f=>({...f,address:e.target.value}))} />
+                  </div>
+                  <div className="fg">
+                    <label className="flbl">Horaires</label>
+                    <input className="fi" placeholder="6h-22h, Permanent…" value={placeForm.hours} onChange={e=>setPlaceForm(f=>({...f,hours:e.target.value}))} />
+                  </div>
+                  <button className="btn-p" onClick={addPlace}>Ajouter à la carte 🗺️</button>
+                </>)}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* ADD PRICE */}
+        {modal === "add-price" && (
+          <div className="overlay" onClick={() => { setModal(null); setSelected(null); }}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <div className="mhandle" />
+              <div className="mhead">
+                <span className="mtitle">{selected ? "Nouveau prix" : "🏷️ Ajouter un produit"}</span>
+                <button className="ibt" onClick={() => { setModal(null); setSelected(null); }}><I d={ic.x} s={16} /></button>
+              </div>
+              <div className="mbody">
+                {!selected && <>
+                  <div className="fg">
+                    <label className="flbl">Emoji produit</label>
+                    <input className="fi" placeholder="🛒" maxLength={2} value={priceForm.emoji} onChange={e=>setPriceForm(f=>({...f,emoji:e.target.value}))} style={{ fontSize:22, textAlign:"center" }} />
+                  </div>
+                  <div className="fg">
+                    <label className="flbl">Nom du produit *</label>
+                    <input className="fi" placeholder="Beurre Elle&Vire, iPhone 15…" value={priceForm.name} onChange={e=>setPriceForm(f=>({...f,name:e.target.value}))} />
+                  </div>
+                  <div className="fg">
+                    <label className="flbl">Magasin</label>
+                    <input className="fi" placeholder="Carrefour, Amazon…" value={priceForm.store} onChange={e=>setPriceForm(f=>({...f,store:e.target.value}))} />
+                  </div>
+                </>}
+                <div className="fg">
+                  <label className="flbl">Prix actuel (€) *</label>
+                  <input className="fi" type="number" step="0.01" placeholder="2.99" value={priceForm.price} onChange={e=>setPriceForm(f=>({...f,price:e.target.value}))} />
+                </div>
+                <button className="btn-p" onClick={addPrice}>{selected ? "Enregistrer le prix ✓" : "Commencer le suivi 📊"}</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* DEAL DETAIL */}
+        {modal === "deal-detail" && selected && (
+          <div className="overlay" onClick={() => { setModal(null); setSelected(null); }}>
+            <div className="modal" onClick={e => e.stopPropagation()} style={{ maxHeight:"94vh" }}>
+              <div className="mhandle" />
+              <div className="mhead">
+                <button className="ibt" onClick={() => { setModal(null); setSelected(null); }}><I d={ic.arrow} s={16} /></button>
+                <span className="mtitle" style={{ flex:1, textAlign:"center" }}>Bon Plan</span>
+                <button className="ibt" onClick={() => toggleSave(selected.id)}>{savedIds.includes(selected.id)?"🔖":"🏷️"}</button>
+              </div>
+              <div className="mbody">
+                <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:12 }}>
+                  <div className="dc-ava">{selected.avatar}</div>
+                  <div><div className="dc-author">{selected.author}</div><div className="dc-date">{selected.date}</div></div>
+                </div>
+                <div style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:20, marginBottom:8, lineHeight:1.3 }}>{selected.title}</div>
+                <p style={{ fontSize:14, color:"var(--text2)", lineHeight:1.6, marginBottom:12 }}>{selected.desc}</p>
+                <div style={{ background:"var(--surface2)", border:"1px solid var(--border)", borderRadius:10, padding:"10px 13px", fontSize:13, color:"var(--text2)", marginBottom:14 }}>
+                  📍 {selected.location}
+                </div>
+                <div style={{ display:"flex", gap:8, marginBottom:18 }}>
+                  <button className={`vb up ${deals.find(d=>d.id===selected.id)?.vote==="up"?"on":""}`} style={{ flex:1, justifyContent:"center", borderRadius:10, padding:10, border:"1px solid var(--border)", background:"var(--surface2)" }}
+                    onClick={() => { vote(selected.id, "up"); setSelected(deals.find(d=>d.id===selected.id)); }}>
+                    <I d={ic.thumb_up} s={15} /> Valide ({deals.find(d=>d.id===selected.id)?.up ?? 0})
+                  </button>
+                  <button className={`vb dn ${deals.find(d=>d.id===selected.id)?.vote==="down"?"on":""}`} style={{ flex:1, justifyContent:"center", borderRadius:10, padding:10, border:"1px solid var(--border)", background:"var(--surface2)" }}
+                    onClick={() => { vote(selected.id, "dn"); setSelected(deals.find(d=>d.id===selected.id)); }}>
+                    <I d={ic.thumb_dn} s={15} /> Scam ({deals.find(d=>d.id===selected.id)?.down ?? 0})
+                  </button>
+                </div>
+                <div style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:15, marginBottom:10 }}>
+                  💬 Commentaires ({selected.comments?.length || 0})
+                </div>
+                {(selected.comments||[]).length === 0
+                  ? <div style={{ textAlign:"center", padding:"20px", color:"var(--text3)", fontSize:13 }}>Sois le premier à commenter</div>
+                  : (selected.comments||[]).map(c => (
+                    <div key={c.id} className="cmt">
+                      <div className="cmt-ava">😊</div>
+                      <div>
+                        <div className="cmt-author">{c.author}</div>
+                        <div className="cmt-text">{c.text}</div>
+                        <button className="cmt-like" onClick={() => {
+                          const next = deals.map(d => d.id===selected.id ? {...d, comments:d.comments.map(cm=>cm.id===c.id?{...cm,likes:cm.likes+1}:cm)} : d);
+                          setDeals(next); ss("sp_deals",next); setSelected(next.find(x=>x.id===selected.id));
+                        }}>👍 {c.likes} utile{c.likes!==1?"s":""}</button>
+                      </div>
+                    </div>
+                  ))
+                }
+                <div className="cmt-row">
+                  <input className="cmt-input" placeholder={user?"Ton avis ? Valide ou scam ?":"Connecte-toi pour commenter…"}
+                    value={newComment} onChange={e=>setNewComment(e.target.value)}
+                    onKeyDown={e=>e.key==="Enter"&&addComment()} disabled={!user} />
+                  <button className="csend" onClick={addComment} disabled={!user}><I d={ic.send} s={14} /></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {toast && <div className="toast">{toast}</div>}
       </div>
-      <div class="mc-reward">
-        <span class="mc-xp">+${m.xp} XP</span>
-        ${!isDone?`<span class="mc-cta">${m.cta} →</span>`:`<span class="badge badge-green">Complétée ✓</span>`}
-      </div>
-    </div>`;
-  }).join('');
+    </>
+  );
 }
-
-function completeMission(id){
-  if(S.missionsDone.includes(id)) return;
-  S.missionsDone.push(id);
-  save('missionsDone');
-  const m = S.missions.find(x=>x.id===id);
-  if(m){
-    S.xp += m.xp;
-    save('xp');
-    toast(`🏆 +${m.xp} XP — Mission accomplie !`);
-  }
-  // Mark today in streak
-  const day = new Date().getDay();
-  if(!S.streak.includes(day)){ S.streak.push(day); save('streak'); }
-  if(currentTab==='missions') renderMissions();
-}
-
-// ============================================================
-// MODULE 5: ANTI-FLEMME
-// ============================================================
-const antiResponses = [
-  {emoji:'💪',title:'Micro-action (2 min)',text:'Ouvre ton appli de banque et note une dépense que tu pourrais éviter cette semaine. Juste une.'},
-  {emoji:'🎯',title:'Ton défi de maintenant',text:'Cherche un bon plan près de chez toi et signale-le sur le Radar. Tu aidera quelqu\'un aujourd\'hui.'},
-  {emoji:'🧠',title:'Astuce rapide',text:'Avant ton prochain achat, demande-toi : "Est-ce que j\'en aurai encore besoin dans 48h ?" Si tu hésites, attends.'},
-  {emoji:'🚶',title:'Bouge un peu',text:'Lève-toi, fais 20 pas. Ton cerveau se réactivera et la flemme passera. C\'est prouvé par les neurosciences.'},
-  {emoji:'💡',title:'Rappel utile',text:'Tu peux économiser jusqu\'à 200€/mois en évitant 3 petits achats impulsifs. C\'est 2400€ par an.'},
-  {emoji:'🔌',title:'Vérifie tes prises',text:'Note un lieu avec une prise électrique gratuite près de chez toi. Ça peut te sauver la mise un jour.'},
-  {emoji:'🎮',title:'Petite mission',text:'Complète une mission du jour. Même la plus petite. Tu gagneras des XP et tu te sentiras mieux après.'},
-  {emoji:'🛒',title:'Anti-impulsion',text:'Ferme tous les onglets d\'achats ouverts. Reviens dans 24h. Si tu veux encore acheter, c\'est que c\'est utile.'},
-];
-let lastAnti = -1;
-function triggerAnti(){
-  let idx;
-  do { idx = Math.floor(Math.random()*antiResponses.length); } while(idx===lastAnti);
-  lastAnti = idx;
-  const r = antiResponses[idx];
-  S.antiCount++;
-  S.antiSaved = +(S.antiSaved + 2.5).toFixed(1);
-  save('antiCount'); save('antiSaved');
-  document.getElementById('antiCount').textContent = S.antiCount;
-  document.getElementById('antiSaved').textContent = S.antiSaved+'€';
-  document.getElementById('antiFace').textContent = r.emoji;
-  const div = document.getElementById('antiResponse');
-  div.innerHTML = `<div class="anti-response">
-    <div class="emoji">${r.emoji}</div>
-    <h3>${r.title}</h3>
-    <p>${r.text}</p>
-  </div>
-  <div class="anti-tip"><strong>💡 Rappel :</strong> Chaque "pas envie" surmonté, c\'est en moyenne 2,50€ économisés. Continue !</div>`;
-}
-function renderAnti(){
-  document.getElementById('antiCount').textContent = S.antiCount;
-  document.getElementById('antiSaved').textContent = S.antiSaved+'€';
-}
-
-// ============================================================
-// MODALS
-// ============================================================
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-function closeModalIfBg(e,id){ if(e.target.classList.contains('modal-overlay')) closeModal(id); }
-
-// ============================================================
-// TOAST
-// ============================================================
-let toastTimer;
-function toast(msg){
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>el.classList.remove('show'), 2500);
-}
-
-// ============================================================
-// OFFLINE DETECTION
-// ============================================================
-function updateNet(){
-  const online = navigator.onLine;
-  const badge = document.getElementById('netBadge');
-  const label = document.getElementById('netLabel');
-  badge.className = 'offline-badge' + (online?'':' offline');
-  label.textContent = online ? 'En ligne' : 'Hors ligne';
-}
-window.addEventListener('online', updateNet);
-window.addEventListener('offline', updateNet);
-
-// ============================================================
-// INIT
-// ============================================================
-initState();
-updateNet();
-renderDeals();
-
-// Auto-render current tab helpers
-document.getElementById('tab-carte').addEventListener('transitionend', ()=>{});
-</script>
-</body>
-</html>
