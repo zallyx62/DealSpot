@@ -1,0 +1,27 @@
+{
+  "name": "dealspot",
+  "version": "1.0.0",
+  "description": "DealSpot — Trouve. Partage. Économise.",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zallyx62/DealSpot.git"
+  },
+  "keywords": [
+    "deals",
+    "shopping",
+    "discounts"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zallyx62/DealSpot/issues"
+  },
+  "homepage": "https://github.com/zallyx62/DealSpot#readme",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  }
+}
