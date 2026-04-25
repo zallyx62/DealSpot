@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/zallyx62/DealSpot#readme",
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0"
   }
 }
