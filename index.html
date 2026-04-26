@@ -2,52 +2,37 @@
 <html lang="fr" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="google-adsense-account" content="ca-pub-1381945888605291"/>
 <meta name="theme-color" content="#080D1A"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="application-name" content="DealSpot"/>
 <meta name="description" content="DealSpot — Trouve. Partage. Économise."/>
-<!-- AdMob App ID: ca-app-pub-1381945888605291~5391527709 -->
-<!-- Ad Unit ID: ca-app-pub-1381945888605291/9963030829 -->
 <title>DealSpot</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<!-- Vercel Speed Insights -->
-<script>
-  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/speed-insights/script.js"></script>
-<!-- Vercel Web Analytics -->
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
 <style>
-/* ═══ TOKENS ═══ */
-html[data-theme="dark"]{--bg:#080D1A;--sf:#0F1623;--card:#161F30;--card2:#1C2840;--bd:#243048;--bd2:#2E3D5C;--tx:#F1F5F9;--tx2:#94A3B8;--tx3:#64748B;--inp:#0F1623;--mbg:#0F1623;--ov:rgba(0,0,0,.85)}
-html[data-theme="light"]{--bg:#F0F4FF;--sf:#FFF;--card:#FFF;--card2:#F1F5F9;--bd:#E2E8F0;--bd2:#CBD5E1;--tx:#0F172A;--tx2:#64748B;--tx3:#94A3B8;--inp:#F8FAFC;--mbg:#FFF;--ov:rgba(0,0,0,.6)}
-:root{--ac:#F59E0B;--ac2:#FCD34D;--adim:rgba(245,158,11,.12);--gr:#10B981;--gd:rgba(16,185,129,.12);--re:#EF4444;--rd:rgba(239,68,68,.12);--bl:#3B82F6;--bd_b:rgba(59,130,246,.12);--pu:#8B5CF6;--nh:56px;--nb:68px;--r:14px;--r2:20px}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html[data-theme="dark"]{--bg:#080D1A;--sf:#0F1623;--card:#161F30;--card2:#1C2840;--bd:#243048;--bd2:#2E3D5C;--tx:#F1F5F9;--tx2:#B0BEC5;--tx3:#78909C;--inp:#0F1623;--mbg:#0F1623;--ov:rgba(0,0,0,.85)}
+html[data-theme="light"]{--bg:#F0F4FF;--sf:#FFF;--card:#FFF;--card2:#F1F5F9;--bd:#E2E8F0;--bd2:#CBD5E1;--tx:#0F172A;--tx2:#374151;--tx3:#64748B;--inp:#F8FAFC;--mbg:#FFF;--ov:rgba(0,0,0,.6)}
+:root{--ac:#F59E0B;--ac2:#FCD34D;--adim:rgba(245,158,11,.12);--gr:#10B981;--gd:rgba(16,185,129,.12);--re:#EF4444;--rd:rgba(239,68,68,.12);--bl:#3B82F6;--bld:rgba(59,130,246,.12);--nh:56px;--nb:68px;--r:14px;--r2:20px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:var(--bg);color:var(--tx);transition:background .3s,color .3s}
-#app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;position:relative}
-
-/* ═══ TOPBAR ═══ */
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+/* TOPBAR */
 #topbar{flex-shrink:0;height:var(--nh);display:flex;align-items:center;padding:0 12px;background:var(--sf);border-bottom:1px solid var(--bd);z-index:50;gap:8px}
 .logo{display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;user-select:none}
-.logo-mark{width:30px;height:30px;background:var(--ac);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#000;flex-shrink:0;letter-spacing:-.5px}
-.logo-name{font-size:18px;font-weight:800;letter-spacing:-.5px;color:var(--tx)}
-.logo-name em{color:var(--ac);font-style:normal}
-.tb-right{display:flex;align-items:center;gap:6px}
-.ib{width:34px;height:34px;border-radius:10px;border:1px solid var(--bd);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform .15s,background .2s}
+.logo-mk{width:30px;height:30px;background:var(--ac);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#000;flex-shrink:0}
+.logo-nm{font-size:18px;font-weight:800;letter-spacing:-.5px}
+.logo-nm em{color:var(--ac);font-style:normal}
+.tbr{display:flex;align-items:center;gap:6px}
+.ib{width:34px;height:34px;border-radius:10px;border:1px solid var(--bd);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform .15s}
 .ib:active{transform:scale(.9)}
 .ib svg{width:16px;height:16px;stroke:var(--tx2);stroke-width:2;fill:none}
 .ndot{width:8px;height:8px;border-radius:50%;background:var(--gr);box-shadow:0 0 6px var(--gr);flex-shrink:0;transition:all .3s}
 .ndot.off{background:var(--re);box-shadow:0 0 6px var(--re)}
-
-/* ═══ SEARCH ═══ */
+/* SEARCH */
 .sw{padding:10px 14px 0;flex-shrink:0}
 .sb{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:0 12px;height:40px;transition:border-color .2s}
 .sb:focus-within{border-color:var(--ac)}
@@ -56,16 +41,16 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 .sb input::placeholder{color:var(--tx3)}
 .sc{font-size:14px;color:var(--tx3);cursor:pointer;display:none}
 .sb input:not(:placeholder-shown)~.sc{display:block}
-
-/* ═══ SWIPE CONTAINER ═══ */
+/* SWIPE */
 #swipeArea{flex:1;overflow:hidden;position:relative;touch-action:pan-y}
-#tabsTrack{display:flex;height:100%;transition:transform .32s cubic-bezier(.4,0,.2,1);will-change:transform}
-.tab{flex:0 0 100%;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px calc(16px + var(--nb))}
+#tabsTrack{display:flex;height:100%;will-change:transform;transform:translateX(0)}
+.tab{flex:0 0 100%;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 14px calc(20px + var(--nb));background:var(--bg);scroll-behavior:smooth;overscroll-behavior-y:contain}
 .tab::-webkit-scrollbar{display:none}
-
-/* ═══ BOTTOM NAV ═══ */
+/* Smooth vertical scroll */
+.tab{scroll-behavior:smooth;overscroll-behavior-y:contain}
+/* NAV */
 #nav{flex-shrink:0;height:var(--nb);display:flex;background:var(--sf);border-top:1px solid var(--bd);z-index:50;padding-bottom:env(safe-area-inset-bottom,0px)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:6px 0;position:relative;transition:opacity .2s}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:6px 0;position:relative}
 .ni svg{width:22px;height:22px;stroke:var(--tx3);stroke-width:1.8;fill:none;transition:stroke .2s}
 .ni span{font-size:10px;font-weight:500;color:var(--tx3);transition:color .2s}
 .ni.active svg{stroke:var(--ac)}
@@ -75,31 +60,31 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 .nc{width:48px;height:48px;border-radius:16px;background:var(--ac);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(245,158,11,.4);transition:transform .15s}
 .nc:active{transform:scale(.91)}
 .nc svg{width:22px;height:22px;stroke:#000;stroke-width:2.5;fill:none}
-
-/* ═══ UTILS ═══ */
+/* DOTS */
+.dots{display:flex;justify-content:center;gap:6px;padding:6px 0;flex-shrink:0;background:var(--bg)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--bd2);transition:all .3s}
+.dot.on{background:var(--ac);width:18px;border-radius:3px}
+/* UTILS */
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .sh h2{font-size:17px;font-weight:700;letter-spacing:-.3px}
 .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
-.bg{background:var(--gd);color:var(--gr)}.ba{background:var(--adim);color:var(--ac)}.bb{background:var(--bd_b);color:var(--bl)}.br{background:var(--rd);color:var(--re)}
-.chip{flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:var(--card);border:1px solid var(--bd);color:var(--tx2);transition:all .2s}
+.bg{background:var(--gd);color:var(--gr)}.ba{background:var(--adim);color:var(--ac)}.bb{background:var(--bld);color:var(--bl)}.br{background:var(--rd);color:var(--re)}
+.chip{flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:var(--card);border:1px solid var(--bd);color:var(--tx2);transition:all .2s;user-select:none}
 .chip.on{background:var(--adim);border-color:var(--ac);color:var(--ac)}
 .fbar{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
 .fbar::-webkit-scrollbar{display:none}
-
-/* ═══ SUPPORT BAR ═══ */
-.supbar{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(139,92,246,.08));border:1px solid rgba(245,158,11,.2);border-radius:var(--r);padding:10px 12px;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+/* SUPPORT */
+.supbar{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(139,92,246,.08));border:1px solid rgba(245,158,11,.2);border-radius:var(--r);padding:10px 12px;margin-bottom:12px;flex-wrap:nowrap}
 .supbar .si{font-size:18px;flex-shrink:0}
-.supbar .st{flex:1;min-width:120px}
-.supbar .st .t{font-size:12px;font-weight:700}
+.supbar .st{flex:1;min-width:0}
+.supbar .st .t{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .supbar .st .s{font-size:10px;color:var(--tx2);margin-top:1px}
 .sacts{display:flex;gap:6px;flex-shrink:0}
-.supbtn{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none;transition:opacity .2s}
-.supbtn:active{opacity:.7}
+.supbtn{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none}
 .supbtn.ad{background:var(--adim);color:var(--ac);border:1px solid var(--ac)}
 .supbtn.pp{background:rgba(0,112,240,.1);color:#0070F0;border:1px solid #0070F0}
-.sup-x{font-size:14px;color:var(--tx3);cursor:pointer;flex-shrink:0}
-
-/* ═══ DEAL CARD ═══ */
+.sup-x{font-size:14px;color:var(--tx3);cursor:pointer;flex-shrink:0;padding:2px 4px}
+/* DEAL CARD */
 .dc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r2);padding:14px;margin-bottom:10px}
 .dh{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
 .dic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
@@ -112,19 +97,17 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 .abtn{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--card2);color:var(--tx2);transition:all .2s;white-space:nowrap;user-select:none}
 .abtn.lk{background:var(--rd);border-color:var(--re);color:var(--re)}
 .abtn.sv{background:var(--adim);border-color:var(--ac);color:var(--ac)}
-.abtn.rv{background:var(--bd_b);border-color:var(--bl);color:var(--bl)}
+.abtn.rv{background:var(--bld);border-color:var(--bl);color:var(--bl)}
 .dtm{font-size:11px;color:var(--tx3);flex-shrink:0}
-
-/* ═══ STARS ═══ */
-.srow{display:flex;align-items:center;gap:2px}
-.ss{font-size:12px;line-height:1;color:var(--bd2)}.ss.on{color:var(--ac)}
+/* STARS */
+.srow{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+.ss{font-size:12px;color:var(--bd2)}.ss.on{color:var(--ac)}
 .avgl{font-size:12px;font-weight:700;color:var(--ac);margin-left:3px}
 .cntl{font-size:11px;color:var(--tx3);margin-left:2px}
 .spick{display:flex;gap:6px;margin:8px 0}
 .spick .sp{font-size:24px;cursor:pointer;filter:grayscale(1);opacity:.3;transition:all .15s;user-select:none}
 .spick .sp.on{filter:none;opacity:1;transform:scale(1.1)}
-
-/* ═══ REVIEWS ═══ */
+/* REVIEWS */
 .revs{margin-top:10px;padding-top:10px;border-top:1px solid var(--bd);display:none}
 .revs.open{display:block}
 .ri{display:flex;gap:8px;margin-bottom:10px}
@@ -142,8 +125,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 .rta:focus{border-color:var(--ac)}
 .rrw{display:flex;align-items:center;justify-content:space-between;margin-top:7px;gap:8px}
 .rsnd{padding:7px 14px;background:var(--ac);border:none;border-radius:9px;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;color:#000;cursor:pointer}
-
-/* ═══ MAP ═══ */
+/* MAP */
 .mhero{background:var(--card);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;margin-bottom:12px}
 .mpl{height:150px;background:linear-gradient(135deg,#0F2027,#203A43,#2C5364);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .mdot{position:absolute;width:10px;height:10px;border-radius:50%;animation:md 2.5s infinite}
@@ -166,8 +148,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 .plad{font-size:11px;color:var(--tx2)}
 .pldi{font-size:11px;font-weight:700;color:var(--ac);flex-shrink:0}
 .plrb{font-size:11px;color:var(--bl);font-weight:600;cursor:pointer;margin-top:4px;display:inline-block}
-
-/* ═══ PRIX ═══ */
+/* PRIX */
 .ph{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--bd);border-radius:var(--r2);padding:16px;margin-bottom:12px}
 .phl{font-size:12px;color:var(--tx2);margin-bottom:4px}
 .phv{font-size:30px;font-weight:800;color:var(--ac);letter-spacing:-1px}
@@ -185,8 +166,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 .pitr.up{color:var(--re)}.pitr.dn{color:var(--gr)}.pitr.eq{color:var(--tx3)}
 .mch{display:flex;align-items:flex-end;gap:3px;height:30px;margin-top:8px}
 .mb{flex:1;border-radius:3px 3px 0 0;min-height:4px}
-
-/* ═══ MISSIONS ═══ */
+/* MISSIONS */
 .xpc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r2);padding:16px;margin-bottom:12px}
 .xpt{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .lvlb{width:38px;height:38px;border-radius:11px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#000}
@@ -208,8 +188,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 .mcf{height:100%;border-radius:3px;transition:width .5s}
 .mcft{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
 .mcx{font-size:12px;font-weight:700;color:var(--ac)}
-
-/* ═══ ANTI-FLEMME ═══ */
+/* ANTI */
 .ctr-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .ctr{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px;text-align:center}
 .ctr-v{font-size:28px;font-weight:800;color:var(--ac)}
@@ -219,8 +198,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 @keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .ah h2{font-size:20px;font-weight:800;margin-bottom:6px}
 .ah p{font-size:13px;color:var(--tx2);max-width:260px;margin:0 auto 18px}
-.abig{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#000;transition:transform .15s}
-.abig:active{transform:scale(.97)}
+.abig{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#000;-webkit-appearance:none}
 .arsp{background:var(--card);border:1px solid var(--bd);border-radius:var(--r2);padding:18px;margin-bottom:10px;animation:su .4s cubic-bezier(.34,1.56,.64,1)}
 @keyframes su{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .arsp .ae{font-size:36px;margin-bottom:6px}
@@ -228,23 +206,19 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 .arsp p{font-size:13px;color:var(--tx2);line-height:1.5}
 .atip{background:var(--gd);border:1px solid var(--gr);border-radius:var(--r);padding:11px 13px;font-size:12px}
 .atip strong{color:var(--gr)}
-
-/* ═══ AD ZONE ═══ */
-.ad-banner-wrap{width:100%;display:flex;justify-content:center;margin-bottom:10px;min-height:60px}
-.ad-banner-wrap ins{display:block;width:100%}
+/* AD OVERLAY */
 #adOverlay{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
 #adOverlay.show{display:flex}
 .adbox{background:var(--card);border:1px solid var(--bd);border-radius:var(--r2);padding:24px;text-align:center;max-width:300px;width:90%}
 .adbox h3{font-size:16px;font-weight:700;margin-bottom:6px}
 .adbox p{font-size:13px;color:var(--tx2);margin-bottom:16px;line-height:1.5}
-.adcnt{font-size:42px;font-weight:800;color:var(--ac);margin-bottom:8px;font-variant-numeric:tabular-nums}
+.adcnt{font-size:42px;font-weight:800;color:var(--ac);margin-bottom:8px}
 .adbar{height:6px;background:var(--bd);border-radius:3px;overflow:hidden;margin-bottom:16px}
-.adfill{height:100%;background:var(--ac);border-radius:3px;width:0%;transition:width 1s linear}
-.adclose{padding:12px 24px;border-radius:10px;font-size:14px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none;background:var(--card2);color:var(--tx3);transition:all .3s}
+.adfill{height:100%;background:var(--ac);border-radius:3px;width:0%}
+.adclose{padding:12px 24px;border-radius:10px;font-size:14px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none;background:var(--card2);color:var(--tx3);transition:all .3s;-webkit-appearance:none}
 .adclose.rdy{background:var(--ac);color:#000}
 .adnote{font-size:10px;color:var(--tx3);text-align:center;max-width:260px;line-height:1.5}
-
-/* ═══ MODALS ═══ */
+/* MODALS */
 .moverlay{position:fixed;inset:0;background:var(--ov);backdrop-filter:blur(5px);z-index:200;display:none;align-items:flex-end}
 .moverlay.open{display:flex;animation:fi .2s}
 @keyframes fi{from{opacity:0}to{opacity:1}}
@@ -252,12 +226,12 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 .mbox::-webkit-scrollbar{display:none}
 @keyframes sm{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .mhead{display:flex;align-items:center;gap:10px;padding:16px 0 14px;position:sticky;top:0;background:var(--mbg);z-index:1;border-bottom:1px solid var(--bd);margin:0 0 16px}
-.mback{width:34px;height:34px;border-radius:10px;border:1px solid var(--bd);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:700;transition:transform .15s;flex-shrink:0;color:var(--tx)}
+.mback{width:34px;height:34px;border-radius:10px;border:1px solid var(--bd);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:700;color:var(--tx);flex-shrink:0}
 .mback:active{transform:scale(.9)}
 .mhead h3{font-size:17px;font-weight:700;flex:1}
 .fg{margin-bottom:12px}
 .fg label{display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
-.fi{width:100%;padding:12px;background:var(--inp);border:1px solid var(--bd);border-radius:10px;font-size:14px;color:var(--tx);font-family:'Sora',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.fi{width:100%;padding:12px;background:var(--inp);border:1px solid var(--bd);border-radius:10px;font-size:14px;color:var(--tx);font-family:'Sora',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
 .fi:focus{border-color:var(--ac)}
 .tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .tc{padding:10px 6px;border-radius:10px;text-align:center;cursor:pointer;background:var(--card);border:1px solid var(--bd);transition:all .2s}
@@ -265,10 +239,9 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 .tc .tcl{font-size:11px;color:var(--tx2);display:block;margin-top:2px;font-weight:600}
 .tc.sel{border-color:var(--ac);background:var(--adim)}
 .tc.sel .tcl{color:var(--ac)}
-.sbtn{width:100%;padding:14px;border-radius:12px;font-size:14px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none;margin-top:8px;background:var(--ac);color:#000;transition:opacity .2s;-webkit-appearance:none}
+.sbtn{width:100%;padding:14px;border-radius:12px;font-size:14px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:none;margin-top:8px;background:var(--ac);color:#000;-webkit-appearance:none;appearance:none}
 .sbtn:active{opacity:.8}
-
-/* ═══ AUTH ═══ */
+/* AUTH */
 .atabs{display:flex;background:var(--card);border-radius:10px;padding:3px;gap:3px;margin-bottom:16px}
 .atab{flex:1;padding:8px;border-radius:8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;color:var(--tx2);transition:all .2s}
 .atab.on{background:var(--mbg);color:var(--tx);box-shadow:0 2px 8px rgba(0,0,0,.15)}
@@ -279,19 +252,16 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 .or-div{display:flex;align-items:center;gap:10px;margin:14px 0}
 .or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--bd)}
 .or-div span{font-size:11px;color:var(--tx3);font-weight:600}
-.oabtn{width:100%;padding:12px;border-radius:11px;font-size:13px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;transition:all .2s;-webkit-appearance:none}
-.oabtn:active{opacity:.8}
+.oabtn{width:100%;padding:12px;border-radius:11px;font-size:13px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;-webkit-appearance:none}
 .oabtn.g{border-color:#4285F4;background:rgba(66,133,244,.08);color:#4285F4}
 .oabtn.f{border-color:#1877F2;background:rgba(24,119,242,.08);color:#1877F2}
-.oabtn.a{border-color:var(--tx)}
-
-/* ═══ SETTINGS ═══ */
+/* SETTINGS */
 .ss{margin-bottom:18px}
 .ss h4{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
 .pcard{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:10px}
 .pav{width:48px;height:48px;border-radius:50%;background:var(--adim);border:2px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--ac);flex-shrink:0}
 .pnm{font-size:15px;font-weight:700}
-.pem{font-size:12px;color:var(--tx2);margin-top:1px}
+.pem{font-size:12px;color:var(--tx2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
 .pedb{font-size:11px;color:var(--ac);font-weight:600;cursor:pointer;padding:4px 8px;border:1px solid var(--ac);border-radius:6px;white-space:nowrap;flex-shrink:0}
 .perow{display:flex;gap:8px;margin-bottom:10px}
 .perow input{flex:1;padding:10px;background:var(--inp);border:1px solid var(--bd);border-radius:9px;font-size:14px;font-family:'Sora',sans-serif;color:var(--tx);outline:none;-webkit-appearance:none}
@@ -305,38 +275,42 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 .tog.on{background:var(--ac)}
 .tog::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
 .tog.on::after{transform:translateX(20px)}
-
-/* ═══ EMPTY / TOAST ═══ */
+/* EMPTY / TOAST */
 .empty{text-align:center;padding:40px 20px;color:var(--tx3)}
 .empty .ei{font-size:40px;margin-bottom:8px}
 .empty p{font-size:13px}
-#toast{position:fixed;bottom:calc(var(--nb)+14px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);border:1px solid var(--bd2);border-radius:12px;padding:9px 16px;font-size:13px;font-weight:600;z-index:600;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:88vw;overflow:hidden;text-overflow:ellipsis}
+#toast{position:fixed;bottom:calc(var(--nb)+14px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);border:1px solid var(--bd2);border-radius:12px;padding:9px 16px;font-size:13px;font-weight:600;z-index:600;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:88vw;text-overflow:ellipsis;overflow:hidden}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ═══ SWIPE INDICATOR ═══ */
-.swipe-hint{display:flex;justify-content:center;gap:6px;padding:8px 0 0}
-.shi{width:6px;height:6px;border-radius:50%;background:var(--bd2);transition:all .3s}
-.shi.on{background:var(--ac);width:18px;border-radius:3px}
-
-@media(max-width:360px){.da{gap:4px}.abtn{padding:4px 7px;font-size:11px}}
+/* Loading */
+#loadScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9999}
+#loadScreen .lmark{width:60px;height:60px;background:var(--ac);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#000;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+#loadScreen p{font-size:14px;color:var(--tx2);font-weight:500}
 </style>
 </head>
 <body>
-<div id="app">
+
+<!-- Loading screen -->
+<div id="loadScreen">
+  <div class="lmark">DS</div>
+  <p>Chargement de DealSpot…</p>
+</div>
+
+<main id="app" style="display:none" role="main">
 
 <!-- TOPBAR -->
 <div id="topbar">
   <div class="logo" onclick="toggleSettings()">
-    <div class="logo-mark">DS</div>
-    <span class="logo-name"><em>Deal</em>Spot</span>
+    <div class="logo-mk">DS</div>
+    <span class="logo-nm"><em>Deal</em>Spot</span>
   </div>
-  <div class="tb-right">
+  <div class="tbr">
     <div class="ndot" id="ndot"></div>
     <div class="ib" onclick="toggleSearch()">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     </div>
     <div class="ib" id="userBtn"></div>
-    <div class="ib" id="gearBtn" onclick="toggleSettings()">
+    <div class="ib" onclick="toggleSettings()">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </div>
   </div>
@@ -354,7 +328,6 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <!-- SWIPE AREA -->
 <div id="swipeArea">
   <div id="tabsTrack">
-
     <!-- TAB 0: RADAR -->
     <div class="tab" id="tab-0">
       <div class="supbar" id="supbar">
@@ -365,10 +338,6 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
           <a href="https://www.paypal.com/paypalme/zallyx" target="_blank" rel="noopener noreferrer" style="text-decoration:none"><button class="supbtn pp">💙 Don</button></a>
         </div>
         <span class="sup-x" onclick="dismissSup()">✕</span>
-      </div>
-      <!-- AdSense Banner (web) -->
-      <div class="ad-banner-wrap" id="adBannerWeb">
-        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1381945888605291" data-ad-slot="9963030829" data-ad-format="auto" data-full-width-responsive="true"></ins>
       </div>
       <div class="sh">
         <h2>🎯 Radar</h2>
@@ -384,7 +353,6 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       </div>
       <div id="dealList"></div>
     </div>
-
     <!-- TAB 1: CARTE -->
     <div class="tab" id="tab-1">
       <div class="sh"><h2>🗺️ Lieux Utiles</h2></div>
@@ -398,7 +366,6 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       <div class="cgrid" id="catGrid"></div>
       <div id="placeList"></div>
     </div>
-
     <!-- TAB 2: PRIX -->
     <div class="tab" id="tab-2">
       <div class="sh"><h2>💰 Mémoire de Prix</h2></div>
@@ -411,23 +378,16 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
           <div class="pst"><div class="v" id="pDn" style="color:var(--gr)">0</div><div class="l">Baisses</div></div>
         </div>
       </div>
-      <div class="sh">
-        <h2 style="font-size:15px">Produits suivis</h2>
-        <span class="badge ba" style="cursor:pointer" onclick="openModal('addPriceModal')">+ Ajouter</span>
-      </div>
+      <div class="sh"><h2 style="font-size:15px">Produits suivis</h2><span class="badge ba" style="cursor:pointer" onclick="openModal('addPriceModal')">+ Ajouter</span></div>
       <div id="priceList"></div>
     </div>
-
     <!-- TAB 3: MISSIONS -->
     <div class="tab" id="tab-3">
       <div class="xpc">
         <div class="xpt">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="lvlb" id="lvlB">1</div>
-            <div>
-              <div style="font-size:14px;font-weight:700" id="lvlN">Débutant Éco</div>
-              <div style="font-size:11px;color:var(--tx2)" id="xpSub">0 / 100 XP</div>
-            </div>
+            <div><div style="font-size:14px;font-weight:700" id="lvlN">Débutant Éco</div><div style="font-size:11px;color:var(--tx2)" id="xpSub">0 / 100 XP</div></div>
           </div>
           <div class="xpp" id="totXP">0 XP</div>
         </div>
@@ -435,13 +395,9 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       </div>
       <div class="sh" style="margin-bottom:8px"><h2 style="font-size:14px;color:var(--tx2)">🔥 Série de jours</h2></div>
       <div class="str-row" id="strRow"></div>
-      <div class="sh">
-        <h2>🏆 Missions du Jour</h2>
-        <span class="badge ba" id="mDone">0/3</span>
-      </div>
+      <div class="sh"><h2>🏆 Missions du Jour</h2><span class="badge ba" id="mDone">0/3</span></div>
       <div id="misList"></div>
     </div>
-
     <!-- TAB 4: ANTI-FLEMME -->
     <div class="tab" id="tab-4">
       <div class="ctr-row">
@@ -456,14 +412,13 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       </div>
       <div id="antiResp"></div>
     </div>
+  </div>
+</div>
 
-  </div><!-- /tabsTrack -->
-</div><!-- /swipeArea -->
+<!-- DOTS -->
+<div class="dots" id="dotsWrap"></div>
 
-<!-- SWIPE DOTS -->
-<div class="swipe-hint" id="swipeDots"></div>
-
-<!-- BOTTOM NAV -->
+<!-- NAV -->
 <div id="nav">
   <div class="ni active" onclick="goTab(0)">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="11"/></svg>
@@ -486,26 +441,24 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   </div>
 </div>
 
-<!-- AD OVERLAY (simulation + web2app AdMob bridge) -->
+
+<!-- AD OVERLAY -->
 <div id="adOverlay">
   <div class="adbox">
     <div style="font-size:32px;margin-bottom:8px">📺</div>
     <h3>Soutenir DealSpot</h3>
-    <p>Regarde cette publicité pour aider DealSpot à rester 100% gratuit.</p>
+    <p>Regarde cette pub pour aider DealSpot à rester 100% gratuit pour tous.</p>
     <div class="adcnt" id="adCnt">5</div>
     <div class="adbar"><div class="adfill" id="adFill"></div></div>
     <button class="adclose" id="adCloseBtn" onclick="closeAd()" disabled>Patienter…</button>
   </div>
-  <div class="adnote">AdMob ID: ca-app-pub-1381945888605291/9963030829<br>Pub simulée en PWA · Réelle dans l'app native</div>
+  <div class="adnote">AdMob: ca-app-pub-1381945888605291/9963030829<br>Simulation PWA · Réelle dans l'app native web2app</div>
 </div>
 
 <!-- MODAL: ADD DEAL -->
 <div class="moverlay" id="addModal" onclick="cmbg(event,'addModal')">
   <div class="mbox">
-    <div class="mhead">
-      <div class="mback" onclick="closeModal('addModal')">←</div>
-      <h3>Signaler un Bon Plan</h3>
-    </div>
+    <div class="mhead"><div class="mback" onclick="closeModal('addModal')">←</div><h3>Signaler un Bon Plan</h3></div>
     <div class="fg"><label>Type</label>
       <div class="tgrid" id="dealTG">
         <div class="tc sel" data-type="promo" onclick="selT(this,'deal')"><div class="tci">🏷️</div><span class="tcl">Promo</span></div>
@@ -522,14 +475,10 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     <button class="sbtn" onclick="submitDeal()">Publier 🎯</button>
   </div>
 </div>
-
 <!-- MODAL: ADD PLACE -->
 <div class="moverlay" id="addPlaceModal" onclick="cmbg(event,'addPlaceModal')">
   <div class="mbox">
-    <div class="mhead">
-      <div class="mback" onclick="closeModal('addPlaceModal')">←</div>
-      <h3>Ajouter un Lieu Utile</h3>
-    </div>
+    <div class="mhead"><div class="mback" onclick="closeModal('addPlaceModal')">←</div><h3>Ajouter un Lieu Utile</h3></div>
     <div class="fg"><label>Catégorie</label>
       <div class="tgrid" id="placeTG">
         <div class="tc sel" data-type="wc" onclick="selT(this,'place')"><div class="tci">🚻</div><span class="tcl">Toilettes</span></div>
@@ -545,14 +494,10 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     <button class="sbtn" onclick="submitPlace()">Ajouter 📍</button>
   </div>
 </div>
-
 <!-- MODAL: ADD PRICE -->
 <div class="moverlay" id="addPriceModal" onclick="cmbg(event,'addPriceModal')">
   <div class="mbox">
-    <div class="mhead">
-      <div class="mback" onclick="closeModal('addPriceModal')">←</div>
-      <h3>Enregistrer un Prix</h3>
-    </div>
+    <div class="mhead"><div class="mback" onclick="closeModal('addPriceModal')">←</div><h3>Enregistrer un Prix</h3></div>
     <div class="fg"><label>Produit *</label><input class="fi" id="prNm" placeholder="Ex: Lait demi-écrémé 1L"/></div>
     <div class="fg"><label>Magasin *</label><input class="fi" id="prSh" placeholder="Ex: Lidl République"/></div>
     <div class="fg"><label>Prix actuel (€) *</label><input class="fi" id="prVl" type="number" step="0.01" placeholder="1.09" inputmode="decimal"/></div>
@@ -560,25 +505,17 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     <button class="sbtn" onclick="submitPrice()">Enregistrer 💰</button>
   </div>
 </div>
-
 <!-- MODAL: AUTH -->
 <div class="moverlay" id="authModal" onclick="cmbg(event,'authModal')">
   <div class="mbox">
-    <div class="mhead">
-      <div class="mback" onclick="closeModal('authModal')">←</div>
-      <h3 id="authTitle">Connexion</h3>
-    </div>
+    <div class="mhead"><div class="mback" onclick="closeModal('authModal')">←</div><h3 id="authTitle">Connexion</h3></div>
     <div id="authContent"></div>
   </div>
 </div>
-
 <!-- MODAL: SETTINGS -->
 <div class="moverlay" id="settingsModal" onclick="cmbg(event,'settingsModal')">
   <div class="mbox">
-    <div class="mhead">
-      <div class="mback" onclick="closeModal('settingsModal')">←</div>
-      <h3>⚙️ Paramètres</h3>
-    </div>
+    <div class="mhead"><div class="mback" onclick="closeModal('settingsModal')">←</div><h3>⚙️ Paramètres</h3></div>
     <div class="ss"><h4>Compte</h4><div id="settAuth"></div></div>
     <div class="ss">
       <h4>Apparence</h4>
@@ -590,7 +527,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     <div class="ss">
       <h4>💛 Soutenir DealSpot</h4>
       <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <div style="flex:1;font-size:12px;color:var(--tx2);min-width:120px">Aide à garder DealSpot gratuit pour tous !</div>
+        <div style="flex:1;font-size:12px;color:var(--tx2);min-width:100px">Aide à garder DealSpot gratuit !</div>
         <div style="display:flex;gap:6px">
           <button class="supbtn ad" onclick="closeModal('settingsModal');watchAd()">📺 Pub</button>
           <a href="https://www.paypal.com/paypalme/zallyx" target="_blank" rel="noopener noreferrer" style="text-decoration:none"><button class="supbtn pp">💙 Don</button></a>
@@ -599,9 +536,9 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     </div>
     <div class="ss">
       <h4>🔗 Temps Réel</h4>
-      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px;font-size:12px;color:var(--tx2);line-height:1.5">
-        <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--gd);color:var(--gr);margin-bottom:6px">● Supabase connecté</span><br>
-        Tes bons plans sont partagés en temps réel avec toute la communauté DealSpot.
+      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px;font-size:12px;color:var(--tx2)">
+        <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--gd);color:var(--gr);margin-bottom:6px" id="sbBadge">● Vérification…</span><br>
+        Tes bons plans sont partagés en temps réel avec toute la communauté.
       </div>
     </div>
     <div class="ss">
@@ -611,64 +548,84 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       </div>
     </div>
   </div>
-</div>
+</main>
 
 <div id="toast"></div>
 
 <script>
 'use strict';
 // ═══════════════════════════════════════
-// SUPABASE — rôle anon uniquement (RLS côté serveur protège les admins)
-// App ID: ca-pub-1381945888605291 | Ad Unit: 9963030829
+// CONFIG SUPABASE — clé anon uniquement (jamais service_role)
+// AdMob App: ca-app-pub-1381945888605291~5391527709
+// AdMob Unit: ca-app-pub-1381945888605291/9963030829
 // ═══════════════════════════════════════
 const SB_URL='https://vwapbxglpxcmvgcfkxbt.supabase.co';
-const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3YXBieGdscHhjbXZnY2ZreGJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTYyOTksImV4cCI6MjA5MjU3MjI5OX0.3OVOrzOYiik_cA8uQQaHRXBy_V9FZRpwfsJPv0V7Lng';
-// Clé publishable (lecture seule publique)
-const SB_PUB='sb_publishable_fwSFJ7toekhFUfKHJLDaNg_aLKsS5E9';
-// On utilise UNIQUEMENT la clé anon — jamais la service_role
-const sb=window.supabase.createClient(SB_URL,SB_ANON,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'dealspot_auth'}});
-const SBH={'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON,'Content-Type':'application/json','Prefer':'return=minimal'};
-async function sbGet(t,q){try{const r=await fetch(SB_URL+'/rest/v1/'+t+'?'+(q||''),{headers:SBH});return r.ok?r.json():null;}catch{return null;}}
-async function sbPost(t,d){try{await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:SBH,body:JSON.stringify(d)});}catch{}}
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3YXBieGdscHhjbXZnY2ZreGJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTYyOTksImV4cCI6MjA5MjU3MjI5OX0.3OVOrzOYiik_cA8uQQaHRXBy_V9FZRpwfsJPv0V7Lng';
+const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
 
-// ═══ SECURITY: escape HTML
+// ═══ Supabase REST (sans CDN — fonctionne même si bloqué par Brave)
+async function sbGet(t,q){try{const r=await fetch(SB_URL+'/rest/v1/'+t+'?'+(q||''),{headers:SBH});return r.ok?r.json():null;}catch{return null;}}
+async function sbPost(t,d){try{await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:{...SBH,'Prefer':'return=minimal'},body:JSON.stringify(d)});}catch{}}
+
+// ═══ Supabase Auth REST direct (pas de SDK — 0 dépendance externe)
+let _session=null;
+async function sbSignUp(email,pw){
+  try{const r=await fetch(SB_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password:pw})});const d=await r.json();if(!r.ok)return{error:d};if(d.user)_session=d;return{data:d};}catch(e){return{error:{message:'Erreur réseau'}};}
+}
+async function sbSignIn(email,pw){
+  try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password:pw})});const d=await r.json();if(!r.ok)return{error:d};_session=d;lset('_session',d);return{data:d};}catch(e){return{error:{message:'Erreur réseau'}};}
+}
+async function sbSignOut(){
+  try{if(_session?.access_token)await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+_session.access_token}});}catch{}
+  _session=null;lset('_session',null);
+}
+async function sbGetSession(){
+  const saved=lget('_session',null);
+  if(!saved?.access_token)return null;
+  try{const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+saved.access_token}});if(r.ok){_session=saved;return saved;}lset('_session',null);return null;}catch{return null;}
+}
+function sbOAuth(provider){
+  window.location.href=SB_URL+'/auth/v1/authorize?provider='+provider+'&redirect_to='+encodeURIComponent(window.location.href);
+}
+
+// ═══ SECURITY
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
 // ═══ STORAGE
-function lget(k,d){try{const v=localStorage.getItem('ds4_'+k);return v!==null?JSON.parse(v):d;}catch{return d;}}
-function lset(k,v){try{localStorage.setItem('ds4_'+k,JSON.stringify(v));}catch{}}
+function lget(k,d){try{const v=localStorage.getItem('ds5_'+k);return v!=null?JSON.parse(v):d;}catch{return d;}}
+function lset(k,v){try{localStorage.setItem('ds5_'+k,JSON.stringify(v));}catch{}}
 
 // ═══ SEED DATA
 function defDeals(){return[
-  {id:1,type:'promo',title:'50% sur les yaourts Danone',place:'Carrefour Market Nation, Paris 11e',desc:'Jusqu\'au dimanche soir — rayon produits laitiers',likes:24,saved:false,liked:false,time:'Il y a 23 min',reviews:[
-    {id:1,user:'Sophie L.',stars:5,text:'Confirmé ! Rayons bien fournis ce matin. Vaut pour tous les packs. Super plan !',time:'Il y a 18 min',src:'google'},
-    {id:2,user:'Marc T.',stars:4,text:'Pas sur les Bio, mais sur les classiques c\'est top. 4€ économisés sur mon panier.',time:'Il y a 35 min',src:'google'},
-    {id:3,user:'Amélie R.',stars:5,text:'Promo régulière chez Carrefour Nation. Je l\'ai déjà vue le mois dernier. Valide !',time:'Il y a 1h',src:'google'}]},
+  {id:1,type:'promo',title:'50% sur les yaourts Danone',place:'Carrefour Market Nation, Paris 11e',desc:'Jusqu\'au dimanche — rayon produits laitiers, tous formats',likes:24,saved:false,liked:false,time:'Il y a 23 min',reviews:[
+    {id:1,user:'Sophie L.',stars:5,text:'Confirmé ! Rayons bien fournis ce matin. Vaut pour tous les packs.',time:'Il y a 18 min',src:'google'},
+    {id:2,user:'Marc T.',stars:4,text:'Pas sur les Bio mais sur les classiques c\'est top. 4€ économisés !',time:'Il y a 35 min',src:'google'},
+    {id:3,user:'Amélie R.',stars:5,text:'Promo régulière chez Carrefour Nation sur les Danone. Valide !',time:'Il y a 1h',src:'google'}]},
   {id:2,type:'gratuit',title:'Pain offert à l\'achat d\'une soupe',place:'Brioche Dorée Châtelet, Paris 1er',desc:'Présenter l\'app DealSpot en caisse',likes:38,saved:true,liked:false,time:'Il y a 1h',reviews:[
-    {id:1,user:'Julie M.',stars:5,text:'Accepté sans hésiter. Pain viennois excellent. Je recommande !',time:'Il y a 45 min',src:'google'},
-    {id:2,user:'Karim B.',stars:5,text:'Testé hier midi, ça marche parfaitement. Le staff est au courant.',time:'Il y a 2h',src:'google'}]},
+    {id:1,user:'Julie M.',stars:5,text:'Accepté sans hésiter ! Pain viennois excellent. Je recommande.',time:'Il y a 45 min',src:'google'},
+    {id:2,user:'Karim B.',stars:5,text:'Testé hier midi, ça marche parfaitement. Staff au courant.',time:'Il y a 2h',src:'google'}]},
   {id:3,type:'event',title:'Concert gratuit — Jazz en Plein Air',place:'Parc Montsouris, Paris 14e',desc:'Demain 15h–18h, accès libre, prévoir un plaid',likes:61,saved:false,liked:true,time:'Il y a 2h',reviews:[
-    {id:1,user:'Nathalie V.',stars:5,text:'Qualité musicale très élevée ! Amenez un pique-nique, c\'est parfait.',time:'Il y a 1h',src:'google'},
-    {id:2,user:'Théo P.',stars:4,text:'Arriver tôt pour une bonne place sous les arbres. Gratuit et de qualité !',time:'Il y a 3h',src:'google'}]},
+    {id:1,user:'Nathalie V.',stars:5,text:'Qualité musicale très élevée ! Amenez un pique-nique.',time:'Il y a 1h',src:'google'},
+    {id:2,user:'Théo P.',stars:4,text:'Arriver tôt pour une bonne place sous les arbres. Gratuit et top !',time:'Il y a 3h',src:'google'}]},
   {id:4,type:'food',title:'Invendus marché à prix libre',place:'Marché d\'Aligre, Paris 12e',desc:'Chaque dimanche après 13h — fruits, légumes, fromages',likes:44,saved:false,liked:false,time:'Il y a 3h',reviews:[
-    {id:1,user:'Romain D.',stars:5,text:'Mon marché préféré depuis 5 ans. Acte solidaire incroyable.',time:'Il y a 1h',src:'google'},
+    {id:1,user:'Romain D.',stars:5,text:'Mon marché préféré depuis 5 ans. Acte solidaire incroyable !',time:'Il y a 1h',src:'google'},
     {id:2,user:'Fatou K.',stars:4,text:'Parfois ferme à 12h30. Arriver vers 12h45. 1kg tomates + melon = 1€ !',time:'Il y a 2h',src:'google'}]},
   {id:5,type:'promo',title:'2e café offert avant 10h',place:'Columbus Café Saint-Lazare, Paris 8e',desc:'Avec la carte fidélité Columbus',likes:11,saved:false,liked:false,time:'Il y a 5h',reviews:[
-    {id:1,user:'Clara N.',stars:4,text:'Prises et Wi-Fi partout. Le 2e café est vraiment offert. Vérifié ce matin.',time:'Il y a 3h',src:'google'}]}
+    {id:1,user:'Clara N.',stars:4,text:'Prises et Wi-Fi partout. 2e café vraiment offert. Vérifié ce matin.',time:'Il y a 3h',src:'google'}]}
 ];}
 function defPlaces(){return[
   {id:1,type:'wc',name:'Toilettes Publiques — République',addr:'Place de la République, Paris 11e',dist:'120 m',reviews:[
     {id:1,user:'Céline R.',stars:4,text:'Propres, rénovées. Ouvertes 7h–22h. Accès PMR disponible.',time:'Il y a 2j',src:'google'},
-    {id:2,user:'David M.',stars:4,text:'Bien entretenues. Savon et papier toujours dispo. Mieux que la moyenne.',time:'Il y a 5j',src:'google'}]},
+    {id:2,user:'David M.',stars:4,text:'Bien entretenues. Savon et papier toujours dispo.',time:'Il y a 5j',src:'google'}]},
   {id:2,type:'eau',name:'Fontaine Wallace n°42',addr:'Bd Beaumarchais, Paris 3e',dist:'200 m',reviews:[
-    {id:1,user:'Pierre D.',stars:5,text:'Eau fraîche et propre. Je remplis ma gourde ici tous les matins.',time:'Il y a 1j',src:'google'},
-    {id:2,user:'Amina B.',stars:5,text:'Fontaine Wallace iconique. Très bonne qualité. Accessible 24h/24.',time:'Il y a 3j',src:'google'}]},
+    {id:1,user:'Pierre D.',stars:5,text:'Eau fraîche et propre. Je remplis ma gourde ici tous les matins !',time:'Il y a 1j',src:'google'},
+    {id:2,user:'Amina B.',stars:5,text:'Fontaine Wallace iconique. Très bonne qualité. 24h/24.',time:'Il y a 3j',src:'google'}]},
   {id:3,type:'wifi',name:'Wi-Fi gratuit — Médiathèque',addr:'Mairie du 11e, Place Léon Blum',dist:'350 m',reviews:[
-    {id:1,user:'Thomas A.',stars:4,text:'~30 Mbps. Accès sans mot de passe. Espace calme avec prises.',time:'Il y a 4j',src:'google'}]},
+    {id:1,user:'Thomas A.',stars:4,text:'~30 Mbps. Sans mot de passe. Espace calme avec prises.',time:'Il y a 4j',src:'google'}]},
   {id:4,type:'prise',name:'Prises libres — McDonald\'s Voltaire',addr:'Bd Voltaire, Paris 11e',dist:'400 m',reviews:[
-    {id:1,user:'Hugo C.',stars:4,text:'Tables avec prises intégrées + Wi-Fi. Top pour recharger.',time:'Il y a 2j',src:'google'}]},
+    {id:1,user:'Hugo C.',stars:4,text:'Tables avec prises intégrées + Wi-Fi. Top pour recharger !',time:'Il y a 2j',src:'google'}]},
   {id:5,type:'parking',name:'Parking Gratuit — Dimanche',addr:'Rue Oberkampf, Paris 11e',dist:'500 m',reviews:[
-    {id:1,user:'Michel P.',stars:5,text:'Gratuit le dimanche toute la journée dans tout Paris. Profitez-en !',time:'Il y a 3j',src:'google'}]},
+    {id:1,user:'Michel P.',stars:5,text:'Gratuit le dimanche toute la journée dans tout Paris !',time:'Il y a 3j',src:'google'}]},
   {id:6,type:'eau',name:'Fontaine réfrigérée — Gare de Lyon',addr:'Place Louis Armand, Paris 12e',dist:'800 m',reviews:[
     {id:1,user:'Emma V.',stars:5,text:'Eau plate ET pétillante ! Froide même en juillet. Un must.',time:'Il y a 6j',src:'google'}]}
 ];}
@@ -683,7 +640,7 @@ const S={
   deals:  lget('deals', null)||defDeals(),
   places: lget('places',null)||defPlaces(),
   prices: lget('prices',null)||defPrices(),
-  xp:     lget('xp',    0),
+  xp:     lget('xp',   0),
   streak: lget('streak',[]),
   mDone:  lget('mDone', []),
   antCnt: lget('antCnt',0),
@@ -699,8 +656,7 @@ const TC={promo:{i:'🏷️',b:'rgba(245,158,11,.15)'},gratuit:{i:'🎁',b:'rgba
 const CC={wc:{i:'🚻',l:'Toilettes',c:'#3B82F6'},eau:{i:'💧',l:'Fontaines',c:'#06B6D4'},wifi:{i:'📶',l:'Wi-Fi',c:'#8B5CF6'},prise:{i:'🔌',l:'Prises',c:'#F59E0B'},parking:{i:'🅿️',l:'Parking',c:'#10B981'},autre:{i:'📍',l:'Autre',c:'#94A3B8'}};
 const LVS=[{n:'Débutant Éco',x:100},{n:'Chasseur Malin',x:250},{n:'Pro DealSpot',x:500},{n:'Économiste Pro',x:1000},{n:'Légende DealSpot',x:9999}];
 const MIS=[{id:'m1',i:'🏷️',c:'#F59E0B',t:'Signale un bon plan',d:'Aide la communauté à économiser',x:25,cta:'Signaler →'},{id:'m2',i:'💰',c:'#10B981',t:'Enregistre un prix',d:'Note le prix d\'un produit du quotidien',x:20,cta:'Enregistrer →'},{id:'m3',i:'🗺️',c:'#3B82F6',t:'Ajoute un lieu utile',d:'Fontaine, Wi-Fi, toilettes…',x:15,cta:'Ajouter →'}];
-const ANTI=[{e:'💪',t:'Micro-action (2 min)',p:'Ouvre ton appli bancaire et note une dépense que tu pourrais éviter. Juste une.'},{e:'🎯',t:'Défi maintenant',p:'Cherche un bon plan autour de toi et signale-le. Tu aideras quelqu\'un aujourd\'hui.'},{e:'🧠',t:'Astuce anti-impulsion',p:'Avant ton prochain achat : "Est-ce que j\'en aurai encore besoin dans 48h ?" Si tu hésites, c\'est non.'},{e:'🚶',t:'Bouge 20 secondes',p:'Lève-toi et fais 20 pas. Ton cerveau se réactive. Prouvé par les neurosciences.'},{e:'💡',t:'Le chiffre qui claque',p:'3 achats impulsifs en moins par semaine = 1 800€ économisés par an.'},{e:'🔌',t:'Utile pour plus tard',p:'Note un lieu avec une prise ou du Wi-Fi gratuit proche de chez toi.'},{e:'🎮',t:'Petite mission',p:'Va dans Missions et complète n\'importe laquelle. Même la plus facile.'},{e:'🛒',t:'Anti-achat impulsif',p:'Ferme tous les onglets shopping. Reviens dans 24h. Si tu y repenses encore, c\'est utile.'}];
-const TABS=['radar','carte','prix','missions','anti'];
+const ANTI=[{e:'💪',t:'Micro-action (2 min)',p:'Ouvre ton appli bancaire et note une dépense à éviter cette semaine. Juste une.'},{e:'🎯',t:'Défi maintenant',p:'Cherche un bon plan autour de toi et signale-le. Tu aideras quelqu\'un aujourd\'hui.'},{e:'🧠',t:'Astuce anti-impulsion',p:'Avant ton prochain achat : "Est-ce que j\'en aurai encore besoin dans 48h ?" Si tu hésites, c\'est non.'},{e:'🚶',t:'Bouge 20 secondes',p:'Lève-toi, fais 20 pas. Ton cerveau se réactive, la flemme passe.'},{e:'💡',t:'Le chiffre qui claque',p:'3 achats impulsifs en moins par semaine = 1 800€ économisés par an !'},{e:'🔌',t:'Utile pour plus tard',p:'Note un lieu avec une prise ou du Wi-Fi gratuit proche de chez toi.'},{e:'🎮',t:'Petite mission',p:'Va dans Missions et complète n\'importe laquelle. La plus facile suffit.'},{e:'🛒',t:'Anti-achat impulsif',p:'Ferme tous les onglets shopping. Reviens dans 24h. Si tu y repenses, c\'est utile.'}];
 
 // ═══ VARS
 let curTab=0,curFilter='all',curCat='all',selDT='promo',selPT='wc',srchQ='',srchVis=false,lastAnti=-1,pStars={},settOpen=false,adT=null,authTab='login';
@@ -729,30 +685,22 @@ function hl(t){
 // ═══════════════════════════════════════
 // SWIPE NAVIGATION
 // ═══════════════════════════════════════
-let tsX=0,tsY=0,isDragging=false;
 const track=G('tabsTrack');
 const area=G('swipeArea');
+let tsX=0,tsY=0,dragging=false,mdX=0,mouseD=false;
 
-function goTab(idx,animate=true){
+function goTab(idx){
   if(idx<0||idx>4)return;
-  // Scroll tab to top
-  const prevTab=G('tab-'+curTab);if(prevTab)prevTab.scrollTop=0;
+  const prev=G('tab-'+curTab);if(prev)prev.scrollTop=0;
   curTab=idx;
-  if(animate){
-    track.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';
-  }else{
-    track.style.transition='none';
-  }
-  track.style.transform=`translateX(${-idx*100}%)`;
-  // Update nav
-  document.querySelectorAll('.ni').forEach((n,i)=>{
-    // nav items: 0=radar,1=carte,skip center,2=missions,3=anti → mapped indices
-    const tabMap=[0,1,3,4];
-    n.classList.toggle('active',tabMap[i]===idx);
-  });
-  // Update dots
-  document.querySelectorAll('.shi').forEach((d,i)=>d.classList.toggle('on',i===idx));
-  // Render tab content
+  track.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';
+  track.style.transform='translateX(-'+idx*100+'%)';
+  // Nav
+  const navMap=[0,1,-1,3,4];
+  document.querySelectorAll('#nav .ni').forEach((n,i)=>n.classList.toggle('active',navMap[i]===idx));
+  // Dots
+  document.querySelectorAll('#dotsWrap .dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+  // Render
   if(idx===0)renderDeals();
   else if(idx===1)renderPlaces();
   else if(idx===2)renderPrices();
@@ -760,117 +708,66 @@ function goTab(idx,animate=true){
   else if(idx===4)renderAnti();
 }
 
-// Init swipe dots
 function initDots(){
-  const dc=G('swipeDots');
-  dc.innerHTML=TABS.map((_,i)=>`<div class="shi ${i===0?'on':''}"></div>`).join('');
+  G('dotsWrap').innerHTML=['radar','carte','prix','missions','anti'].map((_,i)=>`<div class="dot ${i===0?'on':''}"></div>`).join('');
 }
 
-// Touch events for swipe
-area.addEventListener('touchstart',e=>{
-  if(document.querySelector('.moverlay.open'))return;
-  tsX=e.touches[0].clientX;tsY=e.touches[0].clientY;isDragging=false;
-},{passive:true});
+area.addEventListener('touchstart',e=>{if(document.querySelector('.moverlay.open'))return;tsX=e.touches[0].clientX;tsY=e.touches[0].clientY;dragging=false;},{passive:true});
 area.addEventListener('touchmove',e=>{
   if(document.querySelector('.moverlay.open'))return;
-  const dx=e.touches[0].clientX-tsX;const dy=e.touches[0].clientY-tsY;
-  if(!isDragging&&Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>12){isDragging=true;}
-  if(isDragging){
-    track.style.transition='none';
-    const base=-curTab*100;
-    const pct=dx/area.offsetWidth*100;
-    track.style.transform=`translateX(calc(${base}% + ${dx}px))`;
+  const dx=e.touches[0].clientX-tsX,dy=e.touches[0].clientY-tsY;
+  // Only hijack horizontal swipes — let vertical scroll pass through naturally
+  if(!dragging){
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>12){dragging=true;}
+    else if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){dragging=false;return;}// vertical — don't block
   }
+  if(dragging){track.style.transition='none';track.style.transform='translateX(calc(-'+curTab*100+'% + '+dx+'px))';}
 },{passive:true});
 area.addEventListener('touchend',e=>{
-  if(!isDragging)return;
-  isDragging=false;
-  const dx=e.changedTouches[0].clientX-tsX;
-  const threshold=area.offsetWidth*0.2;
-  if(dx<-threshold&&curTab<4)goTab(curTab+1);
-  else if(dx>threshold&&curTab>0)goTab(curTab-1);
+  if(!dragging)return;dragging=false;
+  const dx=e.changedTouches[0].clientX-tsX,thr=area.offsetWidth*0.2;
+  if(dx<-thr&&curTab<4)goTab(curTab+1);
+  else if(dx>thr&&curTab>0)goTab(curTab-1);
   else goTab(curTab);
 },{passive:true});
-
-// Mouse drag support (desktop)
-let msX=0,mouseDown=false;
-area.addEventListener('mousedown',e=>{msX=e.clientX;mouseDown=true;});
+area.addEventListener('mousedown',e=>{if(document.querySelector('.moverlay.open'))return;mdX=e.clientX;mouseD=true;});
 area.addEventListener('mousemove',e=>{
-  if(!mouseDown||document.querySelector('.moverlay.open'))return;
-  const dx=e.clientX-msX;
-  if(Math.abs(dx)>8){track.style.transition='none';track.style.transform=`translateX(calc(${-curTab*100}% + ${dx}px))`;}
+  if(!mouseD||document.querySelector('.moverlay.open'))return;
+  const dx=e.clientX-mdX;
+  if(Math.abs(dx)>8){track.style.transition='none';track.style.transform='translateX(calc(-'+curTab*100+'% + '+dx+'px))';}
 });
 area.addEventListener('mouseup',e=>{
-  if(!mouseDown)return;mouseDown=false;
-  const dx=e.clientX-msX;
-  const threshold=area.offsetWidth*0.2;
-  if(dx<-threshold&&curTab<4)goTab(curTab+1);
-  else if(dx>threshold&&curTab>0)goTab(curTab-1);
+  if(!mouseD)return;mouseD=false;
+  const dx=e.clientX-mdX,thr=area.offsetWidth*0.2;
+  if(dx<-thr&&curTab<4)goTab(curTab+1);
+  else if(dx>thr&&curTab>0)goTab(curTab-1);
   else goTab(curTab);
 });
-area.addEventListener('mouseleave',()=>{if(mouseDown){mouseDown=false;goTab(curTab);}});
+area.addEventListener('mouseleave',()=>{if(mouseD){mouseD=false;goTab(curTab);}});
 
 // ═══ SEARCH
-function toggleSearch(){
-  srchVis=!srchVis;G('srchWrap').style.display=srchVis?'block':'none';
-  if(srchVis)setTimeout(()=>G('srchInp').focus(),80);
-  else{srchQ='';G('srchInp').value='';renderDeals();}
-}
-function onSearch(q){srchQ=q.toLowerCase();if(curTab!==0){goTab(0);}else{renderDeals();}}
+function toggleSearch(){srchVis=!srchVis;G('srchWrap').style.display=srchVis?'block':'none';if(srchVis)setTimeout(()=>G('srchInp').focus(),80);else{srchQ='';G('srchInp').value='';renderDeals();}}
+function onSearch(q){srchQ=q.toLowerCase();if(curTab!==0)goTab(0);else renderDeals();}
 function clearSearch(){srchQ='';G('srchInp').value='';renderDeals();}
 
 // ═══════════════════════════════════════
 // MODULE 1: RADAR
 // ═══════════════════════════════════════
 function filterDeals(el,f){
-  curFilter=f;
-  document.querySelectorAll('#filterBar .chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');renderDeals();
+  curFilter=f;document.querySelectorAll('#filterBar .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderDeals();
 }
 function renderDeals(){
   let list=curFilter==='all'?S.deals.slice():S.deals.filter(d=>d.type===curFilter);
   if(srchQ)list=list.filter(d=>d.title.toLowerCase().includes(srchQ)||d.place.toLowerCase().includes(srchQ)||(d.desc||'').toLowerCase().includes(srchQ));
   G('dealCount').textContent=S.deals.length+' actifs';
   const el=G('dealList');
-  if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">${srchQ?'🔍':'📭'}</div><p>${srchQ?'Aucun résultat pour "'+esc(srchQ)+'"':'Aucun bon plan dans cette catégorie'}</p></div>`;return;}
-  el.innerHTML=list.map(d=>dealCardH(d)).join('');
-}
-function dealCardH(d){
-  const t=TC[d.type]||TC.autre;
-  const revs=d.reviews||[];
-  const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
-  const avg=avgS(revs),nc=revs.length,ps=pStars['d'+d.id]||0;
-  return `<div class="dc">
-    <div class="dh">
-      <div class="dic" style="background:${t.b}">${t.i}</div>
-      <div class="din">
-        <div class="dtt">${hl(d.title)}</div>
-        <div class="dpl">📍 ${hl(d.place)}</div>
-        ${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}
-        ${avg>0?`<div style="margin-top:5px">${starsH(avg,nc,true)}</div>`:''}
-      </div>
-    </div>
-    <div class="df">
-      <div class="da">
-        <div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${d.id})">❤️ ${d.likes}</div>
-        <div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${d.id})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div>
-        <div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${d.id})">💬 ${nc} avis</div>
-      </div>
-      <span class="dtm">${esc(d.time)}</span>
-    </div>
-    <div class="revs" id="rs-d-${d.id}">
-      ${ordered.map(r=>revH(r)).join('')}
-      <div class="riw">
-        <div class="rlbl">Laisser un avis</div>
-        <div class="spick" id="sp-d-${d.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${d.id},${i})">⭐</span>`).join('')}</div>
-        <textarea class="rta" id="ri-d-${d.id}" rows="2" placeholder="${S.user?'Ton avis sur ce bon plan…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea>
-        <div class="rrw">
-          <span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span>
-          <button class="rsnd" onclick="postRev('d',${d.id})">Publier</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">${srchQ?'🔍':'📭'}</div><p>${srchQ?'Aucun résultat pour "'+esc(srchQ)+'"':'Aucun bon plan ici'}</p></div>`;return;}
+  el.innerHTML=list.map(d=>{
+    const t=TC[d.type]||TC.autre;const revs=d.reviews||[];
+    const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
+    const avg=avgS(revs),nc=revs.length,ps=pStars['d'+d.id]||0;
+    return `<div class="dc"><div class="dh"><div class="dic" style="background:${t.b}">${t.i}</div><div class="din"><div class="dtt">${hl(d.title)}</div><div class="dpl">📍 ${hl(d.place)}</div>${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}${avg>0?`<div style="margin-top:5px">${starsH(avg,nc,true)}</div>`:''}</div></div><div class="df"><div class="da"><div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${d.id})">❤️ ${d.likes}</div><div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${d.id})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div><div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${d.id})">💬 ${nc} avis</div></div><span class="dtm">${esc(d.time)}</span></div><div class="revs" id="rs-d-${d.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-d-${d.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${d.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-d-${d.id}" rows="2" placeholder="${S.user?'Ton avis…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span><button class="rsnd" onclick="postRev('d',${d.id})">Publier</button></div></div></div></div>`;
+  }).join('');
 }
 function togRevs(ctx,id){const rs=G('rs-'+ctx+'-'+id);if(rs)rs.classList.toggle('open');}
 function setStar(ctx,id,n){pStars[ctx+id]=n;const sp=G('sp-'+ctx+'-'+id);if(sp)sp.querySelectorAll('.sp').forEach((s,i)=>s.classList.toggle('on',i<n));}
@@ -882,24 +779,17 @@ function postRev(ctx,id){
   const r={id:Date.now(),user:getPseudo(),pseudo:getPseudo(),stars,text:txt,time:'À l\'instant',src:'dealspot'};
   if(ctx==='d'){
     const d=S.deals.find(x=>x.id===id);if(!d)return;
-    d.reviews=d.reviews||[];d.reviews.unshift(r);sv('deals');
-    delete pStars[ctx+id];renderDeals();
+    d.reviews=d.reviews||[];d.reviews.unshift(r);sv('deals');delete pStars[ctx+id];renderDeals();
     setTimeout(()=>{const rs=G('rs-d-'+id);if(rs)rs.classList.add('open');},50);
   }else{
     const p=S.places.find(x=>x.id===id);if(!p)return;
-    p.reviews=p.reviews||[];p.reviews.unshift(r);sv('places');
-    delete pStars[ctx+id];renderPlaces();
+    p.reviews=p.reviews||[];p.reviews.unshift(r);sv('places');delete pStars[ctx+id];renderPlaces();
   }
   toast('⭐ Avis publié !');sbPost('reviews',{context:ctx,ref_id:id,user:getPseudo(),stars,text:txt});
 }
 function likeDeal(id){const d=S.deals.find(x=>x.id===id);if(!d)return;d.liked=!d.liked;d.likes+=d.liked?1:-1;sv('deals');renderDeals();}
 function saveDeal(id){const d=S.deals.find(x=>x.id===id);if(!d)return;d.saved=!d.saved;sv('deals');renderDeals();toast(d.saved?'🔖 Sauvegardé !':'Retiré des sauvegardes');}
-function selT(el,ctx){
-  const gid=ctx==='deal'?'dealTG':'placeTG';
-  document.querySelectorAll('#'+gid+' .tc').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
-  if(ctx==='deal')selDT=el.dataset.type;else selPT=el.dataset.type;
-}
+function selT(el,ctx){const gid=ctx==='deal'?'dealTG':'placeTG';document.querySelectorAll('#'+gid+' .tc').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');if(ctx==='deal')selDT=el.dataset.type;else selPT=el.dataset.type;}
 function submitDeal(){
   const title=G('dTit').value.trim(),place=G('dPl').value.trim();
   if(!title||!place){toast('❌ Titre et lieu requis');return;}
@@ -915,19 +805,18 @@ function submitDeal(){
 function renderPlaces(){
   const viz=G('mapViz');viz.innerHTML='';
   const cols=['#F59E0B','#10B981','#3B82F6','#EF4444','#8B5CF6'];
-  for(let i=0;i<8;i++){const d=document.createElement('div');d.className='mdot';const c=cols[i%cols.length];d.style.cssText=`left:${8+Math.random()*84}%;top:${8+Math.random()*84}%;background:${c};color:${c};animation-delay:${i*.35}s`;viz.appendChild(d);}
-  const lbl=document.createElement('div');lbl.className='mlbl';lbl.innerHTML='<p>📍 Autour de vous</p><span>Données disponibles hors ligne</span>';viz.appendChild(lbl);
+  for(let i=0;i<8;i++){const dot=document.createElement('div');dot.className='mdot';const c=cols[i%cols.length];dot.style.cssText='left:'+(8+Math.random()*84)+'%;top:'+(8+Math.random()*84)+'%;background:'+c+';color:'+c+';animation-delay:'+(i*.35)+'s';viz.appendChild(dot);}
+  const lbl=document.createElement('div');lbl.className='mlbl';lbl.innerHTML='<p>📍 Autour de vous</p><span>Disponible hors ligne</span>';viz.appendChild(lbl);
   G('catGrid').innerHTML=`<div class="cc ${curCat==='all'?'on':''}" onclick="filtPl(this,'all')"><div class="ci">🗺️</div><span>Tout</span></div>`+Object.entries(CC).map(([k,v])=>`<div class="cc ${curCat===k?'on':''}" onclick="filtPl(this,'${k}')"><div class="ci">${v.i}</div><span>${v.l}</span></div>`).join('');
   const fl=curCat==='all'?S.places:S.places.filter(p=>p.type===curCat);
-  G('plcCount').textContent=`${fl.length} lieu(x) référencé(s)`;
+  G('plcCount').textContent=fl.length+' lieu(x) référencé(s)';
   const el=G('placeList');
   if(!fl.length){el.innerHTML='<div class="empty"><div class="ei">📍</div><p>Aucun lieu dans cette catégorie</p></div>';return;}
   el.innerHTML=fl.map(p=>{
     const c=CC[p.type]||CC.autre;const revs=p.reviews||[];
     const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
     const avg=avgS(revs),nc=revs.length,ps=pStars['p'+p.id]||0;
-    return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}</div><div class="plad">📍 ${esc(p.addr)}</div>${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<span class="plrb" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div><div class="pldi">${esc(p.dist)}</div></div>
-    <div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
+    return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}</div><div class="plad">📍 ${esc(p.addr)}</div>${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<span class="plrb" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div><div class="pldi">${esc(p.dist)}</div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
   }).join('');
 }
 function filtPl(el,cat){curCat=cat;renderPlaces();}
@@ -951,18 +840,12 @@ function renderPrices(){
   if(!S.prices.length){el.innerHTML='<div class="empty"><div class="ei">📦</div><p>Aucun produit suivi.<br>Ajoutez-en un !</p></div>';return;}
   el.innerHTML=S.prices.map(p=>{
     const h=p.history,curr=h[h.length-1].v,prev=h.length>=2?h[h.length-2].v:curr,diff=+(curr-prev).toFixed(2);
-    const tc=diff>0?'up':diff<0?'dn':'eq';
-    const mx=Math.max(...h.map(x=>x.v));
+    const tc=diff>0?'up':diff<0?'dn':'eq';const mx=Math.max(...h.map(x=>x.v));
     const bars=h.map(x=>`<div class="mb" style="height:${Math.round((x.v/mx)*100)}%;background:${x===h[h.length-1]?'var(--ac)':'var(--bd2)'}"></div>`).join('');
     return `<div class="pii"><div class="pih"><div class="piic">${esc(p.emoji||'📦')}</div><div style="flex:1"><div class="pinm">${esc(p.name)}</div><div class="pish">${esc(p.shop)}</div></div><div style="text-align:right"><div class="pipr" style="color:${diff>0?'var(--re)':diff<0?'var(--gr)':'var(--tx)'}">${curr.toFixed(2)} €</div><div class="pitr ${tc}">${diff>0?'▲':diff<0?'▼':'='} ${Math.abs(diff).toFixed(2)} €</div></div></div><div class="mch">${bars}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--tx3)">MAJ: ${esc(h[h.length-1].d)}</span><span class="badge ${diff>0?'br':diff<0?'bg':'ba'}" style="cursor:pointer" onclick="updPrice(${p.id})">+ Nouveau prix</span></div></div>`;
   }).join('');
 }
-function updPrice(id){
-  const nv=prompt('Nouveau prix (€) ?');if(!nv||isNaN(+nv)||+nv<=0)return;
-  const p=S.prices.find(x=>x.id===id);if(!p)return;
-  const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
-  p.history.push({v:parseFloat(nv),d:today});sv('prices');renderPrices();toast('💰 Prix mis à jour !');
-}
+function updPrice(id){const nv=prompt('Nouveau prix (€) ?');if(!nv||isNaN(+nv)||+nv<=0)return;const p=S.prices.find(x=>x.id===id);if(!p)return;const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});p.history.push({v:parseFloat(nv),d:today});sv('prices');renderPrices();toast('💰 Prix mis à jour !');}
 function submitPrice(){
   const name=G('prNm').value.trim(),shop=G('prSh').value.trim(),pv=parseFloat(G('prVl').value),emoji=G('prEm').value.trim()||'📦';
   if(!name||!shop||isNaN(pv)||pv<=0){toast('❌ Remplis tous les champs');return;}
@@ -979,22 +862,16 @@ function renderMissions(){
   let lvl=0;while(lvl<LVS.length-1&&S.xp>=LVS[lvl].x)lvl++;
   const base=lvl>0?LVS[lvl-1].x:0,next=LVS[lvl].x;
   const pct=Math.min(100,Math.round(((S.xp-base)/(next-base))*100));
-  G('lvlB').textContent=lvl+1;G('lvlN').textContent=LVS[lvl].n;
-  G('totXP').textContent=S.xp+' XP';G('xpSub').textContent=`${S.xp} / ${next} XP`;
-  G('xpFil').style.width=pct+'%';
+  G('lvlB').textContent=lvl+1;G('lvlN').textContent=LVS[lvl].n;G('totXP').textContent=S.xp+' XP';G('xpSub').textContent=S.xp+' / '+next+' XP';G('xpFil').style.width=pct+'%';
   const days=['L','M','M','J','V','S','D'];
   G('strRow').innerHTML=days.map((d,i)=>`<div class="str-d ${S.streak.includes(i)?'on':''}"><span>${d}</span><div class="sd"></div></div>`).join('');
-  G('mDone').textContent=`${S.mDone.length}/3`;
+  G('mDone').textContent=S.mDone.length+'/3';
   const fc={m1:'var(--ac)',m2:'var(--gr)',m3:'var(--bl)'};
-  G('misList').innerHTML=MIS.map(m=>{
-    const done=S.mDone.includes(m.id);
-    return `<div class="mcard ${done?'dn':''}" onclick="completeMis('${m.id}')"><div class="mch2"><div class="mci" style="background:${m.c}22">${m.i}</div><div class="mcb"><div class="mct">${m.t}</div><div class="mcd">${m.d}</div><div class="mcp"><div class="mcf" style="width:${done?100:0}%;background:${fc[m.id]||'var(--ac)'}"></div></div></div></div><div class="mcft"><span class="mcx">+${m.x} XP</span>${done?'<span class="badge bg">Complétée ✓</span>':`<span style="font-size:11px;color:var(--bl);font-weight:600">${m.cta}</span>`}</div></div>`;
-  }).join('');
+  G('misList').innerHTML=MIS.map(m=>{const done=S.mDone.includes(m.id);return `<div class="mcard ${done?'dn':''}" onclick="completeMis('${m.id}')"><div class="mch2"><div class="mci" style="background:${m.c}22">${m.i}</div><div class="mcb"><div class="mct">${m.t}</div><div class="mcd">${m.d}</div><div class="mcp"><div class="mcf" style="width:${done?100:0}%;background:${fc[m.id]||'var(--ac)'}"></div></div></div></div><div class="mcft"><span class="mcx">+${m.x} XP</span>${done?'<span class="badge bg">Complétée ✓</span>':`<span style="font-size:11px;color:var(--bl);font-weight:600">${m.cta}</span>`}</div></div>`;}).join('');
 }
 function completeMis(id){
-  if(S.mDone.includes(id))return;
-  S.mDone.push(id);sv('mDone');
-  const m=MIS.find(x=>x.id===id);if(m){S.xp+=m.x;sv('xp');toast(`🏆 +${m.x} XP — Mission accomplie !`);}
+  if(S.mDone.includes(id))return;S.mDone.push(id);sv('mDone');
+  const m=MIS.find(x=>x.id===id);if(m){S.xp+=m.x;sv('xp');toast('🏆 +'+m.x+' XP — Mission accomplie !');}
   const day=new Date().getDay();if(!S.streak.includes(day)){S.streak.push(day);sv('streak');}
   if(curTab===3)renderMissions();
 }
@@ -1004,91 +881,58 @@ function completeMis(id){
 // ═══════════════════════════════════════
 function triggerAnti(){
   let idx;do{idx=Math.floor(Math.random()*ANTI.length);}while(idx===lastAnti);lastAnti=idx;
-  const r=ANTI[idx];
-  S.antCnt++;S.antSav=+(S.antSav+2.5).toFixed(1);sv('antCnt');sv('antSav');
-  G('antiCnt').textContent=S.antCnt;G('antiSav').textContent=S.antSav+'€';
-  G('antiFace').textContent=r.e;
+  const r=ANTI[idx];S.antCnt++;S.antSav=+(S.antSav+2.5).toFixed(1);sv('antCnt');sv('antSav');
+  G('antiCnt').textContent=S.antCnt;G('antiSav').textContent=S.antSav+'€';G('antiFace').textContent=r.e;
   G('antiResp').innerHTML=`<div class="arsp"><div class="ae">${r.e}</div><h3>${esc(r.t)}</h3><p>${esc(r.p)}</p></div><div class="atip"><strong>💡 Rappel :</strong> Chaque blocage surmonté = ~2,50€ économisés. Continue !</div>`;
 }
 function renderAnti(){G('antiCnt').textContent=S.antCnt;G('antiSav').textContent=S.antSav+'€';}
 
 // ═══════════════════════════════════════
-// AUTH — Supabase réel (rôle 'authenticated' uniquement, jamais 'service_role')
+// AUTH
 // ═══════════════════════════════════════
-sb.auth.onAuthStateChange((event,session)=>{
-  if(session?.user)handleAuthUser(session.user);
-  else if(event==='SIGNED_OUT'){S.user=null;sv('user');updateUserBtn();renderSettAuth();renderAuthModal();}
-});
-function handleAuthUser(u){
-  const prev=lget('user',null);
-  // Utilisateur lambda — rôle authenticated uniquement (jamais admin)
-  S.user={id:u.id,name:u.user_metadata?.full_name||u.email?.split('@')[0]||'Utilisateur',pseudo:prev?.pseudo||(u.user_metadata?.full_name||u.email?.split('@')[0]||'Utilisateur'),email:u.email||'',provider:u.app_metadata?.provider||'email',role:'user'};
+function handleAuthUser(data){
+  const u=data.user||data;const prev=lget('user',null);
+  S.user={id:u.id||'',name:u.user_metadata?.full_name||u.email?.split('@')[0]||'Utilisateur',pseudo:prev?.pseudo||(u.user_metadata?.full_name||u.email?.split('@')[0]||'Utilisateur'),email:u.email||'',provider:u.app_metadata?.provider||'email',role:'user'};
   sv('user');updateUserBtn();renderSettAuth();closeModal('authModal');toast('✅ Bienvenue '+getPseudo()+' !');
 }
-async function doEmailAuth(email,password,isReg){
-  const err=G('authErr'),ok=G('authOk');
-  if(err)err.classList.remove('show');if(ok)ok.classList.remove('show');
-  try{
-    if(isReg){
-      const{error}=await sb.auth.signUp({email,password,options:{data:{role:'user'}}});
-      if(error){if(err){err.textContent=error.message;err.classList.add('show');}return;}
-      if(ok){ok.textContent='✅ Compte créé ! Vérifiez vos emails pour confirmer.';ok.classList.add('show');}
-    }else{
-      const{error}=await sb.auth.signInWithPassword({email,password});
-      if(error){if(err){err.textContent=error.message;err.classList.add('show');}return;}
-    }
-  }catch(e){if(err){err.textContent='Erreur réseau. Vérifiez votre connexion.';err.classList.add('show');}}
-}
-async function doOAuth(provider){
-  try{const{error}=await sb.auth.signInWithOAuth({provider,options:{redirectTo:window.location.href}});if(error)toast('❌ '+error.message);}
-  catch(e){toast('❌ Erreur OAuth');}
-}
-async function doSignOut(){await sb.auth.signOut();S.user=null;sv('user');updateUserBtn();renderSettAuth();toast('👋 Déconnecté');}
-
 function renderAuthModal(){
-  const el=G('authContent');if(!el)return;
-  const title=G('authTitle');
+  const el=G('authContent'),title=G('authTitle');if(!el)return;
   if(S.user){
     if(title)title.textContent='Mon profil';
     const ini=esc((S.user.pseudo||S.user.name||'?')[0].toUpperCase());
-    el.innerHTML=`<div class="pcard"><div class="pav">${ini}</div><div style="flex:1;min-width:0"><div class="pnm">${esc(S.user.pseudo||S.user.name)}</div><div class="pem">${esc(S.user.email)}</div></div><span class="pedb" onclick="showEP('epAuthWrap')">Modifier</span></div><div id="epAuthWrap" style="display:none"><div class="perow"><input id="piAuth" placeholder="Nouveau pseudo…" value="${esc(S.user.pseudo||S.user.name)}" maxlength="30"/><button onclick="savePseudo('piAuth')">OK</button></div></div><button class="strw so" onclick="doSignOut()">🚪 Se déconnecter</button>`;
+    el.innerHTML=`<div class="pcard"><div class="pav">${ini}</div><div style="flex:1;min-width:0"><div class="pnm">${esc(S.user.pseudo||S.user.name)}</div><div class="pem">${esc(S.user.email)}</div></div><span class="pedb" onclick="showEP('epAuth')">Modifier</span></div><div id="epAuth" style="display:none"><div class="perow"><input id="piAuth" placeholder="Nouveau pseudo…" value="${esc(S.user.pseudo||S.user.name)}" maxlength="30"/><button onclick="savePseudo('piAuth')">OK</button></div></div><button class="strw so" onclick="signOutUser()">🚪 Se déconnecter</button>`;
     return;
   }
   if(title)title.textContent=authTab==='login'?'Connexion':'Inscription';
-  el.innerHTML=`<div class="atabs"><div class="atab ${authTab==='login'?'on':''}" onclick="setATab('login')">Connexion</div><div class="atab ${authTab==='register'?'on':''}" onclick="setATab('register')">Inscription</div></div><div class="aerr" id="authErr"></div><div class="aok" id="authOk"></div><div class="fg"><label>Email</label><input class="fi" id="authEmail" type="email" placeholder="ton@email.com" inputmode="email" autocomplete="email"/></div><div class="fg"><label>Mot de passe</label><input class="fi" id="authPwd" type="password" placeholder="••••••••" autocomplete="${authTab==='login'?'current-password':'new-password'}"/></div><button class="sbtn" onclick="submitAuth()">${authTab==='login'?'Se connecter →':'Créer mon compte →'}</button><div class="or-div"><span>ou continuer avec</span></div><button class="oabtn g" onclick="doOAuth('google')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google</button><button class="oabtn f" onclick="doOAuth('facebook')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971H15.83c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>Facebook</button><button class="oabtn a" onclick="doOAuth('apple')">🍎 Apple</button><div style="font-size:11px;color:var(--tx3);text-align:center;margin-top:12px;line-height:1.5">Google/Facebook/Apple : activer dans le dashboard<br>Supabase → Authentication → Providers</div>`;
+  el.innerHTML=`<div class="atabs"><div class="atab ${authTab==='login'?'on':''}" onclick="setATab('login')">Connexion</div><div class="atab ${authTab==='register'?'on':''}" onclick="setATab('register')">Inscription</div></div><div class="aerr" id="authErr"></div><div class="aok" id="authOk"></div><div class="fg"><label>Email</label><input class="fi" id="authEmail" type="email" placeholder="ton@email.com" inputmode="email" autocomplete="email"/></div><div class="fg"><label>Mot de passe</label><input class="fi" id="authPwd" type="password" placeholder="Minimum 6 caractères" autocomplete="${authTab==='login'?'current-password':'new-password'}"/></div><button class="sbtn" onclick="submitAuth()">${authTab==='login'?'Se connecter →':'Créer mon compte →'}</button><div class="or-div"><span>ou continuer avec</span></div><button class="oabtn g" onclick="sbOAuth('google')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google</button><button class="oabtn f" onclick="sbOAuth('facebook')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971H15.83c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>Facebook</button><button class="oabtn" onclick="sbOAuth('apple')" style="border-color:var(--tx)">🍎 Apple</button><div style="font-size:11px;color:var(--tx3);text-align:center;margin-top:12px;line-height:1.5">OAuth : activer dans Supabase → Auth → Providers</div>`;
 }
 function setATab(t){authTab=t;renderAuthModal();}
-function submitAuth(){
+async function submitAuth(){
   const email=G('authEmail')?.value.trim(),pwd=G('authPwd')?.value;
   if(!email||!pwd){toast('❌ Email et mot de passe requis');return;}
-  if(pwd.length<6){const e=G('authErr');if(e){e.textContent='Le mot de passe doit faire au moins 6 caractères.';e.classList.add('show');}return;}
-  doEmailAuth(email,pwd,authTab==='register');
+  if(pwd.length<6){const e=G('authErr');if(e){e.textContent='Mot de passe : minimum 6 caractères.';e.classList.add('show');}return;}
+  const err=G('authErr'),ok=G('authOk');if(err)err.classList.remove('show');if(ok)ok.classList.remove('show');
+  const {data,error}=authTab==='register'?await sbSignUp(email,pwd):await sbSignIn(email,pwd);
+  if(error){if(err){err.textContent=error.message||'Erreur de connexion';err.classList.add('show');}return;}
+  if(authTab==='register'&&!data?.user){if(ok){ok.textContent='✅ Compte créé ! Vérifiez vos emails.';ok.classList.add('show');}return;}
+  if(data?.user)handleAuthUser(data);
 }
 function renderSettAuth(){
   const el=G('settAuth');if(!el)return;
   if(S.user){
     const ini=esc((S.user.pseudo||S.user.name||'?')[0].toUpperCase());
-    el.innerHTML=`<div class="pcard"><div class="pav">${ini}</div><div style="flex:1;min-width:0"><div class="pnm">${esc(S.user.pseudo||S.user.name)}</div><div class="pem">${esc(S.user.email)}</div></div><span class="pedb" onclick="showEP('epSettWrap')">Modifier</span></div><div id="epSettWrap" style="display:none"><div class="perow"><input id="piSett" placeholder="Nouveau pseudo…" value="${esc(S.user.pseudo||S.user.name)}" maxlength="30"/><button onclick="savePseudo('piSett')">OK</button></div></div><button class="strw so" onclick="doSignOut()">🚪 Se déconnecter</button>`;
+    el.innerHTML=`<div class="pcard"><div class="pav">${ini}</div><div style="flex:1;min-width:0"><div class="pnm">${esc(S.user.pseudo||S.user.name)}</div><div class="pem">${esc(S.user.email)}</div></div><span class="pedb" onclick="showEP('epSett')">Modifier</span></div><div id="epSett" style="display:none"><div class="perow"><input id="piSett" placeholder="Nouveau pseudo…" value="${esc(S.user.pseudo||S.user.name)}" maxlength="30"/><button onclick="savePseudo('piSett')">OK</button></div></div><button class="strw so" onclick="signOutUser()">🚪 Se déconnecter</button>`;
   }else{
     el.innerHTML=`<button class="strw" onclick="closeModal('settingsModal');openModal('authModal')">🔑 Se connecter / S'inscrire</button>`;
   }
 }
-function showEP(wrapId){const w=G(wrapId);if(w)w.style.display=w.style.display==='none'?'block':'none';}
-function savePseudo(inputId){
-  const inp=G(inputId);const v=inp?inp.value.trim():'';
-  if(!v||v.length>30){toast('❌ Pseudo invalide (1–30 caractères)');return;}
-  S.user.pseudo=v;sv('user');renderSettAuth();renderAuthModal();updateUserBtn();toast('✅ Pseudo mis à jour : '+esc(v));
-}
+function showEP(id){const w=G(id);if(w)w.style.display=w.style.display==='none'?'block':'none';}
+function savePseudo(inputId){const inp=G(inputId);const v=inp?inp.value.trim():'';if(!v||v.length>30){toast('❌ Pseudo invalide');return;}S.user.pseudo=v;sv('user');renderSettAuth();renderAuthModal();updateUserBtn();toast('✅ Pseudo : '+esc(v));}
+async function signOutUser(){await sbSignOut();S.user=null;sv('user');updateUserBtn();renderSettAuth();renderAuthModal();toast('👋 Déconnecté');}
 function updateUserBtn(){
   const btn=G('userBtn');if(!btn)return;
-  if(S.user){
-    const ini=esc((S.user.pseudo||S.user.name||'?')[0].toUpperCase());
-    btn.innerHTML=`<div style="width:22px;height:22px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#000">${ini}</div>`;
-    btn.style.border='2px solid var(--ac)';btn.onclick=()=>openModal('authModal');
-  }else{
-    btn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--tx2)" stroke-width="2" fill="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
-    btn.style.border='1px solid var(--bd)';btn.onclick=()=>openModal('authModal');
-  }
+  if(S.user){const ini=esc((S.user.pseudo||S.user.name||'?')[0].toUpperCase());btn.innerHTML=`<div style="width:22px;height:22px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#000">${ini}</div>`;btn.style.border='2px solid var(--ac)';btn.onclick=()=>openModal('authModal');}
+  else{btn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--tx2)" stroke-width="2" fill="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';btn.style.border='1px solid var(--bd)';btn.onclick=()=>openModal('authModal');}
 }
 
 // ═══ THEME
@@ -1099,97 +943,83 @@ function toggleTheme(){applyTheme(S.theme==='dark'?'light':'dark');}
 function dismissSup(){const b=G('supbar');if(b)b.style.display='none';S.supDis=true;sv('supDis');}
 function initSup(){if(S.supDis){const b=G('supbar');if(b)b.style.display='none';}}
 
-// ═══ AD — simulation PWA + bridge web2app AdMob
-// Pour web2app: l'app native appellera window.AdMob.showInterstitial() via JavaScript bridge
+// ═══ AD
 function watchAd(){
-  // Tenter bridge natif web2app (WebViewGold, GoNative, etc.)
-  if(window.AdMob){
-    try{
-      window.AdMob.prepareInterstitial({adId:'ca-app-pub-1381945888605291/9963030829',autoShow:true});
-      window.AdMob.addEventListener('onAdLoaded',()=>window.AdMob.showInterstitial());
-      return;
-    }catch(e){}
-  }
-  if(window.admob){
-    try{window.admob.showInterstitial();return;}catch(e){}
-  }
-  // Fallback PWA simulation
+  // Bridge natif (web2app / GoNative / Capacitor)
+  if(window.webkit?.messageHandlers?.admob){try{window.webkit.messageHandlers.admob.postMessage({action:'showInterstitial',adUnit:'ca-app-pub-1381945888605291/9963030829'});return;}catch{}}
+  if(window.Android?.showAd){try{window.Android.showAd();return;}catch{}}
+  // Simulation PWA
   const ov=G('adOverlay'),cnt=G('adCnt'),fill=G('adFill'),btn=G('adCloseBtn');
   if(!ov)return;
   ov.classList.add('show');btn.disabled=true;btn.classList.remove('rdy');btn.textContent='Patienter…';
-  let s=5;if(adT)clearInterval(adT);
   fill.style.transition='none';fill.style.width='0%';
-  adT=setInterval(()=>{s--;cnt.textContent=s;fill.style.width=((5-s)/5*100)+'%';if(s<=0){clearInterval(adT);adT=null;btn.disabled=false;btn.classList.add('rdy');btn.textContent='Fermer et obtenir +10 XP';cnt.textContent='✓';}},1000);
+  let s=5;if(adT)clearInterval(adT);
+  adT=setInterval(()=>{s--;cnt.textContent=s;fill.style.width=((5-s)/5*100)+'%';if(s<=0){clearInterval(adT);adT=null;btn.disabled=false;btn.classList.add('rdy');btn.textContent='Fermer et obtenir +10 XP ✓';cnt.textContent='✓';}},1000);
 }
-function closeAd(){
-  const ov=G('adOverlay');if(ov)ov.classList.remove('show');
-  if(adT){clearInterval(adT);adT=null;}
-  S.xp+=10;sv('xp');toast('📺 +10 XP — Merci pour ton soutien !');
-  if(curTab===3)renderMissions();
-}
+function closeAd(){const ov=G('adOverlay');if(ov)ov.classList.remove('show');if(adT){clearInterval(adT);adT=null;}S.xp+=10;sv('xp');toast('📺 +10 XP — Merci pour ton soutien !');if(curTab===3)renderMissions();}
 
 // ═══ MODALS
-function openModal(id){
-  const el=document.getElementById(id);if(!el)return;
-  el.classList.add('open');
-  if(id==='settingsModal'){settOpen=true;renderSettAuth();applyTheme(S.theme);}
-  if(id==='authModal')renderAuthModal();
-}
-function closeModal(id){
-  const el=document.getElementById(id);if(!el)return;
-  el.classList.remove('open');if(id==='settingsModal')settOpen=false;
-}
+function openModal(id){const el=document.getElementById(id);if(!el)return;el.classList.add('open');if(id==='settingsModal'){settOpen=true;renderSettAuth();applyTheme(S.theme);}if(id==='authModal')renderAuthModal();}
+function closeModal(id){const el=document.getElementById(id);if(!el)return;el.classList.remove('open');if(id==='settingsModal')settOpen=false;}
 function cmbg(e,id){if(e.target.classList.contains('moverlay'))closeModal(id);}
 function toggleSettings(){if(settOpen)closeModal('settingsModal');else openModal('settingsModal');}
 
 // ═══ NETWORK
-function updNet(){const d=G('ndot');if(!d)return;d.className='ndot'+(navigator.onLine?'':' off');d.title=navigator.onLine?'En ligne':'Hors ligne';}
+function updNet(){const d=G('ndot');if(!d)return;d.className='ndot'+(navigator.onLine?'':' off');}
 window.addEventListener('online',updNet);window.addEventListener('offline',updNet);
 
 // ═══ TOAST
 let toastT;
 function toast(msg){const el=G('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2800);}
 
-// ═══ SUPABASE SYNC
+// ═══ SYNC
 async function syncDeals(){
   const remote=await sbGet('deals','order=created_at.desc&limit=30');
   if(!remote?.length)return;
-  const localIds=new Set(S.deals.map(d=>d.id));
-  const newD=remote.filter(d=>!localIds.has(d.id));
+  const ids=new Set(S.deals.map(d=>d.id));const newD=remote.filter(d=>!ids.has(d.id));
   if(newD.length){newD.forEach(d=>{if(!d.reviews)d.reviews=[];});S.deals=[...newD,...S.deals];sv('deals');if(curTab===0)renderDeals();}
 }
-setTimeout(syncDeals,1200);setInterval(syncDeals,20000);
 
-// ═══ ADSENSE init (web)
-function initAdSense(){
-  if(typeof adsbygoogle!=='undefined'){try{(adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}}
-}
+// ═══ INIT — tout en synchrone, 0 dépendance externe
+(function init(){
+  try{
+    applyTheme(S.theme);
+    updNet();
+    initDots();
+    initSup();
+    updateUserBtn();
+    // Render immédiat — aucune attente réseau
+    renderDeals();
+    // Afficher l'app, cacher le loading
+    G('loadScreen').style.display='none';
+    G('app').style.display='flex';
+    // Supabase session async (non-bloquant)
+    sbGetSession().then(session=>{
+      if(session?.user)handleAuthUser(session);
+      const badge=G('sbBadge');if(badge){badge.textContent=navigator.onLine?'● Connecté':'● Hors ligne';badge.className='';badge.style.cssText='display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin-bottom:6px;background:var(--gd);color:var(--gr)';}
+    });
+    // OAuth redirect check
+    const hash=window.location.hash;
+    if(hash.includes('access_token')){
+      const params=new URLSearchParams(hash.replace('#','?'));
+      const token=params.get('access_token');
+      if(token){lset('_session',{access_token:token});window.history.replaceState(null,'',window.location.pathname);sbGetSession().then(s=>{if(s)handleAuthUser(s);});}
+    }
+    // Sync asynchrone non-bloquant
+    setTimeout(syncDeals,2000);setInterval(syncDeals,25000);
+  }catch(e){
+    // Fallback absolu si tout plante
+    G('loadScreen').style.display='none';
+    G('app').style.display='flex';
+    renderDeals();
+  }
+})();
 
 // ═══ KEYBOARD
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){const open=document.querySelector('.moverlay.open');if(open){open.classList.remove('open');settOpen=false;}}
-  if(!document.querySelector('.moverlay.open')&&!srchVis){
-    if(e.key==='ArrowLeft'&&curTab>0)goTab(curTab-1);
-    if(e.key==='ArrowRight'&&curTab<4)goTab(curTab+1);
-  }
+  if(e.key==='Escape'){const o=document.querySelector('.moverlay.open');if(o){o.classList.remove('open');settOpen=false;}}
+  if(!document.querySelector('.moverlay.open')&&!srchVis){if(e.key==='ArrowLeft'&&curTab>0)goTab(curTab-1);if(e.key==='ArrowRight'&&curTab<4)goTab(curTab+1);}
 });
-
-// ═══ INIT
-(async()=>{
-  applyTheme(S.theme);
-  updNet();
-  initDots();
-  initSup();
-  updateUserBtn();
-  renderDeals();
-  // Check existing session
-  const{data:{session}}=await sb.auth.getSession();
-  if(session?.user)handleAuthUser(session.user);
-  // AdSense
-  setTimeout(initAdSense,500);
-})();
 </script>
-<!-- Google AdSense (web) -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1381945888605291" crossorigin="anonymous"></script>
 </body>
 </html>
