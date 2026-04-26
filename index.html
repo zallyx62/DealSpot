@@ -284,6 +284,10 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 .empty p{font-size:13px}
 #toast{position:fixed;bottom:calc(var(--nb)+14px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);border:1px solid var(--bd2);border-radius:12px;padding:9px 16px;font-size:13px;font-weight:600;z-index:600;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:88vw;text-overflow:ellipsis;overflow:hidden}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* FOOTER */
+.app-footer{flex-shrink:0;background:var(--sf);border-top:1px solid var(--bd);padding:10px 16px;text-align:center;font-size:11px;color:var(--tx3);display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.app-footer a{color:var(--tx3);text-decoration:none}
+.app-footer a:hover{color:var(--ac)}
 /* LOADING */
 #loadScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9999}
 #loadScreen .lmk{width:60px;height:60px;background:var(--ac);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#000;animation:pulse 1.5s ease-in-out infinite}
@@ -441,6 +445,13 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     <svg viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/></svg>
     <span>Anti-Flemme</span>
   </div>
+</div>
+<div class="app-footer">
+  <a href="/about.html">À propos</a>
+  <span>·</span>
+  <a href="/privacy.html">Confidentialité</a>
+  <span>·</span>
+  <span>© 2025 DealSpot</span>
 </div>
 </main>
 
@@ -759,58 +770,112 @@ function submitDeal(){
   goTab(0);renderDeals();toast('🎯 Bon plan publié !');completeMis('m1');sbPost('deals',deal);
 }
 
-// ═══ MODULE 2: CARTE (carte native sans CDN externe)
-let userLat=48.8566,userLng=2.3522,mapInited=false;
+// ═══ MODULE 2: CARTE (carte native temps réel — 0 CDN externe)
+let userLat=48.8566,userLng=2.3522,mapInited=false,userLocated=false;
 
 function initMap(){
   if(mapInited)return;
   mapInited=true;
   renderMapCanvas();
+  // Auto-géoloc dès que l'onglet carte s'ouvre
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;renderMapCanvas();},
+      ()=>{},
+      {enableHighAccuracy:true,timeout:6000}
+    );
+  }
 }
 
 function renderMapCanvas(){
   const el=G('leafletMap');if(!el)return;
   const isDark=S.theme==='dark';
-  el.style.background=isDark?'linear-gradient(135deg,#0F2027,#203A43,#2C5364)':'linear-gradient(135deg,#e8f4f8,#d1e8f0,#b8dde8)';
-  el.innerHTML=`
-    <div style="position:relative;width:100%;height:100%;overflow:hidden">
-      ${S.places.filter(p=>p.lat&&p.lng).map((p,i)=>{
-        const c=CC[p.type]||CC.autre;
-        const xPct=50+((p.lng-userLng)*1200);const yPct=50-((p.lat-userLat)*1200);
-        if(xPct<2||xPct>98||yPct<2||yPct>98)return '';
-        return `<div onclick="toast('📍 ${esc(p.name)}')" title="${esc(p.name)}" style="position:absolute;left:${xPct}%;top:${yPct}%;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;background:${c.c};display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer;z-index:2;animation:md 2.5s infinite ${i*.3}s">${c.i}</div>`;
-      }).join('')}
-      <div id="userDot" style="display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 2px 8px rgba(59,130,246,.6);z-index:3"></div>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(8,13,26,.8);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 14px;text-align:center;pointer-events:none">
-        <div style="font-size:13px;font-weight:700;margin-bottom:1px">📍 Paris, France</div>
-        <div style="font-size:10px;color:var(--tx2)">${S.places.length} lieux référencés</div>
-      </div>
-      <div style="position:absolute;bottom:6px;right:8px;font-size:9px;color:rgba(255,255,255,.35)">© OpenStreetMap</div>
-    </div>`;
+  const bg=isDark?'linear-gradient(135deg,#0F2027,#203A43,#2C5364)':'linear-gradient(135deg,#d4e9f7,#c2dff0,#afd4e8)';
+  el.style.background=bg;
+
+  // Calcul de la zone visible (±0.02 lat/lng autour de l'utilisateur)
+  const span=0.025;
+  const places=S.places.filter(p=>p.lat&&p.lng);
+
+  const dots=places.map((p,i)=>{
+    const c=CC[p.type]||CC.autre;
+    const xPct=50+((p.lng-userLng)/span)*42;
+    const yPct=50-((p.lat-userLat)/span)*42;
+    if(xPct<3||xPct>97||yPct<3||yPct>97)return '';
+    const dist=Math.round(Math.sqrt(Math.pow((p.lat-userLat)*111000,2)+Math.pow((p.lng-userLng)*111000*Math.cos(userLat*Math.PI/180),2)));
+    return `<div onclick="showPlacePopup(${p.id})" title="${esc(p.name)} — ${dist}m" style="position:absolute;left:${xPct}%;top:${yPct}%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:${c.c};display:flex;align-items:center;justify-content:center;font-size:16px;border:2.5px solid rgba(255,255,255,.9);box-shadow:0 3px 10px rgba(0,0,0,.4);cursor:pointer;z-index:2;transition:transform .15s" onmouseenter="this.style.transform='translate(-50%,-50%) scale(1.15)'" onmouseleave="this.style.transform='translate(-50%,-50%)'">${c.i}</div>`;
+  }).join('');
+
+  // Marqueur utilisateur
+  const userDotHtml=userLocated?`<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4">
+    <div style="width:18px;height:18px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 2px 12px rgba(59,130,246,.7);position:relative">
+      <div style="position:absolute;inset:-6px;border-radius:50%;background:rgba(59,130,246,.2);animation:md 2s infinite"></div>
+    </div>
+  </div>`:'';
+
+  // Lignes de grille style carte
+  const grid=Array.from({length:5},(_,i)=>`
+    <div style="position:absolute;left:0;right:0;top:${20*i}%;height:1px;background:rgba(255,255,255,.04)"></div>
+    <div style="position:absolute;top:0;bottom:0;left:${20*i}%;width:1px;background:rgba(255,255,255,.04)"></div>
+  `).join('');
+
+  el.innerHTML=`<div style="position:relative;width:100%;height:100%;overflow:hidden;cursor:grab">
+    ${grid}
+    ${dots}
+    ${userDotHtml}
+    <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(8,13,26,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 12px;font-size:11px;color:rgba(255,255,255,.7);white-space:nowrap;pointer-events:none">
+      ${userLocated?'📍 Ta position · '+places.length+' lieu(x) proche(s)':'📍 Paris · '+places.length+' lieu(x) référencé(s)'}
+    </div>
+    <div style="position:absolute;bottom:6px;right:8px;font-size:9px;color:rgba(255,255,255,.25)">© OSM</div>
+  </div>`;
+}
+
+function showPlacePopup(id){
+  const p=S.places.find(x=>x.id===id);if(!p)return;
+  const c=CC[p.type]||CC.autre;
+  toast(`${c.i} ${p.name} — ${p.addr}`);
+  // Ouvrir le panneau d'avis
+  setTimeout(()=>{
+    const rs=G('rs-p-'+id);
+    if(rs){
+      // Scroll vers la liste des lieux
+      const el=G('placeList');if(el)el.scrollIntoView({behavior:'smooth'});
+      setTimeout(()=>{rs.classList.add('open');},400);
+    }
+  },300);
 }
 
 function updateUserPos(lat,lng){
-  userLat=lat;userLng=lng;
+  userLat=lat;userLng=lng;userLocated=true;
   renderMapCanvas();
-  const dot=G('userDot');if(dot)dot.style.display='block';
 }
 
 function centerOnMe(){
   if(!navigator.geolocation){toast('❌ Géolocalisation non supportée sur ce navigateur');return;}
   toast('📍 Localisation en cours…');
   navigator.geolocation.getCurrentPosition(
-    pos=>{updateUserPos(pos.coords.latitude,pos.coords.longitude);toast('✅ Position mise à jour !')},
-    ()=>{toast('❌ Localisation refusée — vérifie les permissions');}
-    ,{enableHighAccuracy:true,timeout:8000}
+    pos=>{
+      updateUserPos(pos.coords.latitude,pos.coords.longitude);
+      toast('✅ Position mise à jour — '+pos.coords.latitude.toFixed(4)+', '+pos.coords.longitude.toFixed(4));
+    },
+    err=>{
+      const msgs={1:'Permission refusée — active la géolocalisation dans les paramètres',2:'Position indisponible',3:'Délai dépassé — réessaie'};
+      toast('❌ '+(msgs[err.code]||'Erreur de localisation'));
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
   );
 }
 
-function addPlaceMarkersToMap(){renderMapCanvas();}
+function addPlaceMarkersToMap(){if(mapInited)renderMapCanvas();}
 
 let geoWatch=null;
 function startGeoWatch(){
   if(!navigator.geolocation||geoWatch)return;
-  geoWatch=navigator.geolocation.watchPosition(pos=>updateUserPos(pos.coords.latitude,pos.coords.longitude),()=>{},{enableHighAccuracy:true,maximumAge:5000});
+  geoWatch=navigator.geolocation.watchPosition(
+    pos=>{updateUserPos(pos.coords.latitude,pos.coords.longitude);},
+    ()=>{},
+    {enableHighAccuracy:true,maximumAge:5000,timeout:15000}
+  );
 }
 
 function renderPlaces(){
