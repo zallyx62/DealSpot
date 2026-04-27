@@ -14,6 +14,8 @@
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<!-- Google AdSense — pub réelle -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1381945888605291" crossorigin="anonymous"></script>
 <meta name="google-adsense-account" content="ca-pub-1381945888605291"/>
 <style>
 html[data-theme="dark"]{--bg:#080D1A;--sf:#0F1623;--card:#161F30;--card2:#1C2840;--bd:#243048;--bd2:#2E3D5C;--tx:#F1F5F9;--tx2:#CBD5E1;--tx3:#94A3B8;--inp:#0F1623;--mbg:#111827;--ov:rgba(0,0,0,.88)}
@@ -359,7 +361,19 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     <div class="tab" id="tab-1">
       <div class="sh"><h2>🗺️ Lieux Utiles</h2></div>
       <div class="mhero">
-        <div id="leafletMap"></div>
+        <div style="position:relative;height:220px;background:#0F2027">
+          <iframe id="mapIframe"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=2.25%2C48.82%2C2.45%2C48.90&amp;layer=mapnik&amp;marker=48.8566%2C2.3522"
+            style="width:100%;height:100%;border:none;display:block"
+            title="Carte OpenStreetMap"
+            loading="lazy"
+            allowfullscreen></iframe>
+          <div id="mapLocBadge" style="display:none;position:absolute;top:8px;left:8px;background:rgba(59,130,246,.9);backdrop-filter:blur(4px);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#fff;pointer-events:none">📍 Ta position</div>
+          <a id="mapOpenFull" href="https://www.openstreetmap.org/#map=13/48.8566/2.3522" target="_blank" rel="noopener"
+            style="position:absolute;bottom:8px;right:8px;background:rgba(8,13,26,.8);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 10px;font-size:11px;color:#fff;text-decoration:none;backdrop-filter:blur(4px)">
+            🔍 Plein écran
+          </a>
+        </div>
         <div class="map-controls">
           <span style="font-size:12px;color:var(--tx2)" id="plcCount">…</span>
           <div style="display:flex;gap:8px">
@@ -458,14 +472,23 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <!-- AD OVERLAY -->
 <div id="adOverlay">
   <div class="adbox">
-    <div style="font-size:32px;margin-bottom:8px">📺</div>
+    <div style="font-size:28px;margin-bottom:6px">💛</div>
     <h3>Soutenir DealSpot</h3>
-    <p>Regarde cette pub pour aider DealSpot à rester 100% gratuit pour tous.</p>
+    <p>Merci de patienter pendant la publicité.<br/>Vous recevrez <strong style="color:#F59E0B">+10 XP</strong> à la fin.</p>
+    <!-- Vraie pub AdSense -->
+    <div style="margin:14px 0;min-height:100px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.2);border-radius:10px;overflow:hidden">
+      <ins class="adsbygoogle" id="adSenseUnit"
+           style="display:block;width:280px;min-height:100px"
+           data-ad-client="ca-pub-1381945888605291"
+           data-ad-slot="9963030829"
+           data-ad-format="rectangle"
+           data-full-width-responsive="false"></ins>
+    </div>
     <div class="adcnt" id="adCnt">5</div>
     <div class="adbar"><div class="adfill" id="adFill"></div></div>
     <button class="adclose" id="adCloseBtn" onclick="closeAd()" disabled>Patienter…</button>
   </div>
-  <div class="adnote">AdMob: ca-app-pub-1381945888605291/9963030829<br>Simulation PWA · Réelle dans l'app native</div>
+  <div class="adnote">ca-pub-1381945888605291 · Publicité Google AdSense</div>
 </div>
 
 <!-- MODAL: ADD DEAL -->
@@ -770,111 +793,72 @@ function submitDeal(){
   goTab(0);renderDeals();toast('🎯 Bon plan publié !');completeMis('m1');sbPost('deals',deal);
 }
 
-// ═══ MODULE 2: CARTE (carte native temps réel — 0 CDN externe)
+// ═══ MODULE 2: CARTE — Iframe OpenStreetMap (vraie carte interactive)
 let userLat=48.8566,userLng=2.3522,mapInited=false,userLocated=false;
+
+function updateMapIframe(lat,lng,zoom){
+  zoom=zoom||16;
+  const iframe=G('mapIframe');if(!iframe)return;
+  const delta=0.008;
+  const bbox=`${lng-delta}%2C${lat-delta}%2C${lng+delta}%2C${lat+delta}`;
+  iframe.src=`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
+  // Lien plein écran
+  const full=G('mapOpenFull');
+  if(full)full.href=`https://www.openstreetmap.org/#map=${zoom}/${lat}/${lng}`;
+  // Badge position
+  const badge=G('mapLocBadge');if(badge)badge.style.display='flex';
+}
 
 function initMap(){
   if(mapInited)return;
   mapInited=true;
-  renderMapCanvas();
-  // Auto-géoloc dès que l'onglet carte s'ouvre
+  // Géoloc auto dès ouverture de l'onglet carte
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
-      pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;renderMapCanvas();},
+      pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;updateMapIframe(userLat,userLng,16);},
       ()=>{},
       {enableHighAccuracy:true,timeout:6000}
     );
   }
 }
 
-function renderMapCanvas(){
-  const el=G('leafletMap');if(!el)return;
-  const isDark=S.theme==='dark';
-  const bg=isDark?'linear-gradient(135deg,#0F2027,#203A43,#2C5364)':'linear-gradient(135deg,#d4e9f7,#c2dff0,#afd4e8)';
-  el.style.background=bg;
-
-  // Calcul de la zone visible (±0.02 lat/lng autour de l'utilisateur)
-  const span=0.025;
-  const places=S.places.filter(p=>p.lat&&p.lng);
-
-  const dots=places.map((p,i)=>{
-    const c=CC[p.type]||CC.autre;
-    const xPct=50+((p.lng-userLng)/span)*42;
-    const yPct=50-((p.lat-userLat)/span)*42;
-    if(xPct<3||xPct>97||yPct<3||yPct>97)return '';
-    const dist=Math.round(Math.sqrt(Math.pow((p.lat-userLat)*111000,2)+Math.pow((p.lng-userLng)*111000*Math.cos(userLat*Math.PI/180),2)));
-    return `<div onclick="showPlacePopup(${p.id})" title="${esc(p.name)} — ${dist}m" style="position:absolute;left:${xPct}%;top:${yPct}%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:${c.c};display:flex;align-items:center;justify-content:center;font-size:16px;border:2.5px solid rgba(255,255,255,.9);box-shadow:0 3px 10px rgba(0,0,0,.4);cursor:pointer;z-index:2;transition:transform .15s" onmouseenter="this.style.transform='translate(-50%,-50%) scale(1.15)'" onmouseleave="this.style.transform='translate(-50%,-50%)'">${c.i}</div>`;
-  }).join('');
-
-  // Marqueur utilisateur
-  const userDotHtml=userLocated?`<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4">
-    <div style="width:18px;height:18px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 2px 12px rgba(59,130,246,.7);position:relative">
-      <div style="position:absolute;inset:-6px;border-radius:50%;background:rgba(59,130,246,.2);animation:md 2s infinite"></div>
-    </div>
-  </div>`:'';
-
-  // Lignes de grille style carte
-  const grid=Array.from({length:5},(_,i)=>`
-    <div style="position:absolute;left:0;right:0;top:${20*i}%;height:1px;background:rgba(255,255,255,.04)"></div>
-    <div style="position:absolute;top:0;bottom:0;left:${20*i}%;width:1px;background:rgba(255,255,255,.04)"></div>
-  `).join('');
-
-  el.innerHTML=`<div style="position:relative;width:100%;height:100%;overflow:hidden;cursor:grab">
-    ${grid}
-    ${dots}
-    ${userDotHtml}
-    <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(8,13,26,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 12px;font-size:11px;color:rgba(255,255,255,.7);white-space:nowrap;pointer-events:none">
-      ${userLocated?'📍 Ta position · '+places.length+' lieu(x) proche(s)':'📍 Paris · '+places.length+' lieu(x) référencé(s)'}
-    </div>
-    <div style="position:absolute;bottom:6px;right:8px;font-size:9px;color:rgba(255,255,255,.25)">© OSM</div>
-  </div>`;
-}
-
-function showPlacePopup(id){
-  const p=S.places.find(x=>x.id===id);if(!p)return;
-  const c=CC[p.type]||CC.autre;
-  toast(`${c.i} ${p.name} — ${p.addr}`);
-  // Ouvrir le panneau d'avis
-  setTimeout(()=>{
-    const rs=G('rs-p-'+id);
-    if(rs){
-      // Scroll vers la liste des lieux
-      const el=G('placeList');if(el)el.scrollIntoView({behavior:'smooth'});
-      setTimeout(()=>{rs.classList.add('open');},400);
-    }
-  },300);
-}
-
-function updateUserPos(lat,lng){
-  userLat=lat;userLng=lng;userLocated=true;
-  renderMapCanvas();
-}
-
 function centerOnMe(){
-  if(!navigator.geolocation){toast('❌ Géolocalisation non supportée sur ce navigateur');return;}
-  toast('📍 Localisation en cours…');
+  if(!navigator.geolocation){
+    toast('❌ Géolocalisation non supportée sur ce navigateur');
+    return;
+  }
+  toast('📍 Localisation GPS en cours…');
   navigator.geolocation.getCurrentPosition(
     pos=>{
-      updateUserPos(pos.coords.latitude,pos.coords.longitude);
-      toast('✅ Position mise à jour — '+pos.coords.latitude.toFixed(4)+', '+pos.coords.longitude.toFixed(4));
+      userLat=pos.coords.latitude;
+      userLng=pos.coords.longitude;
+      userLocated=true;
+      updateMapIframe(userLat,userLng,17);
+      toast('✅ Carte centrée sur ta position !');
     },
     err=>{
-      const msgs={1:'Permission refusée — active la géolocalisation dans les paramètres',2:'Position indisponible',3:'Délai dépassé — réessaie'};
+      const msgs={
+        1:'Permission refusée — active la géolocalisation dans les paramètres de ton navigateur',
+        2:'Position GPS indisponible pour le moment',
+        3:'Délai dépassé — réessaie dans un instant'
+      };
       toast('❌ '+(msgs[err.code]||'Erreur de localisation'));
     },
-    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
+    {enableHighAccuracy:true,timeout:12000,maximumAge:0}
   );
 }
 
-function addPlaceMarkersToMap(){if(mapInited)renderMapCanvas();}
+function addPlaceMarkersToMap(){/* Les marqueurs OSM ne peuvent pas être injectés dans l'iframe — les lieux sont listés ci-dessous */}
+
+function renderMapCanvas(){/* remplacé par iframe */}
 
 let geoWatch=null;
 function startGeoWatch(){
   if(!navigator.geolocation||geoWatch)return;
   geoWatch=navigator.geolocation.watchPosition(
-    pos=>{updateUserPos(pos.coords.latitude,pos.coords.longitude);},
+    pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;},
     ()=>{},
-    {enableHighAccuracy:true,maximumAge:5000,timeout:15000}
+    {enableHighAccuracy:true,maximumAge:10000,timeout:20000}
   );
 }
 
@@ -1018,16 +1002,28 @@ function toggleTheme(){applyTheme(S.theme==='dark'?'light':'dark');}
 function dismissSup(){const b=G('supbar');if(b)b.style.display='none';S.supDis=true;sv('supDis');}
 function initSup(){if(S.supDis){const b=G('supbar');if(b)b.style.display='none';}}
 
-// ═══ AD — simulation + bridge natif
+// ═══ AD — pub AdSense réelle + bridge natif
+let adSenseLoaded=false;
 function watchAd(){
+  // Bridge natif web2app
   if(window.webkit?.messageHandlers?.admob){try{window.webkit.messageHandlers.admob.postMessage({action:'showInterstitial',adUnit:'ca-app-pub-1381945888605291/9963030829'});return;}catch{}}
   if(window.Android?.showAd){try{window.Android.showAd();return;}catch{}}
   const ov=G('adOverlay'),cnt=G('adCnt'),fill=G('adFill'),btn=G('adCloseBtn');
   if(!ov)return;
-  ov.classList.add('show');btn.disabled=true;btn.classList.remove('rdy');btn.textContent='Patienter…';
+  ov.classList.add('show');
+  btn.disabled=true;btn.classList.remove('rdy');btn.textContent='Patienter…';
   fill.style.transition='none';fill.style.width='0%';
+  // Init AdSense réel une seule fois
+  if(!adSenseLoaded){
+    adSenseLoaded=true;
+    try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+  }
   let s=5;if(adT)clearInterval(adT);
-  adT=setInterval(()=>{s--;cnt.textContent=s;fill.style.width=((5-s)/5*100)+'%';if(s<=0){clearInterval(adT);adT=null;btn.disabled=false;btn.classList.add('rdy');btn.textContent='Fermer et obtenir +10 XP ✓';cnt.textContent='✓';}},1000);
+  adT=setInterval(()=>{
+    s--;cnt.textContent=s;
+    fill.style.width=((5-s)/5*100)+'%';
+    if(s<=0){clearInterval(adT);adT=null;btn.disabled=false;btn.classList.add('rdy');btn.textContent='Fermer et obtenir +10 XP ✓';cnt.textContent='✓';}
+  },1000);
 }
 function closeAd(){const ov=G('adOverlay');if(ov)ov.classList.remove('show');if(adT){clearInterval(adT);adT=null;}S.xp+=10;sv('xp');toast('📺 +10 XP — Merci pour ton soutien !');if(curTab===3)renderMissions();}
 
