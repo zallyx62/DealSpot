@@ -774,24 +774,60 @@ function distKm(lat1,lng1,lat2,lng2){const R=6371,dL=(lat2-lat1)*Math.PI/180,dG=
 function fmtDist(km){if(km<1)return Math.round(km*1000)+'m';if(km<10)return km.toFixed(1)+'km';return Math.round(km)+'km';}
 function showBanner(){const b=G('geoPermBanner');if(b){b.style.display='flex';}}
 function hideBanner(){const b=G('geoPermBanner');if(b){b.style.display='none';}}
+
 function askGeoPermission(){
-  hideBanner();
-  if(!navigator.geolocation){toast('❌ GPS non disponible sur ce navigateur');return;}
-  navigator.geolocation.getCurrentPosition(pos=>onGeoSuccess(pos),err=>onGeoError(err),{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  // Feedback immédiat à l'utilisateur
+  const btn=document.querySelector('#geoPermBanner button');
+  if(btn){btn.textContent='⏳ En cours…';btn.disabled=true;}
+  if(!navigator.geolocation){
+    toast('❌ GPS non disponible — essaie Chrome ou Firefox');
+    if(btn){btn.textContent='Autoriser';btn.disabled=false;}
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos=>onGeoSuccess(pos),
+    err=>{
+      if(btn){btn.textContent='Autoriser';btn.disabled=false;}
+      onGeoError(err);
+    },
+    {enableHighAccuracy:false,timeout:15000,maximumAge:30000}
+  );
 }
+
 function onGeoSuccess(pos){
-  userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;
-  lset('lastLat',userLat);lset('lastLng',userLng);
-  updateMapIframe(userLat,userLng,16);
+  userLat=pos.coords.latitude;
+  userLng=pos.coords.longitude;
+  userLocated=true;
+  lset('lastLat',userLat);
+  lset('lastLng',userLng);
   hideBanner();
-  toast('✅ Position GPS ! Les bons plans proches de toi apparaissent en premier.');
+  const rb=G('radarGeoBanner');if(rb)rb.style.display='none';
+  updateMapIframe(userLat,userLng,15);
+  toast('✅ Position GPS ! Deals proches affichés en premier.');
   if(curTab===0)renderDeals();
   if(curTab===1)renderPlaces();
 }
+
 function onGeoError(err){
-  const m={1:'Permission refusée — autorise la localisation dans les paramètres de ton navigateur',2:'Signal GPS indisponible. Essaie en extérieur.',3:'Délai dépassé, réessaie.'};
-  toast('⚠️ '+(m[err.code]||'Erreur GPS'));
-  showBanner();
+  if(err.code===1){
+    // Permission refusée — instructions claires
+    toast('🔒 Bloqué par le navigateur. Va dans : Paramètres → Confidentialité → Localisation → Autorise ce site');
+    showBanner();
+    const b=G('geoPermBanner');
+    if(b){
+      b.innerHTML=`
+        <div style="font-size:22px;flex-shrink:0">🔒</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;margin-bottom:2px">Localisation bloquée</div>
+          <div style="font-size:10px;color:var(--tx2);line-height:1.5">Paramètres navigateur → Confidentialité → Localisation → Autorise ce site</div>
+        </div>
+        <button onclick="askGeoPermission()" style="padding:6px 10px;background:var(--bl);border:none;border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:#fff;cursor:pointer;flex-shrink:0">Réessayer</button>`;
+    }
+  } else if(err.code===2){
+    toast('⚠️ Signal GPS indisponible. Essaie en extérieur ou active le Wi-Fi.');
+  } else {
+    toast('⚠️ Localisation expirée. Réessaie.');
+  }
 }
 
 // ═══ MODULE 1: RADAR (tri par proximité)
@@ -882,9 +918,13 @@ function initMap(){
   }
 }
 function centerOnMe(){
-  if(!navigator.geolocation){toast('❌ GPS non disponible');return;}
+  if(!navigator.geolocation){toast('❌ GPS non disponible sur ce navigateur');return;}
   toast('📍 Demande de localisation GPS…');
-  navigator.geolocation.getCurrentPosition(pos=>onGeoSuccess(pos),err=>onGeoError(err),{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  navigator.geolocation.getCurrentPosition(
+    pos=>onGeoSuccess(pos),
+    err=>onGeoError(err),
+    {enableHighAccuracy:false,timeout:15000,maximumAge:30000}
+  );
 }
 function addPlaceMarkersToMap(){}function renderMapCanvas(){}
 let geoWatch=null;
@@ -1032,12 +1072,23 @@ function toggleTheme(){applyTheme(S.theme==='dark'?'light':'dark');}
 // ═══ SUPPORT
 function dismissSup(){const b=G('supbar');if(b)b.style.display='none';S.supDis=true;sv('supDis');}
 function requestGeoFromRadar(){
-  if(!navigator.geolocation){toast('❌ GPS non disponible');return;}
-  toast('📍 Demande de localisation GPS…');
+  const btn=document.querySelector('#radarGeoBanner button');
+  if(btn){btn.textContent='⏳ En cours…';btn.disabled=true;}
+  if(!navigator.geolocation){
+    toast('❌ GPS non disponible — essaie Chrome ou Firefox');
+    if(btn){btn.textContent='Autoriser 📍';btn.disabled=false;}
+    return;
+  }
   navigator.geolocation.getCurrentPosition(
-    pos=>{onGeoSuccess(pos);const b=G('radarGeoBanner');if(b)b.style.display='none';},
-    err=>onGeoError(err),
-    {enableHighAccuracy:true,timeout:15000,maximumAge:0}
+    pos=>{
+      onGeoSuccess(pos);
+      const rb=G('radarGeoBanner');if(rb)rb.style.display='none';
+    },
+    err=>{
+      if(btn){btn.textContent='Autoriser 📍';btn.disabled=false;}
+      onGeoError(err);
+    },
+    {enableHighAccuracy:false,timeout:15000,maximumAge:30000}
   );
 }
 function initSup(){
