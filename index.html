@@ -333,7 +333,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   <div id="tabsTrack">
     <!-- TAB 0: RADAR -->
     <div class="tab" id="tab-0">
-      <div class="supbar" id="supbar">
+      <div id="supbar" class="supbar">
         <div class="si">💛</div>
         <div class="st"><div class="t">Soutenir DealSpot</div><div class="s">Pub gratuite ou don PayPal</div></div>
         <div class="sacts">
@@ -342,7 +342,13 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         </div>
         <span class="sup-x" onclick="dismissSup()">✕</span>
       </div>
-      <!-- Support bar only — AdSense via meta tag (approbation requise) -->
+      <!-- Nudge géoloc sur Radar -->
+      <div id="radarGeoBanner" style="display:flex;align-items:center;gap:10px;background:var(--bld);border:1px solid var(--bl);border-radius:var(--r);padding:11px 12px;margin-bottom:12px">
+        <span style="font-size:20px;flex-shrink:0">📍</span>
+        <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700">Vois les deals près de toi</div><div style="font-size:11px;color:var(--tx2)">Autorise la localisation pour un tri par proximité</div></div>
+        <button onclick="requestGeoFromRadar()" style="padding:6px 12px;background:var(--bl);border:none;border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:#fff;cursor:pointer;flex-shrink:0;white-space:nowrap">Autoriser 📍</button>
+        <span onclick="G('radarGeoBanner').style.display='none'" style="font-size:14px;color:var(--tx3);cursor:pointer;flex-shrink:0">✕</span>
+      </div>
       <div class="sh">
         <h2>🎯 Radar</h2>
         <span class="badge bg" id="dealCount">0 actifs</span>
@@ -360,17 +366,26 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     <!-- TAB 1: CARTE -->
     <div class="tab" id="tab-1">
       <div class="sh"><h2>🗺️ Lieux Utiles</h2></div>
+      <!-- Bannière permission géoloc -->
+      <div id="geoPermBanner" style="display:none;background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.1));border:1px solid rgba(59,130,246,.3);border-radius:var(--r);padding:14px;margin-bottom:12px;align-items:center;gap:12px">
+        <div style="font-size:28px;flex-shrink:0">📍</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;margin-bottom:3px">Autoriser la localisation</div>
+          <div style="font-size:11px;color:var(--tx2)">Pour voir les lieux et bons plans proches de toi</div>
+        </div>
+        <button onclick="askGeoPermission()" style="padding:8px 14px;background:var(--bl);border:none;border-radius:9px;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;color:#fff;cursor:pointer;flex-shrink:0">Autoriser</button>
+      </div>
       <div class="mhero">
         <div style="position:relative;height:220px;background:#0F2027">
           <iframe id="mapIframe"
-            src="https://www.openstreetmap.org/export/embed.html?bbox=2.25%2C48.82%2C2.45%2C48.90&amp;layer=mapnik&amp;marker=48.8566%2C2.3522"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=2.25%2C48.82%2C2.45%2C48.90&layer=mapnik&marker=48.8566%2C2.3522"
             style="width:100%;height:100%;border:none;display:block"
             title="Carte OpenStreetMap"
-            loading="lazy"
+            allow="geolocation"
             allowfullscreen></iframe>
-          <div id="mapLocBadge" style="display:none;position:absolute;top:8px;left:8px;background:rgba(59,130,246,.9);backdrop-filter:blur(4px);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#fff;pointer-events:none">📍 Ta position</div>
+          <div id="mapLocBadge" style="display:none;position:absolute;top:8px;left:8px;background:rgba(59,130,246,.92);backdrop-filter:blur(4px);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#fff;pointer-events:none;animation:su .4s ease">📍 Ta position</div>
           <a id="mapOpenFull" href="https://www.openstreetmap.org/#map=13/48.8566/2.3522" target="_blank" rel="noopener"
-            style="position:absolute;bottom:8px;right:8px;background:rgba(8,13,26,.8);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 10px;font-size:11px;color:#fff;text-decoration:none;backdrop-filter:blur(4px)">
+            style="position:absolute;bottom:8px;right:8px;background:rgba(8,13,26,.85);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 10px;font-size:11px;color:#fff;text-decoration:none;backdrop-filter:blur(4px)">
             🔍 Plein écran
           </a>
         </div>
@@ -618,21 +633,27 @@ function lset(k,v){try{localStorage.setItem('ds6_'+k,JSON.stringify(v));}catch{}
 
 // ═══ SEED DATA
 function defDeals(){return[
-  {id:1,type:'promo',title:'50% sur les yaourts Danone',place:'Carrefour Market Nation, Paris 11e',desc:'Jusqu\'au dimanche — rayon produits laitiers',likes:24,saved:false,liked:false,time:'Il y a 23 min',reviews:[
+  {id:1,type:'promo',title:'50% sur les yaourts Danone',place:'Carrefour Market Nation, Paris 11e',desc:'Jusqu\'au dimanche — rayon produits laitiers',lat:48.8502,lng:2.3960,likes:24,saved:false,liked:false,time:'Il y a 23 min',reviews:[
     {id:1,user:'Sophie L.',stars:5,text:'Confirmé ! Rayons bien fournis. Vaut pour tous les packs.',time:'Il y a 18 min',src:'google'},
-    {id:2,user:'Marc T.',stars:4,text:'Pas sur les Bio mais sur les classiques c\'est top. 4€ économisés !',time:'Il y a 35 min',src:'google'},
-    {id:3,user:'Amélie R.',stars:5,text:'Promo régulière chez Carrefour Nation. Valide !',time:'Il y a 1h',src:'google'}]},
-  {id:2,type:'gratuit',title:'Pain offert à l\'achat d\'une soupe',place:'Brioche Dorée Châtelet, Paris 1er',desc:'Montrer l\'app DealSpot en caisse',likes:38,saved:true,liked:false,time:'Il y a 1h',reviews:[
-    {id:1,user:'Julie M.',stars:5,text:'Accepté sans hésiter ! Pain viennois excellent.',time:'Il y a 45 min',src:'google'},
-    {id:2,user:'Karim B.',stars:5,text:'Testé hier midi, ça marche. Staff au courant.',time:'Il y a 2h',src:'google'}]},
-  {id:3,type:'event',title:'Concert gratuit — Jazz en Plein Air',place:'Parc Montsouris, Paris 14e',desc:'Demain 15h–18h, accès libre, prévoir un plaid',likes:61,saved:false,liked:true,time:'Il y a 2h',reviews:[
-    {id:1,user:'Nathalie V.',stars:5,text:'Qualité musicale très élevée ! Amenez un pique-nique.',time:'Il y a 1h',src:'google'},
-    {id:2,user:'Théo P.',stars:4,text:'Arriver tôt pour une bonne place. Gratuit et top !',time:'Il y a 3h',src:'google'}]},
-  {id:4,type:'food',title:'Invendus marché à prix libre',place:'Marché d\'Aligre, Paris 12e',desc:'Chaque dimanche après 13h',likes:44,saved:false,liked:false,time:'Il y a 3h',reviews:[
-    {id:1,user:'Romain D.',stars:5,text:'Mon marché préféré depuis 5 ans. Acte solidaire !',time:'Il y a 1h',src:'google'},
-    {id:2,user:'Fatou K.',stars:4,text:'Parfois ferme à 12h30. Arriver vers 12h45.',time:'Il y a 2h',src:'google'}]},
-  {id:5,type:'promo',title:'2e café offert avant 10h',place:'Columbus Café Saint-Lazare, Paris 8e',desc:'Avec la carte fidélité Columbus',likes:11,saved:false,liked:false,time:'Il y a 5h',reviews:[
-    {id:1,user:'Clara N.',stars:4,text:'2e café vraiment offert. Vérifié ce matin.',time:'Il y a 3h',src:'google'}]}
+    {id:2,user:'Marc T.',stars:4,text:'Pas sur les Bio mais sur les classiques c\'est top. 4€ économisés !',time:'Il y a 35 min',src:'google'}]},
+  {id:2,type:'gratuit',title:'Pain offert à l\'achat d\'une soupe',place:'Brioche Dorée Châtelet, Paris 1er',desc:'Montrer l\'app DealSpot en caisse',lat:48.8600,lng:2.3469,likes:38,saved:false,liked:false,time:'Il y a 1h',reviews:[
+    {id:1,user:'Julie M.',stars:5,text:'Accepté sans hésiter ! Pain viennois excellent.',time:'Il y a 45 min',src:'google'}]},
+  {id:3,type:'event',title:'Concert gratuit — Jazz en Plein Air',place:'Parc Montsouris, Paris 14e',desc:'Demain 15h–18h, accès libre, prévoir un plaid',lat:48.8220,lng:2.3387,likes:61,saved:false,liked:false,time:'Il y a 2h',reviews:[
+    {id:1,user:'Nathalie V.',stars:5,text:'Qualité musicale très élevée ! Amenez un pique-nique.',time:'Il y a 1h',src:'google'}]},
+  {id:4,type:'food',title:'Invendus marché à prix libre',place:'Marché d\'Aligre, Paris 12e',desc:'Chaque dimanche après 13h',lat:48.8505,lng:2.3721,likes:44,saved:false,liked:false,time:'Il y a 3h',reviews:[
+    {id:1,user:'Romain D.',stars:5,text:'Mon marché préféré depuis 5 ans. Acte solidaire !',time:'Il y a 1h',src:'google'}]},
+  {id:5,type:'promo',title:'2e café offert avant 10h',place:'Columbus Café Saint-Lazare, Paris 8e',desc:'Avec la carte fidélité Columbus',lat:48.8752,lng:2.3241,likes:11,saved:false,liked:false,time:'Il y a 5h',reviews:[
+    {id:1,user:'Clara N.',stars:4,text:'2e café vraiment offert. Vérifié ce matin.',time:'Il y a 3h',src:'google'}]},
+  {id:6,type:'promo',title:'-40% sur tout le rayon bio',place:'Biocoop Opéra, Lyon 2e',desc:'Promotion de lancement nouvelle saison',lat:45.7484,lng:4.8326,likes:19,saved:false,liked:false,time:'Il y a 4h',reviews:[
+    {id:1,user:'Emma B.',stars:5,text:'Incroyable ! J\'ai économisé 18€ sur mes courses.',time:'Il y a 2h',src:'google'}]},
+  {id:7,type:'gratuit',title:'Marché nocturne gratuit — concerts live',place:'Vieux-Port, Marseille',desc:'Tous les vendredi soir en été, 19h–minuit',lat:43.2965,lng:5.3698,likes:87,saved:false,liked:false,time:'Il y a 6h',reviews:[
+    {id:1,user:'Karim S.',stars:5,text:'Ambiance incroyable ! Gratuit et de qualité.',time:'Il y a 4h',src:'google'}]},
+  {id:8,type:'service',title:'Cours de yoga offert — 1ère séance',place:'Studio Zen, Bordeaux Centre',desc:'Sur réservation, mention DealSpot',lat:44.8378,lng:-0.5792,likes:33,saved:false,liked:false,time:'Il y a 8h',reviews:[
+    {id:1,user:'Laura M.',stars:5,text:'Super accueil ! La salle est magnifique.',time:'Il y a 5h',src:'google'}]},
+  {id:9,type:'food',title:'Pizza entière offerte pour 2 achetées',place:'Bella Napoli, Toulouse Capitole',desc:'Valable le midi en semaine uniquement',lat:43.6047,lng:1.4442,likes:28,saved:false,liked:false,time:'Il y a 10h',reviews:[
+    {id:1,user:'Pierre L.',stars:4,text:'Bonne pizza, offre bien respectée. Reviendrais !',time:'Il y a 7h',src:'google'}]},
+  {id:10,type:'promo',title:'30% sur tous les smartphones reconditionnés',place:'Back Market Store, Nice',desc:'En magasin uniquement — stocks limités',lat:43.7102,lng:7.2620,likes:52,saved:false,liked:false,time:'Il y a 12h',reviews:[
+    {id:1,user:'Alex D.',stars:5,text:'iPhone 13 à 420€ au lieu de 600€. Parfait état.',time:'Il y a 9h',src:'google'}]}
 ];}
 function defPlaces(){return[
   {id:1,type:'wc',name:'Toilettes Publiques — République',addr:'Place de la République, Paris 11e',dist:'120 m',lat:48.8674,lng:2.3632,reviews:[
@@ -679,7 +700,7 @@ const ANTI=[{e:'💪',t:'Micro-action (2 min)',p:'Ouvre ton appli bancaire et no
 
 // ═══ VARS
 let curTab=0,curFilter='all',curCat='all',selDT='promo',selPT='wc',srchQ='',srchVis=false,lastAnti=-1,pStars={},settOpen=false,adT=null,authTab='login';
-let userLat2=48.8566,userLng2=2.3522; // kept for compat
+let userLat=null,userLng=null,userLocated=false,mapInited=false;
 const G=id=>document.getElementById(id);
 function getPseudo(){return S.user?(S.user.pseudo||S.user.name||'Anonyme'):null;}
 function avgS(r){if(!r||!r.length)return 0;return r.reduce((s,x)=>s+x.stars,0)/r.length;}
@@ -748,20 +769,60 @@ function toggleSearch(){srchVis=!srchVis;G('srchWrap').style.display=srchVis?'bl
 function onSearch(q){srchQ=q.toLowerCase();if(curTab!==0)goTab(0);else renderDeals();}
 function clearSearch(){srchQ='';G('srchInp').value='';renderDeals();}
 
-// ═══ MODULE 1: RADAR
+// ═══ GÉOLOC HELPERS
+function distKm(lat1,lng1,lat2,lng2){const R=6371,dL=(lat2-lat1)*Math.PI/180,dG=(lng2-lng1)*Math.PI/180,a=Math.sin(dL/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function fmtDist(km){if(km<1)return Math.round(km*1000)+'m';if(km<10)return km.toFixed(1)+'km';return Math.round(km)+'km';}
+function showBanner(){const b=G('geoPermBanner');if(b){b.style.display='flex';}}
+function hideBanner(){const b=G('geoPermBanner');if(b){b.style.display='none';}}
+function askGeoPermission(){
+  hideBanner();
+  if(!navigator.geolocation){toast('❌ GPS non disponible sur ce navigateur');return;}
+  navigator.geolocation.getCurrentPosition(pos=>onGeoSuccess(pos),err=>onGeoError(err),{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+function onGeoSuccess(pos){
+  userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;
+  lset('lastLat',userLat);lset('lastLng',userLng);
+  updateMapIframe(userLat,userLng,16);
+  hideBanner();
+  toast('✅ Position GPS ! Les bons plans proches de toi apparaissent en premier.');
+  if(curTab===0)renderDeals();
+  if(curTab===1)renderPlaces();
+}
+function onGeoError(err){
+  const m={1:'Permission refusée — autorise la localisation dans les paramètres de ton navigateur',2:'Signal GPS indisponible. Essaie en extérieur.',3:'Délai dépassé, réessaie.'};
+  toast('⚠️ '+(m[err.code]||'Erreur GPS'));
+  showBanner();
+}
+
+// ═══ MODULE 1: RADAR (tri par proximité)
 function filterDeals(el,f){curFilter=f;document.querySelectorAll('#filterBar .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderDeals();}
 function renderDeals(){
   let list=curFilter==='all'?S.deals.slice():S.deals.filter(d=>d.type===curFilter);
   if(srchQ)list=list.filter(d=>d.title.toLowerCase().includes(srchQ)||d.place.toLowerCase().includes(srchQ)||(d.desc||'').toLowerCase().includes(srchQ));
-  G('dealCount').textContent=S.deals.length+' actifs';
+  // Calcul distances si géoloc active
+  if(userLocated){
+    list=list.map(d=>({...d,_km:(d.lat&&d.lng)?distKm(userLat,userLng,d.lat,d.lng):9999}));
+    list.sort((a,b)=>{if(a._km<50&&b._km<50)return a._km-b._km;if(a._km<50)return -1;if(b._km<50)return 1;return 0;});
+  }
+  const nearby=userLocated?list.filter(d=>d._km!=null&&d._km<50):[];
+  G('dealCount').textContent=S.deals.length+' actifs'+(userLocated&&!srchQ?' · '+nearby.length+' près de toi':'');
   const el=G('dealList');
-  if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">${srchQ?'🔍':'📭'}</div><p>${srchQ?'Aucun résultat pour "'+esc(srchQ)+'"':'Aucun bon plan ici'}</p></div>`;return;}
-  el.innerHTML=list.map(d=>{
-    const t=TC[d.type]||TC.autre;const revs=d.reviews||[];
-    const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
-    const avg=avgS(revs),nc=revs.length,ps=pStars['d'+d.id]||0;
-    return `<div class="dc"><div class="dh"><div class="dic" style="background:${t.b}">${t.i}</div><div class="din"><div class="dtt">${hl(d.title)}</div><div class="dpl">📍 ${hl(d.place)}</div>${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}${avg>0?`<div style="margin-top:5px">${starsH(avg,nc,true)}</div>`:''}</div></div><div class="df"><div class="da"><div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${d.id})">❤️ ${d.likes}</div><div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${d.id})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div><div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${d.id})">💬 ${nc} avis</div></div><span class="dtm">${esc(d.time)}</span></div><div class="revs" id="rs-d-${d.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-d-${d.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${d.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-d-${d.id}" rows="2" placeholder="${S.user?'Ton avis…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span><button class="rsnd" onclick="postRev('d',${d.id})">Publier</button></div></div></div></div>`;
-  }).join('');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">${srchQ?'🔍':'📭'}</div><p>${srchQ?'Aucun résultat':'Aucun bon plan ici'}</p></div>`;return;}
+  let html='';
+  if(userLocated&&!srchQ&&nearby.length){
+    html+=`<div style="font-size:12px;font-weight:700;color:var(--gr);margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--gr);flex-shrink:0"></span>📍 Près de toi (${nearby.length})</div>`;
+    html+=nearby.map(d=>dealCardH(d)).join('');
+    const far=list.filter(d=>d._km>=50);
+    if(far.length){html+=`<div style="font-size:12px;font-weight:600;color:var(--tx3);margin:16px 0 8px;display:flex;align-items:center;gap:8px"><span style="flex:1;height:1px;background:var(--bd)"></span>🌍 Ailleurs en France<span style="flex:1;height:1px;background:var(--bd)"></span></div>`;html+=far.map(d=>dealCardH(d)).join('');}
+  }else{html=list.map(d=>dealCardH(d)).join('');}
+  el.innerHTML=html;
+}
+function dealCardH(d){
+  const t=TC[d.type]||TC.autre;const revs=d.reviews||[];
+  const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
+  const avg=avgS(revs),nc=revs.length,ps=pStars['d'+d.id]||0;
+  const distBadge=(userLocated&&d._km!=null&&d._km<9999)?`<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:${d._km<5?'var(--gd)':'var(--adim)'};color:${d._km<5?'var(--gr)':'var(--ac)'};margin-top:4px">📍 ${fmtDist(d._km)}</span>`:'';
+  return `<div class="dc"><div class="dh"><div class="dic" style="background:${t.b}">${t.i}</div><div class="din"><div class="dtt">${hl(d.title)}</div><div class="dpl">📍 ${hl(d.place)}</div>${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}${distBadge}${avg>0?`<div style="margin-top:4px">${starsH(avg,nc,true)}</div>`:''}</div></div><div class="df"><div class="da"><div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${d.id})">❤️ ${d.likes}</div><div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${d.id})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div><div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${d.id})">💬 ${nc} avis</div></div><span class="dtm">${esc(d.time)}</span></div><div class="revs" id="rs-d-${d.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-d-${d.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${d.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-d-${d.id}" rows="2" placeholder="${S.user?'Ton avis…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span><button class="rsnd" onclick="postRev('d',${d.id})">Publier</button></div></div></div></div>`;
 }
 function togRevs(ctx,id){const rs=G('rs-'+ctx+'-'+id);if(rs)rs.classList.toggle('open');}
 function setStar(ctx,id,n){pStars[ctx+id]=n;const sp=G('sp-'+ctx+'-'+id);if(sp)sp.querySelectorAll('.sp').forEach((s,i)=>s.classList.toggle('on',i<n));}
@@ -787,79 +848,49 @@ function selT(el,ctx){const gid=ctx==='deal'?'dealTG':'placeTG';document.querySe
 function submitDeal(){
   const title=G('dTit').value.trim(),place=G('dPl').value.trim();
   if(!title||!place){toast('❌ Titre et lieu requis');return;}
-  const deal={id:Date.now(),type:selDT,title,place,desc:G('dDs').value.trim(),likes:0,saved:false,liked:false,time:'À l\'instant',reviews:[]};
+  const deal={id:Date.now(),type:selDT,title,place,desc:G('dDs').value.trim(),
+    lat:userLocated?userLat:null,lng:userLocated?userLng:null,
+    likes:0,saved:false,liked:false,time:'À l\'instant',reviews:[]};
   S.deals.unshift(deal);sv('deals');closeModal('addModal');
   ['dTit','dPl','dDs'].forEach(id=>G(id).value='');
   goTab(0);renderDeals();toast('🎯 Bon plan publié !');completeMis('m1');sbPost('deals',deal);
 }
 
-// ═══ MODULE 2: CARTE — Iframe OpenStreetMap (vraie carte interactive)
-let userLat=48.8566,userLng=2.3522,mapInited=false,userLocated=false;
+// ═══ MODULE 2: CARTE — OSM iframe + géoloc réelle
 
 function updateMapIframe(lat,lng,zoom){
-  zoom=zoom||16;
-  const iframe=G('mapIframe');if(!iframe)return;
-  const delta=0.008;
-  const bbox=`${lng-delta}%2C${lat-delta}%2C${lng+delta}%2C${lat+delta}`;
-  iframe.src=`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
-  // Lien plein écran
+  zoom=zoom||16;const d=0.006;
+  const bbox=`${(lng-d).toFixed(5)}%2C${(lat-d).toFixed(5)}%2C${(lng+d).toFixed(5)}%2C${(lat+d).toFixed(5)}`;
+  const iframe=G('mapIframe');
+  if(iframe)iframe.src=`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat.toFixed(6)}%2C${lng.toFixed(6)}`;
   const full=G('mapOpenFull');
-  if(full)full.href=`https://www.openstreetmap.org/#map=${zoom}/${lat}/${lng}`;
-  // Badge position
+  if(full)full.href=`https://www.openstreetmap.org/#map=${zoom}/${lat.toFixed(5)}/${lng.toFixed(5)}`;
   const badge=G('mapLocBadge');if(badge)badge.style.display='flex';
 }
-
 function initMap(){
-  if(mapInited)return;
-  mapInited=true;
-  // Géoloc auto dès ouverture de l'onglet carte
+  if(mapInited)return;mapInited=true;
+  if(userLocated){updateMapIframe(userLat,userLng,16);return;}
+  // Tentative silencieuse (permission déjà accordée)
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
-      pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;updateMapIframe(userLat,userLng,16);},
-      ()=>{},
-      {enableHighAccuracy:true,timeout:6000}
+      pos=>onGeoSuccess(pos),
+      ()=>showBanner(),
+      {enableHighAccuracy:false,timeout:5000,maximumAge:60000}
     );
+  } else {
+    showBanner();
   }
 }
-
 function centerOnMe(){
-  if(!navigator.geolocation){
-    toast('❌ Géolocalisation non supportée sur ce navigateur');
-    return;
-  }
-  toast('📍 Localisation GPS en cours…');
-  navigator.geolocation.getCurrentPosition(
-    pos=>{
-      userLat=pos.coords.latitude;
-      userLng=pos.coords.longitude;
-      userLocated=true;
-      updateMapIframe(userLat,userLng,17);
-      toast('✅ Carte centrée sur ta position !');
-    },
-    err=>{
-      const msgs={
-        1:'Permission refusée — active la géolocalisation dans les paramètres de ton navigateur',
-        2:'Position GPS indisponible pour le moment',
-        3:'Délai dépassé — réessaie dans un instant'
-      };
-      toast('❌ '+(msgs[err.code]||'Erreur de localisation'));
-    },
-    {enableHighAccuracy:true,timeout:12000,maximumAge:0}
-  );
+  if(!navigator.geolocation){toast('❌ GPS non disponible');return;}
+  toast('📍 Demande de localisation GPS…');
+  navigator.geolocation.getCurrentPosition(pos=>onGeoSuccess(pos),err=>onGeoError(err),{enableHighAccuracy:true,timeout:15000,maximumAge:0});
 }
-
-function addPlaceMarkersToMap(){/* Les marqueurs OSM ne peuvent pas être injectés dans l'iframe — les lieux sont listés ci-dessous */}
-
-function renderMapCanvas(){/* remplacé par iframe */}
-
+function addPlaceMarkersToMap(){}function renderMapCanvas(){}
 let geoWatch=null;
 function startGeoWatch(){
   if(!navigator.geolocation||geoWatch)return;
-  geoWatch=navigator.geolocation.watchPosition(
-    pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;},
-    ()=>{},
-    {enableHighAccuracy:true,maximumAge:10000,timeout:20000}
-  );
+  geoWatch=navigator.geolocation.watchPosition(pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;},()=>{},{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
 }
 
 function renderPlaces(){
@@ -1000,7 +1031,19 @@ function toggleTheme(){applyTheme(S.theme==='dark'?'light':'dark');}
 
 // ═══ SUPPORT
 function dismissSup(){const b=G('supbar');if(b)b.style.display='none';S.supDis=true;sv('supDis');}
-function initSup(){if(S.supDis){const b=G('supbar');if(b)b.style.display='none';}}
+function requestGeoFromRadar(){
+  if(!navigator.geolocation){toast('❌ GPS non disponible');return;}
+  toast('📍 Demande de localisation GPS…');
+  navigator.geolocation.getCurrentPosition(
+    pos=>{onGeoSuccess(pos);const b=G('radarGeoBanner');if(b)b.style.display='none';},
+    err=>onGeoError(err),
+    {enableHighAccuracy:true,timeout:15000,maximumAge:0}
+  );
+}
+function initSup(){
+  if(S.supDis){const b=G('supbar');if(b)b.style.display='none';}
+  if(userLocated){const b=G('radarGeoBanner');if(b)b.style.display='none';}
+}
 
 // ═══ AD — pub AdSense réelle + bridge natif
 let adSenseLoaded=false;
@@ -1064,14 +1107,30 @@ document.addEventListener('keydown',e=>{
 // ═══ INIT
 (function init(){
   try{
+    // Restaurer dernière position GPS connue
+    const sLat=lget('lastLat',null),sLng=lget('lastLng',null);
+    if(sLat&&sLng){userLat=sLat;userLng=sLng;userLocated=true;}
+
     applyTheme(S.theme);updNet();initDots();initSup();updateUserBtn();renderDeals();
     G('loadScreen').style.display='none';G('app').style.display='flex';
+
+    // Tentative géoloc silencieuse si permission déjà accordée
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        pos=>onGeoSuccess(pos),
+        ()=>{/* silence */},
+        {enableHighAccuracy:false,timeout:5000,maximumAge:30000}
+      );
+    }
+
+    // AdSense
+    setTimeout(()=>{try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}},1000);
+
     // Session Supabase async
     sbGetSession().then(sess=>{if(sess)handleAuthUser({user:{id:'',email:'',user_metadata:{},app_metadata:{provider:'email'}}});});
     // OAuth redirect
     if(location.hash.includes('access_token')){const p=new URLSearchParams(location.hash.replace('#','?'));const tk=p.get('access_token');if(tk){lset('_sess',{access_token:tk});history.replaceState(null,'',location.pathname);sbGetSession().then(s=>{if(s)handleAuthUser(s);});}}
     setTimeout(syncDeals,2000);setInterval(syncDeals,25000);
-    // Géoloc continue en arrière-plan
     startGeoWatch();
   }catch(e){G('loadScreen').style.display='none';G('app').style.display='flex';renderDeals();}
 })();
