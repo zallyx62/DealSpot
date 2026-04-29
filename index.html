@@ -28,7 +28,29 @@ html[data-theme="light"]{--bg:#F0F4FF;--sf:#FFF;--card:#FFF;--card2:#F1F5F9;--bd
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:var(--bg);color:var(--tx);transition:background .3s,color .3s}
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
-/* TOPBAR */
+/* ═══ ONBOARDING ═══ */
+#onboarding{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:40px}
+.ob-slides{width:100%;flex:1;overflow:hidden;position:relative}
+.ob-track{display:flex;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+.ob-slide{flex:0 0 100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;text-align:center;gap:16px}
+.ob-emoji{font-size:72px;line-height:1}
+.ob-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
+.ob-sub{font-size:14px;color:var(--tx2);line-height:1.6;max-width:280px}
+.ob-dots{display:flex;gap:8px;margin-bottom:20px}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--bd2);transition:all .3s}
+.ob-dot.on{background:var(--ac);width:24px;border-radius:4px}
+.ob-btn{width:calc(100% - 56px);padding:15px;border-radius:16px;background:var(--ac);color:#000;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(245,158,11,.4)}
+/* ═══ OFFLINE BANNER ═══ */
+#offlineBanner{display:none;position:fixed;top:var(--nh);left:0;right:0;z-index:200;background:var(--re);color:#fff;font-size:12px;font-weight:700;text-align:center;padding:6px 12px}
+/* ═══ SHARE BTN ═══ */
+.abtn.sh{background:var(--bld);color:var(--bl)}
+/* ═══ REPORT ═══ */
+.rep-btn{font-size:10px;color:var(--tx3);cursor:pointer;padding:2px 6px;border-radius:6px;border:1px solid var(--bd);background:none;font-family:'Sora',sans-serif;margin-left:4px;flex-shrink:0}
+.rep-btn:hover{color:var(--re);border-color:var(--re)}
+/* ═══ NOTIFY BTN ═══ */
+.notif-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd)}
+.notif-row:last-child{border-bottom:none}
+
 #topbar{flex-shrink:0;height:var(--nh);display:flex;align-items:center;padding:0 12px;background:var(--sf);border-bottom:1px solid var(--bd);z-index:50;gap:8px}
 .logo{display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;user-select:none}
 .logo-mk{width:30px;height:30px;background:var(--ac);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#000;flex-shrink:0}
@@ -597,7 +619,15 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       </div>
     </div>
     <div class="ss">
-      <h4>🔗 Temps Réel</h4>
+      <h4>🔔 Notifications</h4>
+      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px">
+        <div class="notif-row">
+          <div style="font-size:13px;font-weight:600">Nouveaux bons plans proches</div>
+          <button id="notifBtn" onclick="requestNotifPerm()" style="font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;background:var(--ac);color:#000;border:none;cursor:pointer;font-family:'Sora',sans-serif">Activer</button>
+        </div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:6px">Reçois une alerte quand un deal est posté à moins de 2km de toi.</div>
+      </div>
+    </div>
       <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px;font-size:12px;color:var(--tx2)">
         <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--gd);color:var(--gr);margin-bottom:6px">● Supabase connecté</span><br>
         Tes bons plans sont partagés en temps réel avec toute la communauté.
@@ -612,7 +642,23 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   </div>
 </div>
 
-<div id="toast"></div>
+<!-- OFFLINE BANNER -->
+<div id="offlineBanner">📡 Mode hors-ligne — Contenu mis en cache affiché</div>
+<!-- ONBOARDING (premier lancement) -->
+<div id="onboarding" style="display:none">
+  <div class="ob-slides">
+    <div class="ob-track" id="obTrack">
+      <div class="ob-slide"><div class="ob-emoji">🎯</div><div class="ob-title">Bienvenue sur DealSpot</div><div class="ob-sub">Trouve, partage et économise au quotidien avec toute la communauté.</div></div>
+      <div class="ob-slide"><div class="ob-emoji">📡</div><div class="ob-title">Radar de bons plans</div><div class="ob-sub">Découvre les meilleurs deals autour de toi, triés par distance et par catégorie.</div></div>
+      <div class="ob-slide"><div class="ob-emoji">🗺️</div><div class="ob-title">Carte interactive</div><div class="ob-sub">Visualise les lieux utiles — fontaines, Wi-Fi gratuit, prises, parking — autour de toi.</div></div>
+      <div class="ob-slide"><div class="ob-emoji">💰</div><div class="ob-title">Suivi des prix</div><div class="ob-sub">Note les prix de tes produits du quotidien et suis leurs variations pour faire les meilleures affaires.</div></div>
+      <div class="ob-slide"><div class="ob-emoji">🏆</div><div class="ob-title">Missions & XP</div><div class="ob-sub">Complète des missions, gagne de l'XP et monte en niveau. La communauté compte sur toi !</div></div>
+    </div>
+  </div>
+  <div class="ob-dots" id="obDots"></div>
+  <button class="ob-btn" id="obBtn" onclick="obNext()">Suivant →</button>
+</div>
+
 
 <script>
 /*
@@ -663,9 +709,24 @@ function sbOAuth(p){
 // ═══ SECURITY
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
-// ═══ STORAGE
+// ═══ STORAGE — avec nettoyage auto si quota dépassé
 function lget(k,d){try{const v=localStorage.getItem('ds6_'+k);return v!=null?JSON.parse(v):d;}catch{return d;}}
-function lset(k,v){try{localStorage.setItem('ds6_'+k,JSON.stringify(v));}catch{}}
+function lset(k,v){
+  try{localStorage.setItem('ds6_'+k,JSON.stringify(v));}
+  catch(e){
+    if(e.name==='QuotaExceededError'||e.code===22){
+      // Nettoyage : supprimer les vieux deals (garder 40 max), vieux prix (garder 30)
+      try{
+        const deals=lget('deals',[]);
+        if(deals.length>40){lget('deals',[]);localStorage.setItem('ds6_deals',JSON.stringify(deals.slice(0,40)));}
+        const prices=lget('prices',[]);
+        if(prices.length>30){localStorage.setItem('ds6_prices',JSON.stringify(prices.slice(0,30)));}
+        localStorage.setItem('ds6_'+k,JSON.stringify(v));
+        toast('🗂️ Stockage optimisé automatiquement');
+      }catch{}
+    }
+  }
+}
 
 // ═══ SEED DATA
 function defDeals(){return[
@@ -918,12 +979,44 @@ function starsH(avg,cnt,sm){
   if(cnt!==undefined)s+=`<span class="cntl">(${cnt})</span>`;
   return s+'</div>';
 }
-function revH(r){
+function revH(r,dealId){
   const src=r.src==='google'?'🌐 Google Maps':'✅ DealSpot';
   const au=esc(r.pseudo||r.user||'?');const ini=au[0]||'?';
   const stars=[1,2,3,4,5].map(i=>`<span class="rs ${i<=r.stars?'on':''}">★</span>`).join('');
-  return `<div class="ri"><div class="rav">${ini}</div><div class="rbd"><div class="rhd"><span class="rau">${au}</span><div class="rsr">${stars}</div></div><div class="rtx">${esc(r.text||'')}</div><div class="rtm">${esc(r.time||'')} · <span style="color:var(--tx3)">${src}</span></div></div></div>`;
+  const repId=dealId!=null?`data-did="${dealId}" data-rid="${r.id}"`:'';
+  return `<div class="ri"><div class="rav">${ini}</div><div class="rbd"><div class="rhd"><span class="rau">${au}</span><div class="rsr">${stars}</div><button class="rep-btn" onclick="reportRev(this)" ${repId} title="Signaler cet avis">⚑</button></div><div class="rtx">${esc(r.text||'')}</div><div class="rtm">${esc(r.time||'')} · <span style="color:var(--tx3)">${src}</span></div></div></div>`;
 }
+
+// ─── Partage natif (Feature 4)
+function shareDeal(id){
+  const d=S.deals.find(x=>x.id===id);if(!d)return;
+  const text=`🎯 Bon plan sur DealSpot !\n${d.title}\n📍 ${d.place}${d.desc?'\n'+d.desc:''}\n\nRetrouve ce bon plan sur DealSpot !`;
+  if(navigator.share){
+    navigator.share({title:d.title,text,url:window.location.href}).catch(()=>{});
+  } else {
+    navigator.clipboard?.writeText(text).then(()=>toast('📋 Bon plan copié !'),()=>toast('📋 Partage non disponible'));
+  }
+}
+
+// ─── Signalement avis (Feature 3)
+const _reported=new Set();
+function reportRev(btn){
+  const did=btn.dataset.did,rid=btn.dataset.rid;
+  const key=did+':'+rid;
+  if(_reported.has(key)){toast('ℹ️ Déjà signalé');return;}
+  if(!confirm('Signaler cet avis comme inapproprié ?'))return;
+  _reported.add(key);
+  btn.textContent='✓';btn.style.color='var(--re)';btn.disabled=true;
+  sbPost('reports',{type:'review',deal_id:did,review_id:rid,ts:Date.now()});
+  toast('🚩 Avis signalé — merci !');
+}
+// Signalement deal
+function reportDeal(id){
+  if(!confirm('Signaler ce bon plan comme inapproprié ou faux ?'))return;
+  sbPost('reports',{type:'deal',deal_id:id,ts:Date.now()});
+  toast('🚩 Bon plan signalé — merci !');
+}
+
 function hl(t){
   if(!srchQ)return esc(t);
   const s=esc(t);const re=new RegExp('('+srchQ.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
@@ -1052,7 +1145,7 @@ function dealCardH(d){
   const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
   const avg=avgS(revs),nc=revs.length,ps=pStars['d'+d.id]||0;
   const distBadge=(userLocated&&d._km!=null&&d._km<9999)?`<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:${d._km<5?'var(--gd)':'var(--adim)'};color:${d._km<5?'var(--gr)':'var(--ac)'};margin-top:4px">📍 ${fmtDist(d._km)}</span>`:'';
-  return `<div class="dc"><div class="dh"><div class="dic" style="background:${t.b}">${t.i}</div><div class="din"><div class="dtt">${hl(d.title)}</div><div class="dpl">📍 ${hl(d.place)}</div>${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}${distBadge}${avg>0?`<div style="margin-top:4px">${starsH(avg,nc,true)}</div>`:''}</div></div><div class="df"><div class="da"><div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${d.id})">❤️ ${d.likes}</div><div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${d.id})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div><div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${d.id})">💬 ${nc} avis</div></div><span class="dtm">${esc(d.time)}</span></div><div class="revs" id="rs-d-${d.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-d-${d.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${d.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-d-${d.id}" rows="2" placeholder="${S.user?'Ton avis…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span><button class="rsnd" onclick="postRev('d',${d.id})">Publier</button></div></div></div></div>`;
+  return `<div class="dc"><div class="dh"><div class="dic" style="background:${t.b}">${t.i}</div><div class="din"><div class="dtt">${hl(d.title)}</div><div class="dpl">📍 ${hl(d.place)}</div>${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}${distBadge}${avg>0?`<div style="margin-top:4px">${starsH(avg,nc,true)}</div>`:''}</div></div><div class="df"><div class="da"><div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${d.id})">❤️ ${d.likes}</div><div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${d.id})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div><div class="abtn sh" onclick="shareDeal(${d.id})">↗️ Partager</div><div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${d.id})">💬 ${nc} avis</div></div><span class="dtm">${esc(d.time)}</span></div><div class="revs" id="rs-d-${d.id}">${ordered.map(r=>revH(r,d.id)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-d-${d.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${d.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-d-${d.id}" rows="2" placeholder="${S.user?'Ton avis…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'} maxlength="500"></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span><button class="rsnd" onclick="postRev('d',${d.id})">Publier</button></div></div></div></div>`;
 }
 function togRevs(ctx,id){const rs=G('rs-'+ctx+'-'+id);if(rs)rs.classList.toggle('open');}
 function setStar(ctx,id,n){pStars[ctx+id]=n;const sp=G('sp-'+ctx+'-'+id);if(sp)sp.querySelectorAll('.sp').forEach((s,i)=>s.classList.toggle('on',i<n));}
@@ -1447,8 +1540,21 @@ function updateUserBtn(){
 }
 
 // ═══ THEME
-function applyTheme(t){document.documentElement.dataset.theme=t;S.theme=t;sv('theme');const tog=G('togTheme');if(tog)tog.className='tog'+(t==='dark'?' on':'');}
+function applyTheme(t){
+  document.documentElement.dataset.theme=t;S.theme=t;sv('theme');
+  const tog=G('togTheme');if(tog)tog.className='tog'+(t==='dark'?' on':'');
+  // Met à jour la meta theme-color
+  const mc=document.querySelector('meta[name="theme-color"]');
+  if(mc)mc.content=t==='dark'?'#080D1A':'#F0F4FF';
+}
 function toggleTheme(){applyTheme(S.theme==='dark'?'light':'dark');}
+// Écoute les changements du thème système
+const _sysDark=window.matchMedia('(prefers-color-scheme: dark)');
+function applySystemTheme(e){
+  // Applique uniquement si l'utilisateur n'a pas de préférence sauvegardée
+  if(!lget('theme',null)){applyTheme(e.matches?'dark':'light');}
+}
+_sysDark.addEventListener('change',applySystemTheme);
 
 // ═══ SUPPORT
 function dismissSup(){const b=G('supbar');if(b)b.style.display='none';S.supDis=true;sv('supDis');}
@@ -1551,29 +1657,181 @@ document.addEventListener('keydown',e=>{
   if(!document.querySelector('.moverlay.open')&&!srchVis){if(e.key==='ArrowLeft'&&curTab>0)goTab(curTab-1);if(e.key==='ArrowRight'&&curTab<4)goTab(curTab+1);}
 });
 
-// ═══ INIT
+// ═══════════════════════════════════════════════════
+// FEATURE 1 — SERVICE WORKER (mode hors-ligne)
+// Le SW est dans sw.js — à déployer dans le même dossier que index.html
+// ═══════════════════════════════════════════════════
+function setupServiceWorker(){
+  // Offline banner via navigator.onLine (fonctionne toujours, sans SW)
+  const ob=G('offlineBanner');
+  function updOffline(){if(ob)ob.style.display=navigator.onLine?'none':'block';}
+  window.addEventListener('online',updOffline);
+  window.addEventListener('offline',updOffline);
+  updOffline();
+
+  // Enregistrement SW uniquement sur vrai serveur HTTP/HTTPS (pas file://, pas blob://)
+  if(!('serviceWorker' in navigator))return;
+  const proto=location.protocol;
+  if(proto!=='https:'&&proto!=='http:')return;
+  navigator.serviceWorker.register('./sw.js',{scope:'./'})
+    .then(reg=>console.log('[SW] Enregistré OK, scope:',reg.scope))
+    .catch(e=>console.info('[SW] sw.js non trouvé (normal en dev local):',e.message));
+}
+
+// ═══════════════════════════════════════════════════
+// FEATURE 2 — NOTIFICATIONS PUSH
+// ═══════════════════════════════════════════════════
+async function requestNotifPerm(){
+  const btn=G('notifBtn');
+  if(!('Notification' in window)){toast('❌ Notifications non supportées sur ce navigateur');return;}
+  if(Notification.permission==='granted'){
+    toast('✅ Notifications déjà activées !');
+    if(btn){btn.textContent='Activées ✓';btn.style.background='var(--gr)';}
+    return;
+  }
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){
+    toast('🔔 Notifications activées !');
+    if(btn){btn.textContent='Activées ✓';btn.style.background='var(--gr)';}
+    lset('notifEnabled',true);
+    // Notif de test
+    setTimeout(()=>{
+      if(navigator.serviceWorker.controller){
+        navigator.serviceWorker.ready.then(reg=>{
+          reg.showNotification('DealSpot 🎯',{body:'Super ! Tu recevras les deals près de toi.',icon:'/icon-192.png',tag:'dealspot-welcome'});
+        });
+      } else {
+        new Notification('DealSpot 🎯',{body:'Super ! Tu recevras les deals près de toi.'});
+      }
+    },500);
+  } else {
+    toast('❌ Permission refusée — active dans les réglages du navigateur');
+    if(btn){btn.textContent='Bloquées';btn.style.background='var(--re)';}
+  }
+}
+function notifyNearbyDeal(deal){
+  if(!lget('notifEnabled',false)||Notification.permission!=='granted')return;
+  if(!userLocated||!deal.lat)return;
+  const dist=distKm(userLat,userLng,deal.lat,deal.lng);
+  if(dist>2)return;// >2km → pas de notif
+  const body=`📍 À ${Math.round(dist*1000)}m — ${deal.place}`;
+  navigator.serviceWorker.ready.then(reg=>{
+    reg.showNotification('🎯 '+deal.title,{body,icon:'/icon-192.png',tag:'dealspot-deal-'+deal.id,vibrate:[200,100,200]});
+  }).catch(()=>{
+    new Notification('🎯 '+deal.title,{body});
+  });
+}
+function syncDealsAndNotify(newDeals){
+  if(!newDeals?.length)return;
+  const latest=newDeals[0];
+  if(latest&&Date.now()-latest.id<120000)notifyNearbyDeal(latest);
+}
+// Mise à jour du bouton notif selon l'état actuel
+function updateNotifBtn(){
+  const btn=G('notifBtn');if(!btn)return;
+  if(!('Notification' in window)){btn.textContent='Non supporté';btn.disabled=true;return;}
+  if(Notification.permission==='granted'){btn.textContent='Activées ✓';btn.style.background='var(--gr)';}
+  else if(Notification.permission==='denied'){btn.textContent='Bloquées';btn.style.background='var(--re)';}
+}
+
+// ═══════════════════════════════════════════════════
+// FEATURE 7 — ONBOARDING (premier lancement)
+// ═══════════════════════════════════════════════════
+let obStep=0;const OB_TOTAL=5;
+function initOnboarding(){
+  // Afficher seulement si jamais vu
+  if(lget('obDone',false))return;
+  const el=G('onboarding');if(!el)return;
+  el.style.display='flex';
+  // Dots
+  const dots=G('obDots');
+  if(dots)dots.innerHTML=[...Array(OB_TOTAL)].map((_,i)=>`<div class="ob-dot ${i===0?'on':''}" id="od${i}"></div>`).join('');
+  obStep=0;
+}
+function obNext(){
+  obStep++;
+  const track=G('obTrack'),btn=G('obBtn');
+  if(obStep>=OB_TOTAL){
+    // Terminer
+    lset('obDone',true);
+    const el=G('onboarding');
+    if(el){el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(()=>el.style.display='none',400);}
+    return;
+  }
+  if(track)track.style.transform=`translateX(-${obStep*100}%)`;
+  // Dots
+  document.querySelectorAll('.ob-dot').forEach((d,i)=>d.classList.toggle('on',i===obStep));
+  if(btn)btn.textContent=obStep===OB_TOTAL-1?'C\'est parti 🚀':'Suivant →';
+}
+
+// ═══════════════════════════════════════════════════
+// FEATURE 5 — THÈME AUTO SYSTÈME (init au démarrage)
+// ═══════════════════════════════════════════════════
+function initTheme(){
+  const saved=lget('theme',null);
+  if(saved){applyTheme(saved);}
+  else{
+    // Suivre le thème du système par défaut
+    const prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark?'dark':'light');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// FEATURE 6 — NETTOYAGE AUTO localStorage
+// ═══════════════════════════════════════════════════
+function cleanStorage(){
+  try{
+    // Supprimer les deals de plus de 7 jours (id timestamp)
+    const cutoff=Date.now()-7*24*3600*1000;
+    let deals=lget('deals',[]);
+    // Garder les deals hardcodés (id<9000), les deals récents OU les deals sauvegardés
+    const before=deals.length;
+    deals=deals.filter(d=>d.id<9000||d.saved||d.id>cutoff);
+    if(deals.length<before){lset('deals',deals);console.log('[Storage] Nettoyé',before-deals.length,'vieux deals');}
+    // Limites dures
+    if(deals.length>60){lset('deals',deals.slice(0,60));}
+    const prices=lget('prices',[]);
+    if(prices.length>50){lset('prices',prices.slice(0,50));}
+    // Rapport utilisation
+    let total=0;
+    for(const k in localStorage){if(k.startsWith('ds6_'))try{total+=localStorage.getItem(k).length;}catch{}}
+    if(total>2*1024*1024)toast('⚠️ Stockage local proche de la limite ('+Math.round(total/1024)+'KB)');
+  }catch(e){console.warn('[Storage cleanup]',e);}
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
 (function init(){
   try{
     // Restaurer dernière position GPS connue
     const sLat=lget('lastLat',null),sLng=lget('lastLng',null);
     if(sLat&&sLng){userLat=sLat;userLng=sLng;userLocated=true;}
 
-    applyTheme(S.theme);updNet();initDots();initSup();updateUserBtn();renderDeals();
+    // Feature 5 : thème auto système (avant affichage)
+    initTheme();
+    // Feature 6 : nettoyage stockage
+    cleanStorage();
+
+    updNet();initDots();initSup();updateUserBtn();renderDeals();
     G('loadScreen').style.display='none';G('app').style.display='flex';
 
-    // Tentative géoloc silencieuse — double appel : rapide puis précis
+    // Feature 7 : onboarding premier lancement
+    initOnboarding();
+
+    // Feature 1 : Service Worker
+    setupServiceWorker();
+
+    // Géoloc double-passe : rapide puis précis
     if(navigator.geolocation){
-      // Passe 1 : position cache rapide pour afficher vite
       navigator.geolocation.getCurrentPosition(
-        pos=>onGeoSuccess(pos),
-        ()=>{},
+        pos=>onGeoSuccess(pos),()=>{},
         {enableHighAccuracy:false,timeout:3000,maximumAge:10000}
       );
-      // Passe 2 : GPS haute précision réel (s'exécute en parallèle)
       setTimeout(()=>{
         navigator.geolocation.getCurrentPosition(
-          pos=>onGeoSuccess(pos),
-          ()=>{},
+          pos=>onGeoSuccess(pos),()=>{},
           {enableHighAccuracy:true,timeout:15000,maximumAge:0}
         );
       },400);
@@ -1582,12 +1840,19 @@ document.addEventListener('keydown',e=>{
     // AdSense
     setTimeout(()=>{try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}},1000);
 
-    // Session Supabase async
+    // Session Supabase
     sbGetSession().then(sess=>{if(sess)handleAuthUser({user:{id:'',email:'',user_metadata:{},app_metadata:{provider:'email'}}});});
     // OAuth redirect
     if(location.hash.includes('access_token')){const p=new URLSearchParams(location.hash.replace('#','?'));const tk=p.get('access_token');if(tk){lset('_sess',{access_token:tk});history.replaceState(null,'',location.pathname);sbGetSession().then(s=>{if(s)handleAuthUser(s);});}}
-    setTimeout(syncDeals,2000);setInterval(syncDeals,25000);
+
+    setTimeout(()=>syncDeals(),2000);
+    setInterval(()=>syncDeals(),25000);
     startGeoWatch();
+
+    // Feature 2 : état bouton notif au démarrage
+    updateNotifBtn();
+    // Nettoyage hebdo en arrière-plan
+    setTimeout(cleanStorage,5000);
   }catch(e){G('loadScreen').style.display='none';G('app').style.display='flex';renderDeals();}
 })();
 </script>
