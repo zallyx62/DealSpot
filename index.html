@@ -633,27 +633,44 @@ function lset(k,v){try{localStorage.setItem('ds6_'+k,JSON.stringify(v));}catch{}
 
 // ═══ SEED DATA
 function defDeals(){return[
-  {id:1,type:'promo',title:'50% sur les yaourts Danone',place:'Carrefour Market Nation, Paris 11e',desc:'Jusqu\'au dimanche — rayon produits laitiers',lat:48.8502,lng:2.3960,likes:24,saved:false,liked:false,time:'Il y a 23 min',reviews:[
-    {id:1,user:'Sophie L.',stars:5,text:'Confirmé ! Rayons bien fournis. Vaut pour tous les packs.',time:'Il y a 18 min',src:'google'},
-    {id:2,user:'Marc T.',stars:4,text:'Pas sur les Bio mais sur les classiques c\'est top. 4€ économisés !',time:'Il y a 35 min',src:'google'}]},
-  {id:2,type:'gratuit',title:'Pain offert à l\'achat d\'une soupe',place:'Brioche Dorée Châtelet, Paris 1er',desc:'Montrer l\'app DealSpot en caisse',lat:48.8600,lng:2.3469,likes:38,saved:false,liked:false,time:'Il y a 1h',reviews:[
-    {id:1,user:'Julie M.',stars:5,text:'Accepté sans hésiter ! Pain viennois excellent.',time:'Il y a 45 min',src:'google'}]},
-  {id:3,type:'event',title:'Concert gratuit — Jazz en Plein Air',place:'Parc Montsouris, Paris 14e',desc:'Demain 15h–18h, accès libre, prévoir un plaid',lat:48.8220,lng:2.3387,likes:61,saved:false,liked:false,time:'Il y a 2h',reviews:[
-    {id:1,user:'Nathalie V.',stars:5,text:'Qualité musicale très élevée ! Amenez un pique-nique.',time:'Il y a 1h',src:'google'}]},
-  {id:4,type:'food',title:'Invendus marché à prix libre',place:'Marché d\'Aligre, Paris 12e',desc:'Chaque dimanche après 13h',lat:48.8505,lng:2.3721,likes:44,saved:false,liked:false,time:'Il y a 3h',reviews:[
-    {id:1,user:'Romain D.',stars:5,text:'Mon marché préféré depuis 5 ans. Acte solidaire !',time:'Il y a 1h',src:'google'}]},
-  {id:5,type:'promo',title:'2e café offert avant 10h',place:'Columbus Café Saint-Lazare, Paris 8e',desc:'Avec la carte fidélité Columbus',lat:48.8752,lng:2.3241,likes:11,saved:false,liked:false,time:'Il y a 5h',reviews:[
-    {id:1,user:'Clara N.',stars:4,text:'2e café vraiment offert. Vérifié ce matin.',time:'Il y a 3h',src:'google'}]},
-  {id:6,type:'promo',title:'-40% sur tout le rayon bio',place:'Biocoop Opéra, Lyon 2e',desc:'Promotion de lancement nouvelle saison',lat:45.7484,lng:4.8326,likes:19,saved:false,liked:false,time:'Il y a 4h',reviews:[
-    {id:1,user:'Emma B.',stars:5,text:'Incroyable ! J\'ai économisé 18€ sur mes courses.',time:'Il y a 2h',src:'google'}]},
-  {id:7,type:'gratuit',title:'Marché nocturne gratuit — concerts live',place:'Vieux-Port, Marseille',desc:'Tous les vendredi soir en été, 19h–minuit',lat:43.2965,lng:5.3698,likes:87,saved:false,liked:false,time:'Il y a 6h',reviews:[
-    {id:1,user:'Karim S.',stars:5,text:'Ambiance incroyable ! Gratuit et de qualité.',time:'Il y a 4h',src:'google'}]},
-  {id:8,type:'service',title:'Cours de yoga offert — 1ère séance',place:'Studio Zen, Bordeaux Centre',desc:'Sur réservation, mention DealSpot',lat:44.8378,lng:-0.5792,likes:33,saved:false,liked:false,time:'Il y a 8h',reviews:[
-    {id:1,user:'Laura M.',stars:5,text:'Super accueil ! La salle est magnifique.',time:'Il y a 5h',src:'google'}]},
-  {id:9,type:'food',title:'Pizza entière offerte pour 2 achetées',place:'Bella Napoli, Toulouse Capitole',desc:'Valable le midi en semaine uniquement',lat:43.6047,lng:1.4442,likes:28,saved:false,liked:false,time:'Il y a 10h',reviews:[
-    {id:1,user:'Pierre L.',stars:4,text:'Bonne pizza, offre bien respectée. Reviendrais !',time:'Il y a 7h',src:'google'}]},
-  {id:10,type:'promo',title:'30% sur tous les smartphones reconditionnés',place:'Back Market Store, Nice',desc:'En magasin uniquement — stocks limités',lat:43.7102,lng:7.2620,likes:52,saved:false,liked:false,time:'Il y a 12h',reviews:[
-    {id:1,user:'Alex D.',stars:5,text:'iPhone 13 à 420€ au lieu de 600€. Parfait état.',time:'Il y a 9h',src:'google'}]}
+  // ── PARIS
+  {id:101,type:'promo',title:'-40% sur tout le rayon traiteur Picard',place:'Picard Surgelés — Rue de Rivoli, Paris 1er',desc:'Promotion hebdomadaire valable jusqu\'au dimanche. En caisse automatiquement.',lat:48.8603,lng:2.3428,likes:312,saved:false,liked:false,time:'Il y a 2h',reviews:[
+    {id:1,user:'Marie-Claire D.',stars:5,text:'Toujours fiable chez Picard, les promos du week-end sont régulières depuis des années. Confirmation ce matin, la réduction est bien appliquée sur les plats préparés et les desserts.',time:'Il y a 1h',src:'google'},
+    {id:2,user:'Thomas K.',stars:5,text:'Picard Rivoli est bien achalandé le dimanche matin. Stock complet sur les Saint-Jacques et les filets de bar. Promotion parfaitement respectée en caisse.',time:'Il y a 3h',src:'google'},
+    {id:3,user:'Isabelle M.',stars:4,text:'Bon plan confirmé ! Le personnel est sympa et a confirmé la promo sans que j\'aie besoin de montrer quoi que ce soit. À faire avant dimanche soir.',time:'Il y a 5h',src:'google'}]},
+  {id:102,type:'gratuit',title:'Musée Carnavalet — Entrée permanente gratuite',place:'Musée Carnavalet, Rue des Francs-Bourgeois, Paris 3e',desc:'Collection permanente 100% gratuite, sans réservation. Ouvert mar–dim 10h–18h.',lat:48.8574,lng:2.3620,likes:891,saved:false,liked:false,time:'Il y a 1 jour',reviews:[
+    {id:1,user:'Antoine L.',stars:5,text:'Le Carnavalet est un joyau méconnu de Paris. Gratuit toute l\'année pour la collection permanente, pas de réservation nécessaire. Histoire de Paris racontée magnifiquement. Incontournable.',time:'Il y a 2j',src:'google'},
+    {id:2,user:'Sophie W.',stars:5,text:'Passé 2h dans ce musée gratuitement, qualité des collections exceptionnelle. Accueil chaleureux, espaces spacieux, pas de cohue. Un des meilleurs musées de Paris et c\'est gratuit !',time:'Il y a 3j',src:'google'},
+    {id:3,user:'Rémi C.',stars:5,text:'Plan parfait pour un dimanche pluvieux. Gratuit, magnifique, et les collections temporaires sont souvent excellentes aussi. À Paris depuis 10 ans, ce musée reste mon favori.',time:'Il y a 5j',src:'google'}]},
+  {id:103,type:'food',title:'Too Good To Go — Paniers à 3,99€ chez Eric Kayser',place:'Boulangerie Eric Kayser — Plusieurs adresses Paris',desc:'Panier surprise valeur 10–15€ à récupérer 30min avant fermeture. Réserver sur l\'appli TGTG.',lat:48.8738,lng:2.3082,likes:547,saved:false,liked:false,time:'Il y a 4h',reviews:[
+    {id:1,user:'Lucas B.',stars:5,text:'Panier TGTG chez Eric Kayser c\'est du lourd. Ce matin j\'ai eu 2 baguettes tradition, 3 croissants, une tarte aux pommes et 2 pains au chocolat pour 3,99€. Valeur réelle : au moins 14€.',time:'Il y a 2h',src:'google'},
+    {id:2,user:'Camille R.',stars:5,text:'Too Good To Go fonctionne très bien chez Eric Kayser. Les paniers sont généreux et le pain est de qualité exceptionnelle. Réserver l\'application 2h avant, les créneaux partent vite.',time:'Il y a 6h',src:'google'},
+    {id:3,user:'Maxime P.',stars:4,text:'Bon rapport qualité-prix mais il faut être ponctuel. Le créneau de récupération est strict (20min). En dehors de ça, les produits sont top, jamais déçu en 6 mois d\'utilisation régulière.',time:'Il y a 8h',src:'google'}]},
+  {id:104,type:'event',title:'Cinéma en plein air — La Villette (gratuit)',place:'Parc de la Villette, Paris 19e',desc:'Projection gratuite chaque été. Apporter plaid et pique-nique. Programme sur villette.com',lat:48.8940,lng:2.3922,likes:1243,saved:false,liked:false,time:'Il y a 6h',reviews:[
+    {id:1,user:'Julie F.',stars:5,text:'La Villette en été c\'est magique. Le cinéma en plein air est gratuit, ambiance incroyable, des milliers de personnes sur la pelouse. Arriver au moins 1h avant pour avoir une bonne place.',time:'Il y a 1j',src:'google'},
+    {id:2,user:'Pierre-Antoine M.',stars:5,text:'Tradition parisienne estivale incontournable. Films récents et classiques, programmation variée. Gratuit sans réservation. Un des meilleurs souvenirs de mes étés parisiens.',time:'Il y a 2j',src:'google'}]},
+  {id:105,type:'service',title:'Bibliothèque publique d\'information — Wi-Fi et prises gratuites',place:'Centre Pompidou — BPI, Paris 4e',desc:'Accès gratuit sans inscription. Centaines de prises, Wi-Fi haut débit. Ouvert 12h–22h sauf mardi.',lat:48.8606,lng:2.3523,likes:428,saved:false,liked:false,time:'Il y a 12h',reviews:[
+    {id:1,user:'Alicia V.',stars:5,text:'La BPI est un trésor méconnu. Gratuit, ouvert jusqu\'à 22h, Wi-Fi rapide, des centaines de prises. Idéal pour travailler ou étudier. Je viens ici plusieurs fois par semaine.',time:'Il y a 1j',src:'google'},
+    {id:2,user:'Nathan S.',stars:4,text:'Meilleur endroit de Paris pour travailler gratuitement. Parfois queue à l\'entrée aux heures de pointe (14h–17h) mais ça avance vite. Les prises sont partout, Wi-Fi impeccable.',time:'Il y a 3j',src:'google'}]},
+  // ── LYON
+  {id:201,type:'promo',title:'-30% dans tout le Marché de la Croix-Rousse',place:'Marché de la Croix-Rousse, Bd de la Croix-Rousse, Lyon 4e',desc:'Réductions sur les invendus tous les dimanches après 12h30. Négocier directement avec les producteurs.',lat:45.7694,lng:4.8286,likes:287,saved:false,liked:false,time:'Il y a 3h',reviews:[
+    {id:1,user:'Élise B.',stars:5,text:'Le marché de la Croix-Rousse est le meilleur de Lyon. Après 12h30 le dimanche, les producteurs bradent pour ne pas repartir avec les invendus. J\'ai eu 2kg de tomates anciennes, 1kg de courgettes et une nectarine pour 4€.',time:'Il y a 1h',src:'google'},
+    {id:2,user:'François M.',stars:5,text:'Marché exceptionnel. Les Lyonnais le savent depuis longtemps : dimanche après-midi = affaires. Les fromagers de la Fromagerie Beillevaire font aussi des prix le dernier service.',time:'Il y a 4h',src:'google'}]},
+  {id:202,type:'gratuit',title:'Musée des Beaux-Arts de Lyon — Gratuit 1er dimanche du mois',place:'Musée des Beaux-Arts, Place des Terreaux, Lyon 1er',desc:'Entrée gratuite le premier dimanche de chaque mois. Collection permanente de premier plan.',lat:45.7676,lng:4.8338,likes:634,saved:false,liked:false,time:'Il y a 1 jour',reviews:[
+    {id:1,user:'Céline T.',stars:5,text:'Gratuit le premier dimanche du mois, et quelle collection ! Un des plus grands musées des Beaux-Arts de France après le Louvre. Rubens, Rembrandt, les Impressionnistes... absolument exceptionnel.',time:'Il y a 3j',src:'google'},
+    {id:2,user:'Hugo P.',stars:5,text:'Incontournable à Lyon. Le musée des Beaux-Arts place des Terreaux est classé et mérite largement la visite. Gratuit le 1er dimanche : profitez-en, normalement c\'est 8€.',time:'Il y a 1sem',src:'google'}]},
+  // ── MARSEILLE
+  {id:301,type:'promo',title:'Poissons du matin à -50% — Vieux-Port',place:'Criée du Vieux-Port, Quai des Belges, Marseille 1er',desc:'Vente directe des pêcheurs chaque matin 8h–12h. Prix marché, ultra-frais, paiement espèces.',lat:43.2952,lng:5.3726,likes:521,saved:false,liked:false,time:'Il y a 5h',reviews:[
+    {id:1,user:'Patrick N.',stars:5,text:'La criée du Vieux-Port, c\'est LA vraie expérience marseillaise. Poissons pêchés la nuit même, vendus directement par les femmes des pêcheurs. Dorade royale à 8€/kg ce matin. Impossible de trouver mieux.',time:'Il y a 2h',src:'google'},
+    {id:2,user:'Nadia K.',stars:5,text:'Marseillaise depuis 30 ans, le marché du Vieux-Port reste irremplaçable. Arriver avant 9h pour le meilleur choix. Les poulpes, les rougets, les tellines... des prix imbattables et une fraîcheur incomparable.',time:'Il y a 6h',src:'google'}]},
+  // ── BORDEAUX
+  {id:401,type:'event',title:'Fête du Vin de Bordeaux — Événements gratuits',place:'Quais de Bordeaux — Esplanade des Quinconces, Bordeaux',desc:'Animations, concerts et dégustations gratuites sur les quais. Programme sur bordeaux-wine-festival.com',lat:44.8412,lng:-0.5718,likes:892,saved:false,liked:false,time:'Il y a 8h',reviews:[
+    {id:1,user:'Jean-Marc L.',stars:5,text:'La fête du vin de Bordeaux est un événement mondial. Beaucoup d\'animations gratuites sur les quais : concerts, expositions, animations pour enfants. Les dégustations sont payantes mais accessibles.',time:'Il y a 1j',src:'google'},
+    {id:2,user:'Amélie G.',stars:5,text:'Les quais de Bordeaux pendant la fête du vin, c\'est magique. Les concerts gratuits en soirée sont de très bonne qualité. Atmosphère festive et conviviale, tout le monde est de bonne humeur.',time:'Il y a 2j',src:'google'}]},
+  // ── TOULOUSE
+  {id:501,type:'food',title:'Marché Victor Hugo — Dégustations gratuites producteurs',place:'Marché Victor Hugo, Place Victor Hugo, Toulouse',desc:'Chaque samedi matin, les producteurs proposent des dégustations gratuites. Foie gras, fromages, charcuteries.',lat:43.6085,lng:1.4408,likes:445,saved:false,liked:false,time:'Il y a 10h',reviews:[
+    {id:1,user:'Sylvie P.',stars:5,text:'Le marché Victor Hugo est le plus beau marché couvert de Toulouse. Le samedi matin les producteurs font des dégustations de foie gras, confits, fromages des Pyrénées... on peut facilement se faire un repas complet gratuit rien qu\'avec les dégus !',time:'Il y a 2j',src:'google'},
+    {id:2,user:'Éric D.',stars:5,text:'Marché exceptionnel, les étals sont magnifiques et les producteurs très accueillants. Les dégustations le samedi sont généreuses. Allez voir le fromager du Comminges, son Ossau-Iraty est incroyable.',time:'Il y a 4j',src:'google'}]}
 ];}
 function defPlaces(){return[
   {id:1,type:'wc',name:'Toilettes Publiques — République',addr:'Place de la République, Paris 11e',dist:'120 m',lat:48.8674,lng:2.3632,reviews:[
@@ -776,7 +793,6 @@ function showBanner(){const b=G('geoPermBanner');if(b){b.style.display='flex';}}
 function hideBanner(){const b=G('geoPermBanner');if(b){b.style.display='none';}}
 
 function askGeoPermission(){
-  // Feedback immédiat à l'utilisateur
   const btn=document.querySelector('#geoPermBanner button');
   if(btn){btn.textContent='⏳ En cours…';btn.disabled=true;}
   if(!navigator.geolocation){
@@ -784,17 +800,19 @@ function askGeoPermission(){
     if(btn){btn.textContent='Autoriser';btn.disabled=false;}
     return;
   }
+  // D'abord position rapide, puis position précise
   navigator.geolocation.getCurrentPosition(
     pos=>onGeoSuccess(pos),
     err=>{
       if(btn){btn.textContent='Autoriser';btn.disabled=false;}
       onGeoError(err);
     },
-    {enableHighAccuracy:false,timeout:15000,maximumAge:30000}
+    {enableHighAccuracy:true,timeout:20000,maximumAge:0}
   );
 }
 
 function onGeoSuccess(pos){
+  const acc=pos.coords.accuracy; // précision en mètres
   userLat=pos.coords.latitude;
   userLng=pos.coords.longitude;
   userLocated=true;
@@ -802,10 +820,12 @@ function onGeoSuccess(pos){
   lset('lastLng',userLng);
   hideBanner();
   const rb=G('radarGeoBanner');if(rb)rb.style.display='none';
-  updateMapIframe(userLat,userLng,15);
-  toast('✅ Position GPS ! Deals proches affichés en premier.');
+  updateMapIframe(userLat,userLng,17);
+  toast('✅ Position GPS (±'+Math.round(acc)+'m). Deals proches affichés en premier.');
   if(curTab===0)renderDeals();
   if(curTab===1)renderPlaces();
+  // Lancer le suivi précis continu
+  startGeoWatch();
 }
 
 function onGeoError(err){
@@ -919,18 +939,30 @@ function initMap(){
 }
 function centerOnMe(){
   if(!navigator.geolocation){toast('❌ GPS non disponible sur ce navigateur');return;}
-  toast('📍 Demande de localisation GPS…');
+  toast('📍 Localisation précise en cours…');
   navigator.geolocation.getCurrentPosition(
     pos=>onGeoSuccess(pos),
     err=>onGeoError(err),
-    {enableHighAccuracy:false,timeout:15000,maximumAge:30000}
+    {enableHighAccuracy:true,timeout:20000,maximumAge:0}
   );
 }
 function addPlaceMarkersToMap(){}function renderMapCanvas(){}
 let geoWatch=null;
 function startGeoWatch(){
   if(!navigator.geolocation||geoWatch)return;
-  geoWatch=navigator.geolocation.watchPosition(pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;userLocated=true;},()=>{},{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
+  geoWatch=navigator.geolocation.watchPosition(
+    pos=>{
+      const newLat=pos.coords.latitude,newLng=pos.coords.longitude,acc=pos.coords.accuracy;
+      const moved=userLat?distKm(userLat,userLng,newLat,newLng)*1000>20:true;
+      if(moved||acc<50){
+        userLat=newLat;userLng=newLng;userLocated=true;
+        lset('lastLat',userLat);lset('lastLng',userLng);
+        if(curTab===1)updateMapIframe(userLat,userLng,17);
+      }
+    },
+    ()=>{},
+    {enableHighAccuracy:true,maximumAge:3000,timeout:30000}
+  );
 }
 
 function renderPlaces(){
@@ -1088,7 +1120,7 @@ function requestGeoFromRadar(){
       if(btn){btn.textContent='Autoriser 📍';btn.disabled=false;}
       onGeoError(err);
     },
-    {enableHighAccuracy:false,timeout:15000,maximumAge:30000}
+    {enableHighAccuracy:true,timeout:20000,maximumAge:0}
   );
 }
 function initSup(){
