@@ -768,61 +768,104 @@ function generateCommunityReviews(name,type,dist){
   });
 }
 let lastOverpassLat=null,lastOverpassLng=null,overpassFetching=false;
+const OVERPASS_ENDPOINTS=[
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass.openstreetmap.fr/api/interpreter'
+];
+async function overpassRequest(query){
+  for(const url of OVERPASS_ENDPOINTS){
+    try{
+      const ctrl=new AbortController();
+      const tid=setTimeout(()=>ctrl.abort(),9000);
+      const resp=await fetch(url,{
+        method:'POST',
+        body:'data='+encodeURIComponent(query),
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        signal:ctrl.signal
+      });
+      clearTimeout(tid);
+      if(resp.ok)return await resp.json();
+    }catch(e){/* tente le serveur suivant */}
+  }
+  return null;
+}
 async function fetchOverpassNearbyPlaces(lat,lng){
   if(overpassFetching)return;
   if(lastOverpassLat&&distKm(lat,lng,lastOverpassLat,lastOverpassLng)<0.15)return;
   overpassFetching=true;
   lastOverpassLat=lat;lastOverpassLng=lng;
-  const r=600; // rayon 600m
-  // Requête Overpass : lieux populaires dans 600m
-  const query=`[out:json][timeout:10];
+  const r=800;
+  // Requête large : tous les nœuds avec name dans 800m (amenity + shop + tourism)
+  const query=`[out:json][timeout:14];
 (
-  node["amenity"~"restaurant|fast_food|cafe|bakery|bar|pub|pharmacy|bank|atm|post_office|library|cinema|theatre"](around:${r},${lat},${lng});
-  node["shop"~"supermarket|convenience|clothes|shoes|hardware|mall"](around:${r},${lat},${lng});
-  node["leisure"~"fitness_centre|sports_centre"](around:${r},${lat},${lng});
-)->.places;
-.places out 10;`;
+  node["amenity"]["name"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["shop"]["name"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["tourism"]["name"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  way["amenity"]["name"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  way["shop"]["name"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+);
+out center 20;`;
   try{
-    const resp=await fetch(OVERPASS_URL,{method:'POST',body:'data='+encodeURIComponent(query),headers:{'Content-Type':'application/x-www-form-urlencoded'}});
-    if(!resp.ok){overpassFetching=false;return;}
-    const data=await resp.json();
-    if(!data.elements||!data.elements.length){overpassFetching=false;return;}
-
-    const newDeals=data.elements
-      .filter(e=>e.tags&&(e.tags.name||e.tags['name:fr']))
-      .slice(0,5)
-      .map((e,i)=>{
-        const tags=e.tags;
-        const name=tags.name||tags['name:fr']||'Lieu OSM';
-        const addr=[tags['addr:housenumber'],tags['addr:street'],tags['addr:city']].filter(Boolean).join(' ')||'Adresse non renseignée';
-        const distM=Math.round(distKm(lat,lng,e.lat,e.lon)*1000);
-        const type=overpassTagToType(tags);
-        const emoji=overpassTagToEmoji(tags);
-        const opening=tags.opening_hours?'Horaires : '+tags.opening_hours:'';
-        const reviews=generateCommunityReviews(name,type,distM);
-        return{
-          id:10000+i,
-          type,
-          title:emoji+' '+name,
-          place:addr,
-          desc:[tags.cuisine&&('🍴 '+tags.cuisine),opening,tags.phone&&('📞 '+tags.phone)].filter(Boolean).join(' · '),
-          lat:e.lat,lng:e.lon,
-          _km:distM/1000,
-          likes:Math.floor(Math.random()*80)+20,
-          saved:false,liked:false,
-          time:'📍 À '+distM+'m',
-          reviews
-        };
-      });
-
-    if(!newDeals.length){overpassFetching=false;return;}
+    const data=await overpassRequest(query);
+    if(!data||!data.elements||!data.elements.length){
+      overpassFetching=false;return;
+    }
+    // Priorité : restaurants/cafés/commerces courants en haut
+    const priority=['restaurant','fast_food','cafe','bakery','bar','pub','supermarket','convenience','pharmacy','bank','cinema','clothes','hotel','atm','library'];
+    const elements=data.elements
+      .filter(e=>{
+        const t=e.tags;
+        if(!t||!t.name)return false;
+        return t.amenity||t.shop||t.tourism;
+      })
+      .map(e=>{
+        const t=e.tags,am=t.amenity||'',sh=t.shop||'';
+        const pri=priority.indexOf(am)>=0?priority.length-priority.indexOf(am):priority.indexOf(sh)>=0?priority.length-priority.indexOf(sh):0;
+        // way → centre calculé par Overpass (out center)
+        const elat=e.lat||(e.center&&e.center.lat)||lat;
+        const elng=e.lon||(e.center&&e.center.lon)||lng;
+        return{...e,lat:elat,lon:elng,_pri:pri};
+      })
+      .sort((a,b)=>b._pri-a._pri)
+      .slice(0,5);
+    if(!elements.length){overpassFetching=false;return;}
+    const newDeals=elements.map((e,i)=>{
+      const tags=e.tags;
+      const name=tags.name||'Lieu';
+      const addrParts=[tags['addr:housenumber'],tags['addr:street'],tags['addr:city']||tags['addr:town']||tags['addr:village']].filter(Boolean);
+      const addr=addrParts.length?addrParts.join(' '):(tags.amenity||tags.shop||'');
+      const distM=Math.round(distKm(lat,lng,e.lat,e.lon)*1000);
+      const type=overpassTagToType(tags);
+      const emoji=overpassTagToEmoji(tags);
+      const extras=[
+        tags.cuisine&&('🍴 '+tags.cuisine.replace(/_/g,', ')),
+        tags.opening_hours&&('🕐 '+tags.opening_hours.slice(0,50)),
+        tags.phone&&('📞 '+tags.phone),
+        tags.website&&'🌐 Site web disponible'
+      ].filter(Boolean).join(' · ');
+      const reviews=generateCommunityReviews(name,type,distM);
+      return{
+        id:10000+i,type,
+        title:emoji+' '+name,
+        place:addr||'Près de toi',
+        desc:extras,
+        lat:e.lat,lng:e.lon,
+        _km:distM/1000,
+        likes:20+Math.floor((name.charCodeAt(0)%6)*10),
+        saved:false,liked:false,
+        time:'📍 À '+distM+'m de toi',
+        reviews
+      };
+    });
     S.deals=S.deals.filter(d=>d.id<10000||d.id>=10100);
     newDeals.forEach(d=>S.deals.unshift(d));
     sv('deals');
     if(curTab===0)renderDeals();
-    toast('📍 '+newDeals.length+' lieux réels près de toi (OpenStreetMap)');
-  }catch(e){console.warn('Overpass API erreur:',e);}
-  finally{overpassFetching=false;}
+    toast('📍 '+newDeals.length+' lieux réels près de toi !');
+  }catch(e){
+    console.warn('Overpass erreur:',e);
+  }finally{overpassFetching=false;}
 }
 
 
@@ -1136,8 +1179,17 @@ function onGeoSuccess(pos){
   startGeoWatch();
 }
 
+let lastMapLat=null,lastMapLng=null;
 function updateMapIframe(lat,lng,zoom){
   zoom=zoom||17;
+  // Ne recharger l'iframe que si déplacé de plus de 50m (évite le clignotement)
+  if(lastMapLat&&distKm(lat,lng,lastMapLat,lastMapLng)<0.05){
+    const full=G('mapOpenFull');
+    if(full)full.href=`https://www.openstreetmap.org/#map=${zoom}/${lat.toFixed(6)}/${lng.toFixed(6)}`;
+    const badge=G('mapLocBadge');if(badge)badge.style.display='flex';
+    return;
+  }
+  lastMapLat=lat;lastMapLng=lng;
   const d=0.005;
   const bbox=`${(lng-d).toFixed(6)}%2C${(lat-d).toFixed(6)}%2C${(lng+d).toFixed(6)}%2C${(lat+d).toFixed(6)}`;
   const iframe=G('mapIframe');
