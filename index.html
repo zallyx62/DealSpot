@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<!-- Sécurité : Content Security Policy -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org; object-src 'none'; base-uri 'self'"/>
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta name="google-adsense-account" content="ca-pub-1381945888605291"/>
 <meta name="theme-color" content="#080D1A"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -611,7 +615,35 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <div id="toast"></div>
 
 <script>
+/*
+ * ⚠️  AVANT DE POUSSER SUR GITHUB ⚠️
+ * - SB_KEY est la clé anon Supabase (publique par design, mais active le RLS !)
+ * - SB_URL contient le project ref — ne pas exposer dans un repo public
+ * - Activer Row Level Security (RLS) dans Supabase Dashboard sur toutes les tables
+ * - Créer un fichier .gitignore et y ajouter ce fichier si SB_KEY est sensible
+ * - Les IDs AdSense/AdMob sont publics mais à ne pas versionner inutilement
+ */
 'use strict';
+
+// ─── Sanitisation renforcée (strip balises HTML + limite longueur)
+function sanitize(s, maxLen=500){
+  return String(s||'').replace(/<[^>]*>/g,'').replace(/[<>"'`]/g,'').trim().slice(0,maxLen);
+}
+
+// ─── Rate limiting avis : 1 avis max toutes les 60s par deal/lieu
+const _revCooldown={};
+function canPostRev(key){
+  const now=Date.now();
+  if(_revCooldown[key]&&now-_revCooldown[key]<60000){
+    const wait=Math.ceil((60000-(now-_revCooldown[key]))/1000);
+    toast('⏳ Attends '+wait+'s avant de reposter un avis.');
+    return false;
+  }
+  _revCooldown[key]=now;
+  return true;
+}
+
+
 // ═══ SUPABASE REST (sans SDK — 0 dépendance CDN bloquable)
 const SB_URL='https://vwapbxglpxcmvgcfkxbt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3YXBieGdscHhjbXZnY2ZreGJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTYyOTksImV4cCI6MjA5MjU3MjI5OX0.3OVOrzOYiik_cA8uQQaHRXBy_V9FZRpwfsJPv0V7Lng';
@@ -622,7 +654,11 @@ async function sbSignUp(e,p){try{const r=await fetch(SB_URL+'/auth/v1/signup',{m
 async function sbSignIn(e,p){try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();if(r.ok){lset('_sess',d);return{data:d};}return{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
 async function sbSignOut(){try{const s=lget('_sess',null);if(s?.access_token)await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});}catch{}lset('_sess',null);}
 async function sbGetSession(){const s=lget('_sess',null);if(!s?.access_token)return null;try{const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});if(r.ok)return s;lset('_sess',null);return null;}catch{return null;}}
-function sbOAuth(p){window.location.href=SB_URL+'/auth/v1/authorize?provider='+p+'&redirect_to='+encodeURIComponent(window.location.href);}
+function sbOAuth(p){
+  const allowed=['google','facebook','apple'];
+  if(!allowed.includes(p)){toast('❌ Provider non autorisé');return;}
+  window.location.href=SB_URL+'/auth/v1/authorize?provider='+encodeURIComponent(p)+'&redirect_to='+encodeURIComponent(window.location.origin+window.location.pathname);
+}
 
 // ═══ SECURITY
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
@@ -1022,27 +1058,41 @@ function togRevs(ctx,id){const rs=G('rs-'+ctx+'-'+id);if(rs)rs.classList.toggle(
 function setStar(ctx,id,n){pStars[ctx+id]=n;const sp=G('sp-'+ctx+'-'+id);if(sp)sp.querySelectorAll('.sp').forEach((s,i)=>s.classList.toggle('on',i<n));}
 function postRev(ctx,id){
   if(!S.user){toast('❌ Connecte-toi pour commenter');openModal('authModal');return;}
-  const inp=G('ri-'+ctx+'-'+id);const txt=inp?inp.value.trim():'';
-  if(!txt){toast('❌ Écris quelque chose d\'abord');return;}
-  const stars=pStars[ctx+id]||5;
-  const r={id:Date.now(),user:getPseudo(),pseudo:getPseudo(),stars,text:txt,time:'À l\'instant',src:'dealspot'};
+  const inp=G('ri-'+ctx+'-'+id);const raw=inp?inp.value.trim():'';
+  if(!raw){toast('❌ Écris quelque chose d\'abord');return;}
+  if(raw.length<5){toast('❌ Avis trop court (5 caractères min)');return;}
+  if(raw.length>500){toast('❌ Avis trop long (500 caractères max)');return;}
+  const rlKey=(S.user.id||S.user.email||'anon')+':'+ctx+':'+id;
+  if(!canPostRev(rlKey))return;
+  const txt=sanitize(raw,500);
+  const stars=Math.min(5,Math.max(1,pStars[ctx+id]||5));
+  const pseudo=sanitize(getPseudo()||'Anonyme',30);
+  const r={id:Date.now(),user:pseudo,pseudo,stars,text:txt,time:'À l\'instant',src:'dealspot'};
   if(ctx==='d'){
     const d=S.deals.find(x=>x.id===id);if(!d)return;
-    d.reviews=d.reviews||[];d.reviews.unshift(r);sv('deals');delete pStars[ctx+id];renderDeals();
+    d.reviews=d.reviews||[];
+    if(d.reviews.length>50)d.reviews=d.reviews.slice(0,50); // max 50 avis par deal
+    d.reviews.unshift(r);sv('deals');delete pStars[ctx+id];renderDeals();
     setTimeout(()=>{const rs=G('rs-d-'+id);if(rs)rs.classList.add('open');},50);
   }else{
     const p=S.places.find(x=>x.id===id);if(!p)return;
-    p.reviews=p.reviews||[];p.reviews.unshift(r);sv('places');delete pStars[ctx+id];renderPlaces();
+    p.reviews=p.reviews||[];
+    if(p.reviews.length>50)p.reviews=p.reviews.slice(0,50);
+    p.reviews.unshift(r);sv('places');delete pStars[ctx+id];renderPlaces();
   }
-  toast('⭐ Avis publié !');sbPost('reviews',{context:ctx,ref_id:id,user:getPseudo(),stars,text:txt});
+  if(inp)inp.value='';
+  toast('⭐ Avis publié !');
+  sbPost('reviews',{context:ctx,ref_id:id,user:pseudo,stars,text:txt});
 }
 function likeDeal(id){const d=S.deals.find(x=>x.id===id);if(!d)return;d.liked=!d.liked;d.likes+=d.liked?1:-1;sv('deals');renderDeals();}
 function saveDeal(id){const d=S.deals.find(x=>x.id===id);if(!d)return;d.saved=!d.saved;sv('deals');renderDeals();toast(d.saved?'🔖 Sauvegardé !':'Retiré des favoris');}
 function selT(el,ctx){const gid=ctx==='deal'?'dealTG':'placeTG';document.querySelectorAll('#'+gid+' .tc').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');if(ctx==='deal')selDT=el.dataset.type;else selPT=el.dataset.type;}
 function submitDeal(){
-  const title=G('dTit').value.trim(),place=G('dPl').value.trim();
+  const title=sanitize(G('dTit').value,100),place=sanitize(G('dPl').value,100);
   if(!title||!place){toast('❌ Titre et lieu requis');return;}
-  const deal={id:Date.now(),type:selDT,title,place,desc:G('dDs').value.trim(),
+  if(title.length<3){toast('❌ Titre trop court');return;}
+  const desc=sanitize(G('dDs').value,300);
+  const deal={id:Date.now(),type:selDT,title,place,desc,
     lat:userLocated?userLat:null,lng:userLocated?userLng:null,
     likes:0,saved:false,liked:false,time:'À l\'instant',reviews:[]};
   S.deals.unshift(deal);sv('deals');closeModal('addModal');
@@ -1476,8 +1526,23 @@ function toast(msg){const el=G('toast');el.textContent=msg;el.classList.add('sho
 async function syncDeals(){
   const remote=await sbGet('deals','order=created_at.desc&limit=30');
   if(!remote?.length)return;
-  const ids=new Set(S.deals.map(d=>d.id));const newD=remote.filter(d=>!ids.has(d.id));
-  if(newD.length){newD.forEach(d=>{if(!d.reviews)d.reviews=[];});S.deals=[...newD,...S.deals];sv('deals');if(curTab===0)renderDeals();}
+  // Sanitiser les données distantes avant stockage (protection XSS stored)
+  const clean=remote.map(d=>({
+    ...d,
+    title:sanitize(d.title||'',100),
+    place:sanitize(d.place||'',100),
+    desc:sanitize(d.desc||'',300),
+    reviews:(d.reviews||[]).map(r=>({
+      ...r,
+      text:sanitize(r.text||'',500),
+      user:sanitize(r.user||'Anonyme',30),
+      pseudo:sanitize(r.pseudo||r.user||'Anonyme',30),
+      stars:Math.min(5,Math.max(1,parseInt(r.stars)||5))
+    }))
+  }));
+  const ids=new Set(S.deals.map(d=>d.id));
+  const newD=clean.filter(d=>!ids.has(d.id));
+  if(newD.length){S.deals=[...newD,...S.deals];sv('deals');if(curTab===0)renderDeals();}
 }
 
 // ═══ KEYBOARD
