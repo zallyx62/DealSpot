@@ -900,7 +900,7 @@ function sv(k){lset(k,S[k]);}
 
 // ═══ CONFIGS
 const TC={promo:{i:'🏷️',b:'rgba(245,158,11,.15)'},gratuit:{i:'🎁',b:'rgba(16,185,129,.15)'},event:{i:'📅',b:'rgba(59,130,246,.15)'},food:{i:'🍕',b:'rgba(239,68,68,.15)'},service:{i:'🔧',b:'rgba(139,92,246,.15)'},autre:{i:'💡',b:'rgba(148,163,184,.15)'}};
-const CC={wc:{i:'🚻',l:'Toilettes',c:'#3B82F6'},eau:{i:'💧',l:'Fontaines',c:'#06B6D4'},wifi:{i:'📶',l:'Wi-Fi',c:'#8B5CF6'},prise:{i:'🔌',l:'Prises',c:'#F59E0B'},parking:{i:'🅿️',l:'Parking',c:'#10B981'},autre:{i:'📍',l:'Autre',c:'#94A3B8'}};
+const CC={wc:{i:'🚻',l:'Toilettes',c:'#3B82F6'},eau:{i:'💧',l:'Fontaines',c:'#06B6D4'},wifi:{i:'📶',l:'Wi-Fi',c:'#8B5CF6'},prise:{i:'🔌',l:'Prises',c:'#F59E0B'},parking:{i:'🅿️',l:'Parking',c:'#10B981'},culte:{i:'⛪',l:'Lieux de culte',c:'#A78BFA'},ecole:{i:'🎓',l:'Écoles',c:'#FB923C'},sante:{i:'🏥',l:'Santé',c:'#F43F5E'},service:{i:'🏦',l:'Services',c:'#14B8A6'},autre:{i:'📍',l:'Autre',c:'#94A3B8'}};
 const LVS=[{n:'Débutant Éco',x:100},{n:'Chasseur Malin',x:250},{n:'Pro DealSpot',x:500},{n:'Économiste Pro',x:1000},{n:'Légende DealSpot',x:9999}];
 const MIS=[{id:'m1',i:'🏷️',c:'#F59E0B',t:'Signale un bon plan',d:'Aide la communauté à économiser',x:25,cta:'Signaler →'},{id:'m2',i:'💰',c:'#10B981',t:'Enregistre un prix',d:'Note le prix d\'un produit du quotidien',x:20,cta:'Enregistrer →'},{id:'m3',i:'🗺️',c:'#3B82F6',t:'Ajoute un lieu utile',d:'Fontaine, Wi-Fi, toilettes…',x:15,cta:'Ajouter →'}];
 const ANTI=[{e:'💪',t:'Micro-action (2 min)',p:'Ouvre ton appli bancaire et note une dépense à éviter. Juste une.'},{e:'🎯',t:'Défi maintenant',p:'Cherche un bon plan autour de toi et signale-le. Tu aideras quelqu\'un aujourd\'hui.'},{e:'🧠',t:'Astuce anti-impulsion',p:'Avant ton prochain achat : "Est-ce que j\'en aurai encore besoin dans 48h ?" Si tu hésites, c\'est non.'},{e:'🚶',t:'Bouge 20 secondes',p:'Lève-toi, fais 20 pas. Ton cerveau se réactive, la flemme passe.'},{e:'💡',t:'Le chiffre qui claque',p:'3 achats impulsifs en moins par semaine = 1 800€ économisés par an !'},{e:'🔌',t:'Utile pour plus tard',p:'Note un lieu avec une prise ou du Wi-Fi gratuit proche de chez toi.'},{e:'🎮',t:'Petite mission',p:'Va dans Missions et complète n\'importe laquelle. La plus facile suffit.'},{e:'🛒',t:'Anti-achat impulsif',p:'Ferme tous les onglets shopping. Reviens dans 24h. Si tu y repenses encore, c\'est utile.'}];
@@ -1066,82 +1066,113 @@ async function fetchOverpassUsefulPlaces(lat,lng){
   overpassPlacesFetching=true;
   lastPlaceFetchTime=Date.now();
   lastOverpassPlaceLat=lat;lastOverpassPlaceLng=lng;
-  const r=900;
-  const query=`[out:json][timeout:20];
+  const r=900;const f=`(around:${r},${lat.toFixed(6)},${lng.toFixed(6)})`;
+  const query=`[out:json][timeout:25];
 (
-  node["amenity"="toilets"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="drinking_water"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="water_point"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="fountain"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="charging_station"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="parking"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  way["amenity"="parking"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="library"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="community_centre"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["internet_access"="wlan"]["internet_access:fee"!="yes"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="cafe"]["internet_access"="wlan"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="bicycle_parking"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="recycling"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="pharmacy"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["emergency"="defibrillator"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="toilets"]${f};
+  node["amenity"="drinking_water"]${f};
+  node["amenity"="water_point"]${f};
+  node["amenity"="fountain"]${f};
+  node["amenity"="charging_station"]${f};
+  node["amenity"="parking"]${f};
+  way["amenity"="parking"]${f};
+  node["amenity"="library"]${f};
+  node["amenity"="community_centre"]${f};
+  node["internet_access"="wlan"]["internet_access:fee"!="yes"]${f};
+  node["amenity"="cafe"]["internet_access"="wlan"]${f};
+  node["amenity"="bicycle_parking"]${f};
+  node["amenity"="recycling"]${f};
+  node["amenity"="pharmacy"]${f};
+  node["emergency"="defibrillator"]${f};
+  node["amenity"="place_of_worship"]${f};
+  way["amenity"="place_of_worship"]${f};
+  node["amenity"="school"]${f};
+  way["amenity"="school"]${f};
+  node["amenity"="kindergarten"]${f};
+  way["amenity"="kindergarten"]${f};
+  node["amenity"="college"]${f};
+  node["amenity"="university"]${f};
+  node["amenity"="hospital"]${f};
+  node["amenity"="clinic"]${f};
+  node["amenity"="doctors"]${f};
+  node["amenity"="dentist"]${f};
+  node["amenity"="bank"]${f};
+  node["amenity"="atm"]${f};
+  node["amenity"="post_office"]${f};
+  node["amenity"="post_box"]${f};
+  node["amenity"="police"]${f};
+  node["amenity"="fire_station"]${f};
+  node["amenity"="townhall"]${f};
+  node["amenity"="marketplace"]${f};
+  node["amenity"="fuel"]${f};
+  node["shop"="supermarket"]${f};
+  node["shop"="convenience"]${f};
 );
-out center 120;`;
+out center 200;`;
   try{
     const data=await overpassRequest(query);
     if(!data||!data.elements||!data.elements.length){
-      overpassPlacesFetching=false;
-      if(curTab===1)renderPlaces();
-      return;
+      overpassPlacesFetching=false;if(curTab===1)renderPlaces();return;
     }
     const typeMap={
       'toilets':'wc','drinking_water':'eau','water_point':'eau','fountain':'eau',
       'charging_station':'prise','parking':'parking',
       'library':'wifi','community_centre':'wifi',
-      'bicycle_parking':'autre','recycling':'autre',
-      'pharmacy':'autre','defibrillator':'autre'
+      'bicycle_parking':'autre','recycling':'autre','fuel':'service',
+      'pharmacy':'sante','defibrillator':'sante','hospital':'sante',
+      'clinic':'sante','doctors':'sante','dentist':'sante',
+      'place_of_worship':'culte',
+      'school':'ecole','kindergarten':'ecole','college':'ecole','university':'ecole',
+      'bank':'service','atm':'service','post_office':'service','post_box':'service',
+      'police':'service','fire_station':'service','townhall':'service','marketplace':'service'
     };
+    const shopTypeMap={'supermarket':'service','convenience':'service'};
     const nameMap={
       'toilets':'Toilettes publiques','drinking_water':'Point d\'eau potable',
       'water_point':'Fontaine','fountain':'Fontaine',
       'charging_station':'Borne de recharge','parking':'Parking',
-      'library':'Bibliothèque — Wi-Fi gratuit','community_centre':'Centre communautaire',
-      'bicycle_parking':'Parking vélos','recycling':'Point de tri',
-      'pharmacy':'Pharmacie','defibrillator':'Défibrillateur'
+      'library':'Bibliothèque','community_centre':'Centre communautaire',
+      'bicycle_parking':'Parking vélos','recycling':'Point de tri','fuel':'Station-service',
+      'pharmacy':'Pharmacie','defibrillator':'Défibrillateur','hospital':'Hôpital',
+      'clinic':'Clinique','doctors':'Médecin','dentist':'Dentiste',
+      'place_of_worship':'Lieu de culte',
+      'school':'École','kindergarten':'Maternelle','college':'Lycée','university':'Université',
+      'bank':'Banque','atm':'Distributeur','post_office':'Bureau de poste','post_box':'Boîte aux lettres',
+      'police':'Police','fire_station':'Pompiers','townhall':'Mairie','marketplace':'Marché'
     };
-    // Déduplication fiable par ID OSM + coords
+    const shopNameMap={'supermarket':'Supermarché','convenience':'Épicerie'};
     const seen=new Set();
     const newPlaces=data.elements.filter(e=>{
-      const key=e.id?`osm-${e.id}`:`${e.tags?.amenity||e.tags?.emergency||'x'}-${(e.lat||e.center?.lat||0).toFixed(4)}-${(e.lon||e.center?.lon||0).toFixed(4)}`;
-      if(seen.has(key))return false;
-      seen.add(key);
+      const key=e.id?`osm-${e.id}`:`${e.tags?.amenity||e.tags?.shop||e.tags?.emergency||'x'}-${(e.lat||e.center?.lat||0).toFixed(4)}-${(e.lon||e.center?.lon||0).toFixed(4)}`;
+      if(seen.has(key))return false;seen.add(key);
+      const t=e.tags||{};const am=t.amenity||'';const sh=t.shop||'';const em=t.emergency||'';
+      return typeMap[am]||shopTypeMap[sh]||typeMap[em]||t.internet_access==='wlan';
+    }).slice(0,160).map((e,i)=>{
       const t=e.tags||{};
-      const am=t.amenity||'';const em=t.emergency||'';
-      return typeMap[am]||typeMap[em]||t.internet_access==='wlan';
-    }).slice(0,80).map((e,i)=>{
-      const t=e.tags||{};
-      const am=t.amenity||'';const em=t.emergency||'';
+      const am=t.amenity||'';const sh=t.shop||'';const em=t.emergency||'';
       const elat=e.lat||(e.center&&e.center.lat)||lat;
       const elng=e.lon||(e.center&&e.center.lon)||lng;
-      const type=typeMap[am]||typeMap[em]||(t.internet_access==='wlan'?'wifi':'autre');
+      const type=typeMap[am]||shopTypeMap[sh]||typeMap[em]||(t.internet_access==='wlan'?'wifi':'autre');
       const distM=Math.round(distKm(lat,lng,elat,elng)*1000);
-      const defName=nameMap[am]||nameMap[em]||(t.internet_access==='wlan'?'Wi-Fi gratuit':'Lieu utile');
-      const name=t.name||t['name:fr']||defName;
+      const defName=nameMap[am]||shopNameMap[sh]||nameMap[em]||(t.internet_access==='wlan'?'Wi-Fi gratuit':'Lieu utile');
+      let name=t.name||t['name:fr']||'';
+      if(!name&&am==='place_of_worship'){
+        const relNames={'christian':'Église','muslim':'Mosquée','jewish':'Synagogue','buddhist':'Temple bouddhiste','hindu':'Temple hindou'};
+        name=(relNames[t.religion||'']||'Lieu de culte')+(t.denomination?' ('+t.denomination+')':'');
+      }
+      if(!name)name=defName;
       const addrParts=[t['addr:housenumber'],t['addr:street']].filter(Boolean);
       const addr=addrParts.length?addrParts.join(' '):'À '+distM+'m';
-      // Stocker les extras séparément pour les afficher proprement
       const hours=t.opening_hours||'';
       const fee=t.fee==='yes'?'💶 Payant':(t.fee==='no'?'🆓 Gratuit':'');
       const access=t.access&&t.access!=='yes'?('🔒 '+t.access):'';
       const op=t.operator?('Par '+t.operator.slice(0,28)):'';
       const extras=[fee,access,op].filter(Boolean).join(' · ');
       return{
-        id:20000+e.id%9000000||Date.now()%9000000+i,
-        type,name,addr,
-        hours,extras,
-        lat:elat,lng:elng,
-        dist:distM+'m',
-        _fromOSM:true,
-        reviews:[]
+        id:e.id?Number(String(e.id).slice(-7))+30000:30000+i,
+        type,name,addr,hours,extras,
+        lat:elat,lng:elng,dist:distM+'m',
+        _fromOSM:true,reviews:[]
       };
     });
     S.places=S.places.filter(p=>!p._fromOSM);
@@ -1736,6 +1767,26 @@ function renderPlaces(){
         return `<div style="flex-shrink:0;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:140px"><div><div style="font-size:20px;margin-bottom:2px">${c.i}</div><div style="font-size:11px;font-weight:700;color:var(--tx)">${openDot}${c.l}</div><div style="font-size:10px;font-weight:800;color:${kmCol};margin-top:1px">📍 ${fmtDist(p._km)}</div></div><button onclick="openDirections(${p.lat},${p.lng},'${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"')}')" style="padding:6px 10px;background:var(--bld);border:1px solid var(--bl);border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;white-space:nowrap">🗺️ Y aller</button></div>`;
       }).join('');
       html+='</div></div>';
+    }
+  }
+  // ── Score de quartier (widget compact, affiché si >3 catégories trouvées)
+  if(userLocated&&curCat==='all'&&!placeSearchQ){
+    const cats=Object.keys(catCounts).filter(k=>k!=='autre');
+    if(cats.length>=2){
+      const maxCats=Object.keys(CC).length-1;
+      const score=Math.min(100,Math.round((cats.length/maxCats)*60+(Math.min(places.length,30)/30)*40));
+      const scoreColor=score>=75?'var(--gr)':score>=50?'var(--ac)':'#F59E0B';
+      const scoreLabel=score>=75?'Quartier bien équipé 🏆':score>=50?'Quartier correct 👍':'Quartier à compléter 📝';
+      html+=`<div style="background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:14px">
+        <div style="flex-shrink:0;width:52px;height:52px;border-radius:50%;background:conic-gradient(${scoreColor} 0% ${score}%,var(--bd2) ${score}% 100%);display:flex;align-items:center;justify-content:center;position:relative">
+          <div style="width:38px;height:38px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:${scoreColor}">${score}</div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--tx)">Score quartier</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:1px">${scoreLabel}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${cats.map(k=>`<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:${CC[k]?.c||'#94a3b8'}22;color:${CC[k]?.c||'#94a3b8'};font-weight:700">${CC[k]?.i||'📍'} ${catCounts[k]}</span>`).join('')}</div>
+        </div>
+      </div>`;
     }
   }
   // ── Séparateur proche / plus loin
