@@ -686,6 +686,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <!-- MODAL: SETTINGS -->
 <div class="moverlay" id="settingsModal" onclick="cmbg(event,'settingsModal')" role="dialog" aria-modal="true" aria-label="Paramètres">
   <div class="mbox">
+    <div style="width:36px;height:4px;border-radius:2px;background:var(--bd2);margin:0 auto 12px;flex-shrink:0"></div>
     <div class="mhead"><button class="mback" onclick="closeModal('settingsModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>⚙️ Paramètres</h3></div>
     <div class="sett-grid">
 
@@ -740,10 +741,9 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       </div>
 
     </div>
+    <button onclick="closeModal('settingsModal')" style="width:100%;margin-top:16px;padding:14px;background:var(--card2);border:1.5px solid var(--bd2);border-radius:14px;font-size:14px;font-weight:700;font-family:'Sora',sans-serif;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">✕ Fermer les paramètres</button>
   </div>
 </div>
-
-<!-- OFFLINE BANNER -->
 <div id="offlineBanner">📡 Mode hors-ligne — Contenu mis en cache affiché</div>
 <!-- ONBOARDING (premier lancement) -->
 <div id="onboarding" style="display:none">
@@ -1066,53 +1066,78 @@ async function fetchOverpassUsefulPlaces(lat,lng){
   overpassPlacesFetching=true;
   lastPlaceFetchTime=Date.now();
   lastOverpassPlaceLat=lat;lastOverpassPlaceLng=lng;
-  const r=700;
-  const query=`[out:json][timeout:14];
+  const r=900;
+  const query=`[out:json][timeout:20];
 (
   node["amenity"="toilets"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
   node["amenity"="drinking_water"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
   node["amenity"="water_point"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="fountain"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
   node["amenity"="charging_station"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
   node["amenity"="parking"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
   way["amenity"="parking"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["internet_access"="wlan"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["internet_access"="wlan"]["fee"!="yes"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
   node["amenity"="library"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
-  node["amenity"="bench"]["name"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="community_centre"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["internet_access"="wlan"]["internet_access:fee"!="yes"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="cafe"]["internet_access"="wlan"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="bicycle_parking"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="recycling"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="pharmacy"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["emergency"="defibrillator"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
 );
-out center 40;`;
+out center 120;`;
   try{
     const data=await overpassRequest(query);
-    if(!data||!data.elements||!data.elements.length){overpassPlacesFetching=false;if(curTab===1)renderPlaces();return;}
-    const typeMap={'toilets':'wc','drinking_water':'eau','water_point':'eau','charging_station':'prise','parking':'parking','library':'wifi'};
-    const nameMap={'toilets':'Toilettes publiques','drinking_water':'Point d\'eau potable','water_point':'Fontaine','charging_station':'Borne de recharge','parking':'Parking','library':'Bibliothèque — Wi-Fi gratuit'};
+    if(!data||!data.elements||!data.elements.length){
+      overpassPlacesFetching=false;
+      if(curTab===1)renderPlaces();
+      return;
+    }
+    const typeMap={
+      'toilets':'wc','drinking_water':'eau','water_point':'eau','fountain':'eau',
+      'charging_station':'prise','parking':'parking',
+      'library':'wifi','community_centre':'wifi',
+      'bicycle_parking':'autre','recycling':'autre',
+      'pharmacy':'autre','defibrillator':'autre'
+    };
+    const nameMap={
+      'toilets':'Toilettes publiques','drinking_water':'Point d\'eau potable',
+      'water_point':'Fontaine','fountain':'Fontaine',
+      'charging_station':'Borne de recharge','parking':'Parking',
+      'library':'Bibliothèque — Wi-Fi gratuit','community_centre':'Centre communautaire',
+      'bicycle_parking':'Parking vélos','recycling':'Point de tri',
+      'pharmacy':'Pharmacie','defibrillator':'Défibrillateur'
+    };
+    // Déduplication fiable par ID OSM + coords
     const seen=new Set();
     const newPlaces=data.elements.filter(e=>{
-      const am=e.tags?.amenity||'';
-      const key=`${am}-${(e.lat||e.center?.lat||0).toFixed(4)}-${(e.lon||e.center?.lon||0).toFixed(4)}`;
-      if(seen.has(key))return false;seen.add(key);
-      return typeMap[am]||e.tags?.internet_access==='wlan';
-    }).slice(0,25).map((e,i)=>{
+      const key=e.id?`osm-${e.id}`:`${e.tags?.amenity||e.tags?.emergency||'x'}-${(e.lat||e.center?.lat||0).toFixed(4)}-${(e.lon||e.center?.lon||0).toFixed(4)}`;
+      if(seen.has(key))return false;
+      seen.add(key);
       const t=e.tags||{};
-      const am=t.amenity||'';
+      const am=t.amenity||'';const em=t.emergency||'';
+      return typeMap[am]||typeMap[em]||t.internet_access==='wlan';
+    }).slice(0,80).map((e,i)=>{
+      const t=e.tags||{};
+      const am=t.amenity||'';const em=t.emergency||'';
       const elat=e.lat||(e.center&&e.center.lat)||lat;
       const elng=e.lon||(e.center&&e.center.lon)||lng;
-      const type=typeMap[am]||(t.internet_access==='wlan'?'wifi':'autre');
+      const type=typeMap[am]||typeMap[em]||(t.internet_access==='wlan'?'wifi':'autre');
       const distM=Math.round(distKm(lat,lng,elat,elng)*1000);
-      const defName=nameMap[am]||(t.internet_access==='wlan'?'Wi-Fi gratuit':'Lieu utile');
+      const defName=nameMap[am]||nameMap[em]||(t.internet_access==='wlan'?'Wi-Fi gratuit':'Lieu utile');
       const name=t.name||t['name:fr']||defName;
       const addrParts=[t['addr:housenumber'],t['addr:street']].filter(Boolean);
-      const addr=addrParts.length?addrParts.join(' '):'À '+distM+'m de ta position';
-      const extras=[
-        t.opening_hours&&('🕐 '+t.opening_hours.slice(0,40)),
-        t.fee==='yes'?'💶 Payant':(t.fee==='no'||!t.fee)?null:null,
-        t.access&&t.access!=='yes'&&('🔒 '+t.access),
-        t.operator&&('Par '+t.operator.slice(0,30))
-      ].filter(Boolean).join(' · ');
+      const addr=addrParts.length?addrParts.join(' '):'À '+distM+'m';
+      // Stocker les extras séparément pour les afficher proprement
+      const hours=t.opening_hours||'';
+      const fee=t.fee==='yes'?'💶 Payant':(t.fee==='no'?'🆓 Gratuit':'');
+      const access=t.access&&t.access!=='yes'?('🔒 '+t.access):'';
+      const op=t.operator?('Par '+t.operator.slice(0,28)):'';
+      const extras=[fee,access,op].filter(Boolean).join(' · ');
       return{
-        id:20000+Date.now()%10000+i,
-        type,name,
-        addr:addr+(extras?' · '+extras:''),
+        id:20000+e.id%9000000||Date.now()%9000000+i,
+        type,name,addr,
+        hours,extras,
         lat:elat,lng:elng,
         dist:distM+'m',
         _fromOSM:true,
@@ -1123,7 +1148,7 @@ out center 40;`;
     newPlaces.forEach(p=>S.places.push(p));
     sv('places');
     if(curTab===1)renderPlaces();
-    if(newPlaces.length)toast('📍 '+newPlaces.length+' lieux utiles trouvés près de toi !');
+    if(newPlaces.length)toast('📍 '+newPlaces.length+' lieux trouvés près de toi !');
   }catch(e){console.warn('Overpass places erreur:',e);}
   finally{overpassPlacesFetching=false;}
 }
@@ -1609,7 +1634,35 @@ function placeTypeToSwivo(types){
 }
 
 
-// ─── Navigation vers un lieu
+// ─── Vérification horaires OSM (format simplifié Mo-Fr 08:00-18:00)
+function checkOpenNow(ohStr){
+  if(!ohStr||ohStr==='24/7')return ohStr==='24/7'?true:null;
+  try{
+    const now=new Date();const day=now.getDay();const h=now.getHours();const m=now.getMinutes();
+    const dayNames=['Su','Mo','Tu','We','Th','Fr','Sa'];
+    const curDay=dayNames[day];
+    // Exemple: "Mo-Fr 08:00-20:00; Sa 09:00-12:00"
+    const parts=ohStr.split(';');
+    for(const part of parts){
+      const p=part.trim();
+      const timeM=p.match(/(\d{2}):(\d{2})-(\d{2}):(\d{2})/);
+      if(!timeM)continue;
+      const [,oh,om,ch,cm]=timeM.map(Number);
+      const open=oh*60+om,close=ch*60+cm,curMin=h*60+m;
+      const dayPart=p.substring(0,p.indexOf(timeM[0])).trim().replace(/[,;]/g,'');
+      let dayMatch=false;
+      if(!dayPart||dayPart==='')dayMatch=true;
+      else if(dayPart.includes(curDay))dayMatch=true;
+      else if(dayPart.includes('-')){
+        const rangeM=dayPart.match(/([A-Za-z]{2})-([A-Za-z]{2})/);
+        if(rangeM){const idx=dayNames.indexOf(rangeM[1]),idx2=dayNames.indexOf(rangeM[2]);if(idx>=0&&idx2>=0){const di=dayNames.indexOf(curDay);dayMatch=(di>=idx&&di<=idx2);}}
+      }
+      if(dayMatch)return curMin>=open&&curMin<close;
+    }
+    return null;
+  }catch{return null;}
+}
+let placeSearchQ='',placeOpenNow=false;
 function openDirections(lat,lng,name){
   if(!lat||!lng){toast('❌ Coordonnées manquantes');return;}
   const label=encodeURIComponent(name||'Lieu');
@@ -1635,11 +1688,28 @@ function renderPlaces(){
     places=places.map(p=>({...p,_km:(p.lat&&p.lng)?distKm(userLat,userLng,p.lat,p.lng):9999}));
     places.sort((a,b)=>a._km-b._km);
   }
-  // Compteurs par catégorie
+  // Compteurs par catégorie (avant filtre search)
   const catCounts={};places.forEach(p=>{catCounts[p.type]=(catCounts[p.type]||0)+1;});
   const cntBadge=(n,active)=>n?`<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:6px;background:${active?'rgba(0,0,0,.2)':'var(--bd2)'};color:${active?'#000':'var(--tx3)'};margin-left:3px">${n}</span>`:'';
   G('catGrid').innerHTML=`<div class="cc ${curCat==='all'?'on':''}" onclick="filtPl(this,'all')"><div class="ci">🗺️</div><span>Tout${cntBadge(places.length,curCat==='all')}</span></div>`+Object.entries(CC).map(([k,v])=>`<div class="cc ${curCat===k?'on':''}" onclick="filtPl(this,'${k}')"><div class="ci">${v.i}</div><span>${v.l}${cntBadge(catCounts[k]||0,curCat===k)}</span></div>`).join('');
-  const fl=curCat==='all'?places:places.filter(p=>p.type===curCat);
+  // Barre de recherche + filtre "Ouvert maintenant"
+  const searchBar=G('placeSearchBar');
+  if(!searchBar){
+    const sb=document.createElement('div');
+    sb.id='placeSearchBar';
+    sb.style.cssText='display:flex;gap:8px;margin-bottom:10px;align-items:center';
+    sb.innerHTML=`<div style="flex:1;position:relative"><input id="placeSearchInput" type="text" placeholder="🔍 Rechercher un lieu…" value="${esc(placeSearchQ)}" oninput="placeSearchQ=this.value;renderPlaces()" style="width:100%;padding:9px 12px 9px 36px;background:var(--inp);border:1px solid var(--bd);border-radius:10px;font-size:13px;font-family:'Sora',sans-serif;color:var(--tx);outline:none;box-sizing:border-box"><span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none">🔍</span></div><button id="openNowBtn" onclick="placeOpenNow=!placeOpenNow;renderPlaces()" style="flex-shrink:0;padding:8px 10px;border-radius:10px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;border:1px solid ${placeOpenNow?'var(--gr)':'var(--bd)'};background:${placeOpenNow?'var(--gd)':'var(--card)'};color:${placeOpenNow?'var(--gr)':'var(--tx2)'};white-space:nowrap">🟢 Ouvert</button>`;
+    const el2=G('placeList');
+    if(el2&&el2.parentNode)el2.parentNode.insertBefore(sb,el2);
+  }else{
+    const inp=G('placeSearchInput');if(inp&&document.activeElement!==inp)inp.value=placeSearchQ;
+    const btn=G('openNowBtn');
+    if(btn){btn.style.borderColor=placeOpenNow?'var(--gr)':'var(--bd)';btn.style.background=placeOpenNow?'var(--gd)':'var(--card)';btn.style.color=placeOpenNow?'var(--gr)':'var(--tx2)';}
+  }
+  // Filtre catégorie + recherche + ouvert maintenant
+  let fl=curCat==='all'?places:places.filter(p=>p.type===curCat);
+  if(placeSearchQ.trim()){const q=placeSearchQ.toLowerCase();fl=fl.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.addr||'').toLowerCase().includes(q));}
+  if(placeOpenNow)fl=fl.filter(p=>p.hours==='24/7'||checkOpenNow(p.hours)===true);
   const nearbyCount=userLocated?fl.filter(p=>p._km!=null&&p._km<0.7).length:0;
   const plcEl=G('plcCount');
   if(plcEl)plcEl.textContent=fl.length+' lieu(x)'+(userLocated&&nearbyCount?' · 🟢 '+nearbyCount+' <700m':'');
@@ -1647,12 +1717,12 @@ function renderPlaces(){
   // Skeleton pendant le chargement initial
   if(overpassPlacesFetching&&!fl.length){showSkeleton('placeList',3);return;}
   if(!fl.length){
-    el.innerHTML=`<div class="empty"><div class="ei">📍</div><p>${userLocated?'Aucun lieu utile trouvé dans ce secteur.<br><small style="color:var(--tx3)">Tu peux en ajouter un avec le bouton +</small>':'Active la localisation pour voir les lieux utiles réels près de toi.'}</p>${!userLocated?`<button onclick="askGeoPermission()" style="margin-top:14px;padding:10px 20px;background:var(--bl);border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;color:#fff;cursor:pointer">📍 Activer la localisation</button>`:`<button onclick="fetchOverpassUsefulPlaces(userLat,userLng)" style="margin-top:14px;padding:10px 20px;background:var(--adim);border:1px solid var(--ac);border-radius:10px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;color:var(--ac);cursor:pointer">🔄 Rafraîchir</button>`}</div>`;
+    el.innerHTML=`<div class="empty"><div class="ei">${placeOpenNow?'🟢':'📍'}</div><p>${placeOpenNow?'Aucun lieu ouvert maintenant dans cette catégorie.':userLocated?'Aucun lieu utile trouvé dans ce secteur.<br><small style="color:var(--tx3)">Tu peux en ajouter un avec le bouton +</small>':'Active la localisation pour voir les lieux utiles réels près de toi.'}</p>${!userLocated?`<button onclick="askGeoPermission()" style="margin-top:14px;padding:10px 20px;background:var(--bl);border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;color:#fff;cursor:pointer">📍 Activer la localisation</button>`:`<button onclick="lastOverpassPlaceLat=null;fetchOverpassUsefulPlaces(userLat,userLng)" style="margin-top:14px;padding:10px 20px;background:var(--adim);border:1px solid var(--ac);border-radius:10px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;color:var(--ac);cursor:pointer">🔄 Rafraîchir</button>`}</div>`;
     return;
   }
   let html='';
   // ── Section "⚡ Les plus proches" (une carte par type, horizontal scroll)
-  if(userLocated&&curCat==='all'){
+  if(userLocated&&curCat==='all'&&!placeSearchQ){
     const nearestByType={};
     places.forEach(p=>{if(p.lat&&p.lng&&p._km<1&&(!nearestByType[p.type]||p._km<nearestByType[p.type]._km))nearestByType[p.type]=p;});
     const quickEntries=Object.entries(nearestByType).filter(([,p])=>p._km<0.8);
@@ -1661,13 +1731,15 @@ function renderPlaces(){
       html+=quickEntries.map(([type,p])=>{
         const c=CC[type]||CC.autre;
         const kmCol=p._km<0.3?'var(--gr)':p._km<0.6?'var(--ac)':'var(--tx3)';
-        return `<div style="flex-shrink:0;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:140px"><div><div style="font-size:20px;margin-bottom:2px">${c.i}</div><div style="font-size:11px;font-weight:700;color:var(--tx)">${c.l}</div><div style="font-size:10px;font-weight:800;color:${kmCol};margin-top:1px">📍 ${fmtDist(p._km)}</div></div><button onclick="openDirections(${p.lat},${p.lng},'${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"')}')" style="padding:6px 10px;background:var(--bld);border:1px solid var(--bl);border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;white-space:nowrap">🗺️ Y aller</button></div>`;
+        const isOpen=p.hours?checkOpenNow(p.hours):null;
+        const openDot=isOpen===true?'<span style="font-size:8px;color:var(--gr)">● </span>':isOpen===false?'<span style="font-size:8px;color:var(--re)">● </span>':'';
+        return `<div style="flex-shrink:0;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:140px"><div><div style="font-size:20px;margin-bottom:2px">${c.i}</div><div style="font-size:11px;font-weight:700;color:var(--tx)">${openDot}${c.l}</div><div style="font-size:10px;font-weight:800;color:${kmCol};margin-top:1px">📍 ${fmtDist(p._km)}</div></div><button onclick="openDirections(${p.lat},${p.lng},'${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"')}')" style="padding:6px 10px;background:var(--bld);border:1px solid var(--bl);border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;white-space:nowrap">🗺️ Y aller</button></div>`;
       }).join('');
       html+='</div></div>';
     }
   }
-  // ── Séparateur proche / plus loin (comme Radar)
-  if(userLocated&&curCat==='all'){
+  // ── Séparateur proche / plus loin
+  if(userLocated&&curCat==='all'&&!placeSearchQ){
     const nearby=fl.filter(p=>p._km!=null&&p._km<0.7);
     const far=fl.filter(p=>p._km==null||p._km>=0.7);
     if(nearby.length){
@@ -1683,15 +1755,20 @@ function placeCardH(p){
   const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
   const avg=avgS(revs),nc=revs.length,ps=pStars['p'+p.id]||0;
   const km=p._km!=null?p._km:(p.dist?parseFloat(p.dist)/1000:null);
-  const distBadge=(userLocated&&km!=null&&km<9999)?`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${km<0.3?'var(--gd)':km<0.7?'var(--adim)':'rgba(148,163,184,.12)'};color:${km<0.3?'var(--gr)':km<0.7?'var(--ac)':'var(--tx3)'};margin-top:4px;margin-right:4px">📍 ${fmtDist(km)}</span>`:(p.dist?`<span style="font-size:10px;color:var(--tx3);display:inline-block;margin-top:3px">📍 ${esc(p.dist)}</span>`:'');
+  const distBadge=(userLocated&&km!=null&&km<9999)
+    ?`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${km<0.3?'var(--gd)':km<0.7?'var(--adim)':'rgba(148,163,184,.12)'};color:${km<0.3?'var(--gr)':km<0.7?'var(--ac)':'var(--tx3)'};margin-top:4px;margin-right:4px">📍 ${fmtDist(km)}</span>`
+    :(p.dist?`<span style="font-size:10px;color:var(--tx3);display:inline-block;margin-top:3px">📍 ${esc(p.dist)}</span>`:'');
   const osmBadge=p._fromOSM?`<span style="font-size:9px;font-weight:600;padding:1px 5px;border-radius:10px;background:rgba(16,185,129,.1);color:var(--gr);margin-left:4px">OSM</span>`:'';
-  // Extraction horaires depuis addr si présent
-  const hoursMatch=p.addr&&p.addr.match(/🕐 ([^·]+)/);
-  const hoursBadge=hoursMatch?`<div style="font-size:10px;color:var(--tx3);margin-top:3px">🕐 ${hoursMatch[1].trim()}</div>`:'';
-  const cleanAddr=p.addr?(p.addr.replace(/🕐[^·]*/g,'').replace(/· ·/g,'·').replace(/^·\s*/,'').replace(/\s*·\s*$/,'').trim()):'';
-  const dirBtn=p.lat&&p.lng?`<button onclick="openDirections(${p.lat},${p.lng},'${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--bld);border:1px solid var(--bl);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;margin-top:5px;margin-right:5px">🗺️ Y aller</button>`:'';
-  const shareBtn=`<button onclick="sharePlace('${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'${p.addr?`,'${cleanAddr.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'`:',""'})" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--card2);border:1px solid var(--bd);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--tx2);cursor:pointer;margin-top:5px">↗️ Partager</button>`;
-  return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}${osmBadge}</div><div class="plad">📍 ${esc(cleanAddr||p.addr||'')}</div>${hoursBadge}${distBadge}${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:0">${dirBtn}${shareBtn}<span class="plrb" style="margin-top:5px" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div></div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
+  // Horaires proprement séparés
+  const hoursBadge=p.hours?`<div style="font-size:10px;color:var(--tx3);margin-top:3px">🕐 ${esc(p.hours.slice(0,45))}</div>`:'';
+  const extrasBadge=p.extras?`<div style="font-size:10px;color:var(--tx3);margin-top:2px">${esc(p.extras)}</div>`:'';
+  const isOpenNow=p.hours?checkOpenNow(p.hours):null;
+  const openBadge=isOpenNow===true?`<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--gd);color:var(--gr);margin-right:4px">● Ouvert</span>`
+    :isOpenNow===false?`<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--rd);color:var(--re);margin-right:4px">● Fermé</span>`:'';
+  const dirBtn=p.lat&&p.lng
+    ?`<button onclick="openDirections(${p.lat},${p.lng},'${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--bld);border:1px solid var(--bl);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;margin-top:5px;margin-right:5px">🗺️ Y aller</button>`:'';
+  const shareBtn=`<button onclick="sharePlace('${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'${p.addr?`,'${p.addr.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'`:',""'})" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--card2);border:1px solid var(--bd);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--tx2);cursor:pointer;margin-top:5px">↗️ Partager</button>`;
+  return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}${osmBadge}</div><div class="plad">📍 ${esc(p.addr||'')}</div>${hoursBadge}${extrasBadge}${distBadge}${openBadge?'<div style="margin-top:4px">'+openBadge+'</div>':''}${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:0">${dirBtn}${shareBtn}<span class="plrb" style="margin-top:5px" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div></div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
 }
 function filtPl(el,cat){curCat=cat;renderPlaces();}
 function submitPlace(){
@@ -1969,6 +2046,23 @@ function closeModal(id){
 function cmbg(e,id){if(e.target.classList.contains('moverlay'))closeModal(id);}
 function toggleSettings(){if(settOpen)closeModal('settingsModal');else openModal('settingsModal');}
 
+// ─── Swipe bas pour fermer les modals
+(function(){
+  let startY=0,startScroll=0;
+  document.addEventListener('touchstart',e=>{
+    const modal=e.target.closest('.mbox');
+    if(modal){startY=e.touches[0].clientY;startScroll=modal.scrollTop;}
+  },{passive:true});
+  document.addEventListener('touchend',e=>{
+    const modal=e.target.closest('.mbox');
+    if(!modal)return;
+    const dy=e.changedTouches[0].clientY-startY;
+    if(dy>80&&startScroll<=0){
+      const ov=modal.closest('.moverlay');
+      if(ov){const id=ov.id;closeModal(id);}
+    }
+  },{passive:true});
+})();
 // ═══ NETWORK
 function updNet(){const d=G('ndot');if(!d)return;d.className='ndot'+(navigator.onLine?'':' off');}
 window.addEventListener('online',updNet);window.addEventListener('offline',updNet);
