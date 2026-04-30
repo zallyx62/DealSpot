@@ -14,9 +14,8 @@
 
 ## 📸 Aperçu de l'interface
 
-<p align="center">
-  <img src="1000016515.jpg" alt="Interface DealSpot" width="350">
-</p>
+<img width="985" height="2113" alt="1000016515" src="https://github.com/user-attachments/assets/07e4f0fd-d297-47b5-8ca1-7ad9221ab9b2" />
+
 
 ---
 
