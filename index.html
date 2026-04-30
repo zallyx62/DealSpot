@@ -44,6 +44,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 .sett-info .name{font-size:14px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sett-info .sub{font-size:11px;color:var(--tx3)}
 .sett-chevron{font-size:18px;color:var(--tx3)}
+/* ═══ SCROLL TO TOP ═══ */
+#scrollTop{position:fixed;bottom:calc(var(--nb)+16px);right:14px;width:38px;height:38px;border-radius:50%;background:var(--ac);color:#000;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(245,158,11,.4);z-index:99;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s;pointer-events:none}
+#scrollTop.show{opacity:1;transform:translateY(0);pointer-events:auto}
 /* ═══ SWIPE HINT ═══ */
 @keyframes swipeHintAnim{0%{transform:translateX(0);opacity:.9}30%{transform:translateX(-18px);opacity:1}60%{transform:translateX(0);opacity:.9}100%{transform:translateX(0);opacity:.9}}
 #swipeHint{position:absolute;bottom:calc(var(--nb) + 12px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);backdrop-filter:blur(8px);color:#fff;font-size:11px;font-weight:700;padding:7px 14px;border-radius:30px;display:flex;align-items:center;gap:6px;white-space:nowrap;pointer-events:none;z-index:100;opacity:0;transition:opacity .4s}
@@ -72,6 +75,38 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 .notif-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd)}
 .notif-row:last-child{border-bottom:none}
 
+/* ═══ SKELETON LOADING ═══ */
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skel{background:linear-gradient(90deg,var(--card) 25%,var(--card2) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r);border:1px solid var(--bd)}
+.skel-card{height:116px;margin-bottom:10px}
+/* ═══ PULL TO REFRESH ═══ */
+#ptr{position:absolute;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:700;color:var(--tx3);transform:translateY(-58px);z-index:10;pointer-events:none}
+#ptr .ptr-icon{font-size:18px;transition:transform .25s}
+#ptr.ready .ptr-icon{transform:rotate(180deg)}
+#ptr.loading .ptr-icon{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ═══ CONFETTI ═══ */
+#confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:9998;display:none}
+/* ═══ PWA INSTALL BANNER ═══ */
+#installBanner{display:none;position:fixed;bottom:calc(var(--nb) + 12px);left:12px;right:12px;z-index:300;background:var(--card);border:1px solid var(--ac);border-radius:20px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,.3);animation:slideUpB .35s cubic-bezier(.4,0,.2,1)}
+@keyframes slideUpB{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.ib-row{display:flex;align-items:center;gap:12px}
+.ib-icon{font-size:32px;flex-shrink:0}
+.ib-text{flex:1;min-width:0}
+.ib-title{font-size:13px;font-weight:800;color:var(--tx)}
+.ib-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.ib-btns{display:flex;gap:8px;margin-top:12px}
+.ib-install{flex:1;padding:10px;border-radius:12px;background:var(--ac);color:#000;font-size:12px;font-weight:800;border:none;font-family:'Sora',sans-serif;cursor:pointer}
+.ib-close{padding:10px 16px;border-radius:12px;background:var(--card2);color:var(--tx3);font-size:12px;font-weight:700;border:none;font-family:'Sora',sans-serif;cursor:pointer}
+/* ═══ SEARCH HISTORY ═══ */
+#srchHistory{display:none;background:var(--sf);border-top:1px solid var(--bd);padding:10px 16px;max-height:200px;overflow-y:auto}
+.srch-hist-label{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.srch-hist-clear{color:var(--ac);cursor:pointer;font-size:10px;font-weight:700}
+.sh-chip{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:5px 10px;margin:3px 4px 3px 0;font-size:12px;cursor:pointer;transition:background .15s}
+.sh-chip:active{background:var(--card2)}
+.sh-chip-del{color:var(--tx3);font-size:11px;margin-left:2px}
+/* ═══ PRICE ALERT ═══ */
+.price-drop-badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;background:var(--gd);color:var(--gr);margin-left:4px}
 #topbar{flex-shrink:0;height:var(--nh);display:flex;align-items:center;padding:0 12px;background:var(--sf);border-bottom:1px solid var(--bd);z-index:50;gap:8px}
 .logo{display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;user-select:none}
 .logo-mk{width:30px;height:30px;background:var(--ac);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#000;flex-shrink:0}
@@ -109,6 +144,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 .ni.active svg{stroke:var(--ac)}
 .ni.active span{color:var(--ac)}
 .ni.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--ac);border-radius:0 0 4px 4px}
+.fav-badge{position:absolute;top:4px;right:6px;min-width:16px;height:16px;border-radius:8px;background:var(--re);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;pointer-events:none}
 .ncw{flex:0 0 72px;display:flex;align-items:center;justify-content:center}
 .nc{width:48px;height:48px;border-radius:16px;background:var(--ac);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(245,158,11,.4);transition:transform .15s}
 .nc:active{transform:scale(.91)}
@@ -371,7 +407,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <div class="sw" id="srchWrap" style="display:none">
   <div class="sbox">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" id="srchInp" placeholder="Titre, lieu, description…" oninput="onSearch(this.value)" autocomplete="off"/>
+    <input type="text" id="srchInp" placeholder="Titre, lieu, description…" oninput="onSearch(this.value)" onfocus="showSrchHistory()" onkeydown="if(event.key==='Enter'){commitSearch(this.value);this.blur();}" onblur="setTimeout(()=>commitSearch(this.value),200)" autocomplete="off"/>
     <span class="sc" onclick="clearSearch()">✕</span>
   </div>
 </div>
@@ -498,6 +534,26 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     </div>
   </div>
 </div>
+<!-- CONFETTI -->
+<canvas id="confettiCanvas"></canvas>
+<!-- PWA INSTALL BANNER -->
+<div id="installBanner">
+  <div class="ib-row">
+    <div class="ib-icon">🎯</div>
+    <div class="ib-text">
+      <div class="ib-title">Installer DealSpot</div>
+      <div class="ib-sub">Accès rapide depuis l'écran d'accueil, sans app store !</div>
+    </div>
+  </div>
+  <div class="ib-btns">
+    <button class="ib-install" onclick="installPWA()">📲 Installer</button>
+    <button class="ib-close" onclick="dismissInstall()">Plus tard</button>
+  </div>
+</div>
+<!-- SEARCH HISTORY -->
+<div id="srchHistory"></div>
+<!-- PTR (Pull to refresh) indicator -->
+<div id="ptr"><span class="ptr-icon">↓</span><span id="ptrLabel">Tirer pour actualiser</span></div>
 <!-- SWIPE HINT — indique qu'on peut swiper vers la mémoire de prix -->
 <div id="swipeHint"><span class="sh-arrow">←</span> Swipe pour voir la Mémoire de Prix</div>
 <!-- DOTS -->
@@ -515,7 +571,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   <div class="ncw" onclick="openModal('addModal')">
     <div class="nc"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
   </div>
-  <div class="ni" onclick="openModal('favModal')">
+  <div class="ni" onclick="openModal('favModal')" id="favNavBtn">
     <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
     <span>Favoris</span>
   </div>
@@ -531,6 +587,10 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   <span>·</span>
   <span>© 2025 DealSpot</span>
 </div>
+<!-- TOAST — élément manquant, cause du TypeError -->
+<div id="toast"></div>
+<!-- SCROLL TO TOP -->
+<div id="scrollTop" onclick="scrollToTop()" title="Retour en haut">↑</div>
 </main>
 
 <!-- AD OVERLAY -->
@@ -1102,7 +1162,7 @@ function goTab(idx){
   else if(idx===3)renderMissions();
   else if(idx===4)renderAnti();
 }
-function initDots(){G('dotsWrap').innerHTML=['Radar','Carte','Prix','Missions','Anti-Flemme'].map((_,i)=>`<div class="dot ${i===0?'on':''}"></div>`).join('');}
+function initDots(){const dw=G('dotsWrap');if(!dw)return;dw.innerHTML=['Radar','Carte','Prix','Missions','Anti-Flemme'].map((_,i)=>`<div class="dot ${i===0?'on':''}"></div>`).join('');}
 area.addEventListener('touchstart',e=>{if(document.querySelector('.moverlay.open'))return;tsX=e.touches[0].clientX;tsY=e.touches[0].clientY;dragging=false;},{passive:true});
 area.addEventListener('touchmove',e=>{
   if(document.querySelector('.moverlay.open'))return;
@@ -1118,7 +1178,12 @@ area.addEventListener('mouseleave',()=>{if(mouseD){mouseD=false;goTab(curTab);}}
 
 // ═══ SEARCH
 function toggleSearch(){srchVis=!srchVis;G('srchWrap').style.display=srchVis?'block':'none';if(srchVis)setTimeout(()=>G('srchInp').focus(),80);else{srchQ='';G('srchInp').value='';renderDeals();}}
-function onSearch(q){srchQ=q.toLowerCase();if(curTab!==0)goTab(0);else renderDeals();}
+function onSearch(q){
+  srchQ=q.toLowerCase();
+  if(curTab!==0)goTab(0);else renderDeals();
+  hideSrchHistory();
+}
+function commitSearch(q){if(q&&q.trim().length>=2){addToSearchHistory(q.trim());hideSrchHistory();}}
 function clearSearch(){srchQ='';G('srchInp').value='';renderDeals();}
 
 // ═══ GÉOLOC HELPERS
@@ -1172,6 +1237,8 @@ function onGeoError(err){
 // ═══ MODULE 1: RADAR (tri par proximité)
 function filterDeals(el,f){curFilter=f;document.querySelectorAll('#filterBar .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderDeals();}
 function renderDeals(){
+  // Skeleton au tout premier render (liste vide ET pas encore localisé)
+  if(!S.deals.length&&!userLocated){showSkeleton('dealList',4);return;}
   let list=curFilter==='all'?S.deals.slice():S.deals.filter(d=>d.type===curFilter);
   if(srchQ)list=list.filter(d=>d.title.toLowerCase().includes(srchQ)||d.place.toLowerCase().includes(srchQ)||(d.desc||'').toLowerCase().includes(srchQ));
   // Calcul distances si géoloc active
@@ -1180,7 +1247,7 @@ function renderDeals(){
     list.sort((a,b)=>{if(a._km<50&&b._km<50)return a._km-b._km;if(a._km<50)return -1;if(b._km<50)return 1;return 0;});
   }
   const nearby=userLocated?list.filter(d=>d._km!=null&&d._km<50):[];
-  G('dealCount').textContent=S.deals.length+' actifs'+(userLocated&&!srchQ?' · '+nearby.length+' près de toi':'');
+  const dc=G('dealCount');if(dc)dc.textContent=S.deals.length+' actifs'+(userLocated&&!srchQ?' · '+nearby.length+' près de toi':'');
   const el=G('dealList');
   if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">${srchQ?'🔍':'📭'}</div><p>${srchQ?'Aucun résultat':'Aucun bon plan ici'}</p></div>`;return;}
   let html='';
@@ -1230,7 +1297,14 @@ function postRev(ctx,id){
   sbPost('reviews',{context:ctx,ref_id:id,user:pseudo,stars,text:txt});
 }
 function likeDeal(id){const d=S.deals.find(x=>x.id===id);if(!d)return;d.liked=!d.liked;d.likes+=d.liked?1:-1;sv('deals');renderDeals();}
-function saveDeal(id){const d=S.deals.find(x=>x.id===id);if(!d)return;d.saved=!d.saved;sv('deals');renderDeals();toast(d.saved?'🔖 Sauvegardé !':'Retiré des favoris');}
+function saveDeal(id){const d=S.deals.find(x=>x.id===id);if(!d)return;d.saved=!d.saved;sv('deals');renderDeals();toast(d.saved?'🔖 Sauvegardé !':'Retiré des favoris');updateFavBadge();}
+function updateFavBadge(){
+  const count=S.deals.filter(d=>d.saved).length;
+  const btn=G('favNavBtn');if(!btn)return;
+  let badge=btn.querySelector('.fav-badge');
+  if(count>0){if(!badge){badge=document.createElement('div');badge.className='fav-badge';btn.appendChild(badge);}badge.textContent=count>9?'9+':count;}
+  else if(badge){badge.remove();}
+}
 function selT(el,ctx){const gid=ctx==='deal'?'dealTG':'placeTG';document.querySelectorAll('#'+gid+' .tc').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');if(ctx==='deal')selDT=el.dataset.type;else selPT=el.dataset.type;}
 function submitDeal(){
   const title=sanitize(G('dTit').value,100),place=sanitize(G('dPl').value,100);
@@ -1485,8 +1559,8 @@ function submitPlace(){
 function renderPrices(){
   let up=0,dn=0,sav=0;
   S.prices.forEach(p=>{const h=p.history;if(h.length>=2){const l=h[h.length-1].v,pv=h[h.length-2].v;if(l>pv)up++;else if(l<pv){dn++;sav+=+(pv-l).toFixed(2);}}});
-  G('pProd').textContent=S.prices.length;G('pUp').textContent=up;G('pDn').textContent=dn;
-  G('savTotal').innerHTML=sav.toFixed(2)+' <span>€ économisés</span>';
+  G('pProd')&&(G('pProd').textContent=S.prices.length);G('pUp')&&(G('pUp').textContent=up);G('pDn')&&(G('pDn').textContent=dn);
+  const st=G('savTotal');if(st)st.innerHTML=sav.toFixed(2)+' <span>€ économisés</span>';
   const el=G('priceList');
   if(!S.prices.length){el.innerHTML='<div class="empty"><div class="ei">📦</div><p>Aucun produit suivi.<br>Ajoutez-en un !</p></div>';return;}
   el.innerHTML=S.prices.map(p=>{
@@ -1511,16 +1585,24 @@ function renderMissions(){
   let lvl=0;while(lvl<LVS.length-1&&S.xp>=LVS[lvl].x)lvl++;
   const base=lvl>0?LVS[lvl-1].x:0,next=LVS[lvl].x;
   const pct=Math.min(100,Math.round(((S.xp-base)/(next-base))*100));
-  G('lvlB').textContent=lvl+1;G('lvlN').textContent=LVS[lvl].n;G('totXP').textContent=S.xp+' XP';G('xpSub').textContent=S.xp+' / '+next+' XP';G('xpFil').style.width=pct+'%';
+  G('lvlB')&&(G('lvlB').textContent=lvl+1);G('lvlN')&&(G('lvlN').textContent=LVS[lvl].n);G('totXP')&&(G('totXP').textContent=S.xp+' XP');G('xpSub')&&(G('xpSub').textContent=S.xp+' / '+next+' XP');G('xpFil')&&(G('xpFil').style.width=pct+'%');
   const days=['L','M','M','J','V','S','D'];
-  G('strRow').innerHTML=days.map((d,i)=>`<div class="str-d ${S.streak.includes(i)?'on':''}"><span>${d}</span><div class="sd"></div></div>`).join('');
-  G('mDone').textContent=S.mDone.length+'/3';
+  G('strRow')&&(G('strRow').innerHTML=days.map((d,i)=>`<div class="str-d ${S.streak.includes(i)?'on':''}"><span>${d}</span><div class="sd"></div></div>`).join(''));
+  G('mDone')&&(G('mDone').textContent=S.mDone.length+'/3');
   const fc={m1:'var(--ac)',m2:'var(--gr)',m3:'var(--bl)'};
   G('misList').innerHTML=MIS.map(m=>{const done=S.mDone.includes(m.id);return `<div class="mcard ${done?'dn':''}" onclick="completeMis('${m.id}')"><div class="mch2"><div class="mci" style="background:${m.c}22">${m.i}</div><div class="mcb"><div class="mct">${m.t}</div><div class="mcd">${m.d}</div><div class="mcp"><div class="mcf" style="width:${done?100:0}%;background:${fc[m.id]||'var(--ac)'}"></div></div></div></div><div class="mcft"><span class="mcx">+${m.x} XP</span>${done?'<span class="badge bg">Complétée ✓</span>':`<span style="font-size:11px;color:var(--bl);font-weight:600">${m.cta}</span>`}</div></div>`;}).join('');
 }
 function completeMis(id){
   if(S.mDone.includes(id))return;S.mDone.push(id);sv('mDone');
-  const m=MIS.find(x=>x.id===id);if(m){S.xp+=m.x;sv('xp');toast('🏆 +'+m.x+' XP — Mission accomplie !');}
+  const m=MIS.find(x=>x.id===id);
+  if(m){
+    const prevLvl=LVS.findIndex((l,i)=>S.xp<l.x||(i===LVS.length-1));
+    S.xp+=m.x;sv('xp');
+    const newLvl=LVS.findIndex((l,i)=>S.xp<l.x||(i===LVS.length-1));
+    toast('🏆 +'+m.x+' XP — Mission accomplie !');
+    if(newLvl>prevLvl){setTimeout(()=>launchConfetti(),300);} // level up → confetti
+    else haptic('success');
+  }
   const day=new Date().getDay();if(!S.streak.includes(day)){S.streak.push(day);sv('streak');}
   if(curTab===3)renderMissions();
 }
@@ -1529,10 +1611,10 @@ function completeMis(id){
 function triggerAnti(){
   let idx;do{idx=Math.floor(Math.random()*ANTI.length);}while(idx===lastAnti);lastAnti=idx;
   const r=ANTI[idx];S.antCnt++;S.antSav=+(S.antSav+2.5).toFixed(1);sv('antCnt');sv('antSav');
-  G('antiCnt').textContent=S.antCnt;G('antiSav').textContent=S.antSav+'€';G('antiFace').textContent=r.e;
-  G('antiResp').innerHTML=`<div class="arsp"><div class="ae">${r.e}</div><h3>${esc(r.t)}</h3><p>${esc(r.p)}</p></div><div class="atip"><strong>💡 Rappel :</strong> Chaque blocage surmonté = ~2,50€ économisés. Continue !</div>`;
+  G('antiCnt')&&(G('antiCnt').textContent=S.antCnt);G('antiSav')&&(G('antiSav').textContent=S.antSav+'€');G('antiFace')&&(G('antiFace').textContent=r.e);
+  const ar=G('antiResp');if(ar)ar.innerHTML=`<div class="arsp"><div class="ae">${r.e}</div><h3>${esc(r.t)}</h3><p>${esc(r.p)}</p></div><div class="atip"><strong>💡 Rappel :</strong> Chaque blocage surmonté = ~2,50€ économisés. Continue !</div>`;
 }
-function renderAnti(){G('antiCnt').textContent=S.antCnt;G('antiSav').textContent=S.antSav+'€';}
+function renderAnti(){G('antiCnt')&&(G('antiCnt').textContent=S.antCnt);G('antiSav')&&(G('antiSav').textContent=S.antSav+'€');}
 
 // ═══ FAVORIS
 function renderFavs(){
@@ -1680,7 +1762,7 @@ window.addEventListener('online',updNet);window.addEventListener('offline',updNe
 
 // ═══ TOAST
 let toastT;
-function toast(msg){const el=G('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2800);}
+function toast(msg){const el=G('toast');if(!el){console.warn('[DealSpot] #toast introuvable');return;}el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2800);}
 
 // ═══ SYNC
 async function syncDeals(){
@@ -1856,8 +1938,229 @@ function cleanStorage(){
 }
 
 // ═══════════════════════════════════════════════════
-// INIT
+// FEATURE A — SKELETON LOADING
 // ═══════════════════════════════════════════════════
+function showSkeleton(containerId, count=3){
+  const el=G(containerId);if(!el)return;
+  el.innerHTML=Array(count).fill(0).map(()=>`<div class="skel skel-card" style="padding:14px"><div class="skel skel-line w80" style="margin-bottom:10px"></div><div class="skel skel-line w60"></div><div class="skel skel-line w40" style="margin-top:8px"></div></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// FEATURE B — PULL TO REFRESH
+// ═══════════════════════════════════════════════════
+(function initPTR(){
+  const tab0=G('tab-0');const ptr=G('ptr');const lbl=G('ptrLabel');
+  if(!tab0||!ptr)return;
+  let startY=0,pulling=false,refreshing=false;
+  const THRESHOLD=70;
+  tab0.addEventListener('touchstart',e=>{if(tab0.scrollTop===0)startY=e.touches[0].clientY;},{passive:true});
+  tab0.addEventListener('touchmove',e=>{
+    if(refreshing||tab0.scrollTop>0)return;
+    const dy=e.touches[0].clientY-startY;
+    if(dy<10)return;
+    pulling=true;
+    const pct=Math.min(dy/THRESHOLD,1);
+    ptr.style.transform=`translateY(${Math.min(dy*.5,THRESHOLD*.8)-58}px)`;
+    ptr.classList.toggle('ready',pct>=1);
+    if(lbl)lbl.textContent=pct>=1?'Relâcher pour actualiser':'Tirer pour actualiser';
+  },{passive:true});
+  tab0.addEventListener('touchend',()=>{
+    if(!pulling)return;pulling=false;
+    const reached=ptr.classList.contains('ready');
+    ptr.style.transform='translateY(-58px)';ptr.classList.remove('ready');
+    if(!reached)return;
+    refreshing=true;ptr.classList.add('loading');if(lbl)lbl.textContent='Actualisation…';
+    ptr.style.transform='translateY(0px)';
+    haptic('light');
+    Promise.all([syncDeals(),fetchOverpassNearbyPlaces(userLat,userLng)]).finally(()=>{
+      setTimeout(()=>{
+        ptr.style.transform='translateY(-58px)';ptr.classList.remove('loading');
+        refreshing=false;renderDeals();toast('✅ Deals actualisés !');
+      },600);
+    });
+  },{passive:true});
+})();
+
+// ═══════════════════════════════════════════════════
+// FEATURE C — HAPTIC FEEDBACK
+// ═══════════════════════════════════════════════════
+function haptic(type='light'){
+  if(!navigator.vibrate)return;
+  const patterns={light:[10],medium:[20],heavy:[30,10,30],success:[10,50,10]};
+  try{navigator.vibrate(patterns[type]||patterns.light);}catch{}
+}
+// Patch les boutons clés pour haptic
+document.addEventListener('click',e=>{
+  const el=e.target.closest('.abtn,.sbtn,.ob-btn,.ib-install,.rsnd,.nc');
+  if(el)haptic('light');
+});
+
+// ═══════════════════════════════════════════════════
+// FEATURE D — PWA INSTALL BANNER
+// ═══════════════════════════════════════════════════
+let _deferredInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();_deferredInstall=e;
+  // Afficher après 30s si pas encore installé
+  if(!lget('installDismissed',false)){
+    setTimeout(()=>{const b=G('installBanner');if(b)b.style.display='block';},30000);
+  }
+});
+window.addEventListener('appinstalled',()=>{
+  const b=G('installBanner');if(b)b.style.display='none';
+  lset('installDismissed',true);toast('🎉 DealSpot installé !');haptic('success');
+});
+function installPWA(){
+  if(!_deferredInstall)return;
+  _deferredInstall.prompt();
+  _deferredInstall.userChoice.then(r=>{
+    if(r.outcome==='accepted'){lset('installDismissed',true);const b=G('installBanner');if(b)b.style.display='none';}
+    _deferredInstall=null;
+  });
+}
+function dismissInstall(){
+  const b=G('installBanner');if(b)b.style.display='none';
+  lset('installDismissed',true);
+}
+
+// ═══════════════════════════════════════════════════
+// FEATURE E — ALERTES BAISSE DE PRIX
+// ═══════════════════════════════════════════════════
+function checkPriceAlerts(){
+  if(!S.prices||!S.prices.length)return;
+  const alerts=[];
+  S.prices.forEach(p=>{
+    const h=p.history;if(h.length<2)return;
+    const curr=h[h.length-1].v,prev=h[h.length-2].v;
+    if(curr<prev){
+      const drop=((prev-curr)/prev*100).toFixed(1);
+      if(drop>=2)alerts.push({name:p.name,shop:p.shop,curr,prev,drop,emoji:p.emoji||'📦'});
+    }
+  });
+  if(!alerts.length)return;
+  alerts.forEach((a,i)=>{
+    setTimeout(()=>{
+      toast(`${a.emoji} ${a.name} a baissé de ${a.drop}% → ${a.curr.toFixed(2)}€ !`);
+      if(Notification.permission==='granted'){
+        navigator.serviceWorker?.ready.then(reg=>{
+          reg.showNotification('📉 Baisse de prix détectée !',{
+            body:`${a.emoji} ${a.name} chez ${a.shop}: ${a.prev.toFixed(2)}€ → ${a.curr.toFixed(2)}€ (-${a.drop}%)`,
+            tag:'price-alert-'+a.name,icon:'./icon-192.png'
+          });
+        }).catch(()=>new Notification('📉 Baisse de prix !',{body:`${a.name}: ${a.curr.toFixed(2)}€`}));
+      }
+    },i*2500);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// FEATURE F — CONFETTI (niveau / mission)
+// ═══════════════════════════════════════════════════
+function launchConfetti(duration=2200){
+  const canvas=G('confettiCanvas');if(!canvas)return;
+  canvas.style.display='block';
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const ctx=canvas.getContext('2d');
+  const COLORS=['#F59E0B','#10B981','#3B82F6','#EF4444','#8B5CF6','#EC4899','#ffffff'];
+  const pieces=Array.from({length:90},()=>({
+    x:Math.random()*canvas.width,y:-10,
+    vx:(Math.random()-0.5)*6,vy:Math.random()*4+3,
+    color:COLORS[Math.floor(Math.random()*COLORS.length)],
+    r:Math.random()*5+3,rot:Math.random()*360,vr:(Math.random()-0.5)*8,
+    shape:Math.random()>.5?'rect':'circle'
+  }));
+  const start=Date.now();
+  function frame(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const elapsed=Date.now()-start;
+    pieces.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=0.12;
+      const alpha=elapsed>duration-600?Math.max(0,(duration-elapsed)/600):1;
+      ctx.save();ctx.globalAlpha=alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;
+      if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();}
+      else{ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);}
+      ctx.restore();
+    });
+    if(elapsed<duration)requestAnimationFrame(frame);
+    else{ctx.clearRect(0,0,canvas.width,canvas.height);canvas.style.display='none';}
+  }
+  requestAnimationFrame(frame);
+  haptic('success');
+}
+
+// ═══════════════════════════════════════════════════
+// FEATURE G — HISTORIQUE DE RECHERCHE
+// ═══════════════════════════════════════════════════
+function addToSearchHistory(q){
+  if(!q||q.length<2)return;
+  let hist=lget('srchHist',[]);
+  hist=hist.filter(h=>h!==q);
+  hist.unshift(q);
+  lset('srchHist',hist.slice(0,8));
+}
+function showSrchHistory(){
+  const hist=lget('srchHist',[]);
+  const el=G('srchHistory');if(!el)return;
+  if(!hist.length){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML=`<div class="srch-hist-label"><span>🕐 Recherches récentes</span><span class="srch-hist-clear" onclick="clearSrchHistory()">Effacer</span></div>`+
+    hist.map(h=>`<span class="sh-chip" onclick="applySearch('${esc(h)}')">${esc(h)}<span class="sh-chip-del" onclick="removeSrchHist(event,'${esc(h)}')">✕</span></span>`).join('');
+}
+function hideSrchHistory(){const el=G('srchHistory');if(el)el.style.display='none';}
+function applySearch(q){
+  const inp=G('srchInp');if(inp)inp.value=q;
+  onSearch(q);hideSrchHistory();
+}
+function clearSrchHistory(){lset('srchHist',[]);hideSrchHistory();}
+function removeSrchHist(e,q){
+  e.stopPropagation();
+  let hist=lget('srchHist',[]).filter(h=>h!==q);
+  lset('srchHist',hist);showSrchHistory();
+}
+// Cacher l'historique si on clique ailleurs
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#srchWrap')&&!e.target.closest('#srchHistory'))hideSrchHistory();
+});
+
+// ═══════════════════════════════════════════════════
+// FEATURE H — LONG PRESS TO SAVE
+// ═══════════════════════════════════════════════════
+let _lpTimer=null,_lpEl=null;
+function initLongPress(){
+  G('dealList')?.addEventListener('touchstart',e=>{
+    const card=e.target.closest('.dc');if(!card)return;
+    const idStr=card.querySelector('[onclick*="saveDeal"]')?.getAttribute('onclick')?.match(/\d+/)?.[0];
+    if(!idStr)return;
+    const id=parseInt(idStr);
+    _lpTimer=setTimeout(()=>{
+      haptic('medium');
+      saveDeal(id);renderDeals();updateFavBadge();
+      // Anneau visuel
+      const ring=document.createElement('div');ring.className='lp-ring';
+      card.style.position='relative';card.appendChild(ring);
+      setTimeout(()=>ring.remove(),500);
+      toast('🔖 Sauvegardé !');
+    },600);
+  },{passive:true});
+  G('dealList')?.addEventListener('touchend',()=>{clearTimeout(_lpTimer);_lpTimer=null;},{passive:true});
+  G('dealList')?.addEventListener('touchmove',()=>{clearTimeout(_lpTimer);_lpTimer=null;},{passive:true});
+}
+
+
+// ═══ SCROLL TO TOP
+function scrollToTop(){const t=G('tab-'+curTab);if(t)t.scrollTo({top:0,behavior:'smooth'});}
+(function initScrollTop(){
+  const btn=G('scrollTop');if(!btn)return;
+  [0,1,2,3,4].forEach(i=>{
+    const t=G('tab-'+i);if(!t)return;
+    t.addEventListener('scroll',()=>{
+      if(curTab!==i)return;
+      btn.classList.toggle('show',t.scrollTop>200);
+    },{passive:true});
+  });
+})();
+
 (function init(){
   try{
     // Restaurer dernière position GPS connue
@@ -1869,7 +2172,7 @@ function cleanStorage(){
     // Feature 6 : nettoyage stockage
     cleanStorage();
 
-    updNet();initDots();initSup();updateUserBtn();renderDeals();
+    updNet();initDots();initSup();updateUserBtn();renderDeals();updateFavBadge();
     G('loadScreen').style.display='none';G('app').style.display='flex';
 
     // Feature 7 : onboarding premier lancement
@@ -1908,6 +2211,10 @@ function cleanStorage(){
 
     // Feature 2 : état bouton notif au démarrage
     updateNotifBtn();
+    // Feature E : alertes baisse de prix (vérif au lancement)
+    setTimeout(checkPriceAlerts, 3000);
+    // Feature G : long press to save
+    setTimeout(initLongPress, 500);
     // Nettoyage hebdo en arrière-plan
     setTimeout(cleanStorage,5000);
   }catch(e){G('loadScreen').style.display='none';G('app').style.display='flex';renderDeals();}
