@@ -1064,6 +1064,7 @@ async function fetchOverpassUsefulPlaces(lat,lng){
   if(overpassPlacesFetching)return;
   if(lastOverpassPlaceLat&&distKm(lat,lng,lastOverpassPlaceLat,lastOverpassPlaceLng)<0.08)return;
   overpassPlacesFetching=true;
+  lastPlaceFetchTime=Date.now();
   lastOverpassPlaceLat=lat;lastOverpassPlaceLng=lng;
   const r=700;
   const query=`[out:json][timeout:14];
@@ -1129,7 +1130,7 @@ out center 40;`;
 
 let curTab=0,curFilter='all',curCat='all',selDT='promo',selPT='wc',srchQ='',srchVis=false,lastAnti=-1,pStars={},settOpen=false,adT=null,authTab='login';
 let userLat=null,userLng=null,userLocated=false,mapInited=false;
-let lastOverpassPlaceLat=null,lastOverpassPlaceLng=null,overpassPlacesFetching=false;
+let lastOverpassPlaceLat=null,lastOverpassPlaceLng=null,overpassPlacesFetching=false,lastPlaceFetchTime=0;
 let lastGoogleFetchLat=null,lastGoogleFetchLng=null,googleFetching=false;
 const G=id=>document.getElementById(id);
 function getPseudo(){return S.user?(S.user.pseudo||S.user.name||'Anonyme'):null;}
@@ -1225,7 +1226,11 @@ function goTab(idx){
   navItems.forEach((n,i)=>n.classList.toggle('active',tabMap[i]===idx));
   document.querySelectorAll('#dotsWrap .dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
   if(idx===0)renderDeals();
-  else if(idx===1){renderPlaces();initMap();}
+  else if(idx===1){
+    renderPlaces();initMap();
+    // Auto-refresh si >10min depuis dernier fetch ET localisé
+    if(userLocated&&Date.now()-lastPlaceFetchTime>600000)fetchOverpassUsefulPlaces(userLat,userLng);
+  }
   else if(idx===2)renderPrices();
   else if(idx===3)renderMissions();
   else if(idx===4)renderAnti();
@@ -1604,34 +1609,89 @@ function placeTypeToSwivo(types){
 }
 
 
+// ─── Navigation vers un lieu
+function openDirections(lat,lng,name){
+  if(!lat||!lng){toast('❌ Coordonnées manquantes');return;}
+  const label=encodeURIComponent(name||'Lieu');
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  const url=isIOS
+    ?`maps://?daddr=${lat},${lng}&q=${label}`
+    :`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  window.open(url,'_blank','noopener');
+  haptic&&haptic('light');
+  toast('🗺️ Ouverture de la navigation…');
+}
+// ─── Partage d'un lieu
+function sharePlace(name,addr){
+  const text=`📍 ${name}\n${addr}\n\nPartagé depuis DealSpot`;
+  if(navigator.share){navigator.share({title:name,text}).catch(()=>{});}
+  else{navigator.clipboard?.writeText(text).then(()=>toast('📋 Lieu copié !'),()=>toast('❌ Copie non disponible'));}
+}
+
 function renderPlaces(){
-  G('catGrid').innerHTML=`<div class="cc ${curCat==='all'?'on':''}" onclick="filtPl(this,'all')"><div class="ci">🗺️</div><span>Tout</span></div>`+Object.entries(CC).map(([k,v])=>`<div class="cc ${curCat===k?'on':''}" onclick="filtPl(this,'${k}')"><div class="ci">${v.i}</div><span>${v.l}</span></div>`).join('');
   // Calcul distances + tri par proximité si géoloc active
   let places=S.places.slice();
   if(userLocated){
     places=places.map(p=>({...p,_km:(p.lat&&p.lng)?distKm(userLat,userLng,p.lat,p.lng):9999}));
     places.sort((a,b)=>a._km-b._km);
   }
+  // Compteurs par catégorie
+  const catCounts={};places.forEach(p=>{catCounts[p.type]=(catCounts[p.type]||0)+1;});
+  const cntBadge=(n,active)=>n?`<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:6px;background:${active?'rgba(0,0,0,.2)':'var(--bd2)'};color:${active?'#000':'var(--tx3)'};margin-left:3px">${n}</span>`:'';
+  G('catGrid').innerHTML=`<div class="cc ${curCat==='all'?'on':''}" onclick="filtPl(this,'all')"><div class="ci">🗺️</div><span>Tout${cntBadge(places.length,curCat==='all')}</span></div>`+Object.entries(CC).map(([k,v])=>`<div class="cc ${curCat===k?'on':''}" onclick="filtPl(this,'${k}')"><div class="ci">${v.i}</div><span>${v.l}${cntBadge(catCounts[k]||0,curCat===k)}</span></div>`).join('');
   const fl=curCat==='all'?places:places.filter(p=>p.type===curCat);
   const nearbyCount=userLocated?fl.filter(p=>p._km!=null&&p._km<0.7).length:0;
   const plcEl=G('plcCount');
-  if(plcEl)plcEl.textContent=fl.length+' lieu(x) référencé(s)'+(userLocated&&nearbyCount?' · 🟢 '+nearbyCount+' <700m':'');
+  if(plcEl)plcEl.textContent=fl.length+' lieu(x)'+(userLocated&&nearbyCount?' · 🟢 '+nearbyCount+' <700m':'');
   const el=G('placeList');
   // Skeleton pendant le chargement initial
   if(overpassPlacesFetching&&!fl.length){showSkeleton('placeList',3);return;}
   if(!fl.length){
-    el.innerHTML=`<div class="empty"><div class="ei">📍</div><p>${userLocated?'Aucun lieu utile trouvé dans ce secteur.<br><small style="color:var(--tx3)">Tu peux en ajouter un avec le bouton +</small>':'Active la localisation pour voir les lieux utiles réels près de toi.'}</p>${!userLocated?`<button onclick="askGeoPermission()" style="margin-top:14px;padding:10px 20px;background:var(--bl);border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:\'Sora\',sans-serif;color:#fff;cursor:pointer">📍 Activer la localisation</button>`:`<button onclick="fetchOverpassUsefulPlaces(userLat,userLng)" style="margin-top:14px;padding:10px 20px;background:var(--adim);border:1px solid var(--ac);border-radius:10px;font-size:13px;font-weight:700;font-family:\'Sora\',sans-serif;color:var(--ac);cursor:pointer">🔄 Rafraîchir</button>`}</div>`;
+    el.innerHTML=`<div class="empty"><div class="ei">📍</div><p>${userLocated?'Aucun lieu utile trouvé dans ce secteur.<br><small style="color:var(--tx3)">Tu peux en ajouter un avec le bouton +</small>':'Active la localisation pour voir les lieux utiles réels près de toi.'}</p>${!userLocated?`<button onclick="askGeoPermission()" style="margin-top:14px;padding:10px 20px;background:var(--bl);border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;color:#fff;cursor:pointer">📍 Activer la localisation</button>`:`<button onclick="fetchOverpassUsefulPlaces(userLat,userLng)" style="margin-top:14px;padding:10px 20px;background:var(--adim);border:1px solid var(--ac);border-radius:10px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;color:var(--ac);cursor:pointer">🔄 Rafraîchir</button>`}</div>`;
     return;
   }
-  el.innerHTML=fl.map(p=>{
-    const c=CC[p.type]||CC.autre;const revs=p.reviews||[];
-    const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
-    const avg=avgS(revs),nc=revs.length,ps=pStars['p'+p.id]||0;
-    const km=p._km!=null?p._km:(p.dist?parseFloat(p.dist)/1000:null);
-    const distBadge=(userLocated&&km!=null&&km<9999)?`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${km<0.3?'var(--gd)':km<0.7?'var(--adim)':'rgba(148,163,184,.12)'};color:${km<0.3?'var(--gr)':km<0.7?'var(--ac)':'var(--tx3)'};margin-top:4px;margin-right:4px">📍 ${fmtDist(km)}</span>`:(p.dist?`<span style="font-size:10px;color:var(--tx3);display:inline-block;margin-top:3px">📍 ${esc(p.dist)}</span>`:'');
-    const osmBadge=p._fromOSM?`<span style="font-size:9px;font-weight:600;padding:1px 5px;border-radius:10px;background:rgba(16,185,129,.1);color:var(--gr);margin-left:4px">OSM</span>`:'';
-    return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}${osmBadge}</div><div class="plad">📍 ${esc(p.addr)}</div>${distBadge}${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<span class="plrb" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
-  }).join('');
+  let html='';
+  // ── Section "⚡ Les plus proches" (une carte par type, horizontal scroll)
+  if(userLocated&&curCat==='all'){
+    const nearestByType={};
+    places.forEach(p=>{if(p.lat&&p.lng&&p._km<1&&(!nearestByType[p.type]||p._km<nearestByType[p.type]._km))nearestByType[p.type]=p;});
+    const quickEntries=Object.entries(nearestByType).filter(([,p])=>p._km<0.8);
+    if(quickEntries.length){
+      html+=`<div style="margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:6px">⚡ Les plus proches<span style="font-size:10px;font-weight:500;color:var(--tx3)">dans 800m</span></div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px">`;
+      html+=quickEntries.map(([type,p])=>{
+        const c=CC[type]||CC.autre;
+        const kmCol=p._km<0.3?'var(--gr)':p._km<0.6?'var(--ac)':'var(--tx3)';
+        return `<div style="flex-shrink:0;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:140px"><div><div style="font-size:20px;margin-bottom:2px">${c.i}</div><div style="font-size:11px;font-weight:700;color:var(--tx)">${c.l}</div><div style="font-size:10px;font-weight:800;color:${kmCol};margin-top:1px">📍 ${fmtDist(p._km)}</div></div><button onclick="openDirections(${p.lat},${p.lng},'${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"')}')" style="padding:6px 10px;background:var(--bld);border:1px solid var(--bl);border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;white-space:nowrap">🗺️ Y aller</button></div>`;
+      }).join('');
+      html+='</div></div>';
+    }
+  }
+  // ── Séparateur proche / plus loin (comme Radar)
+  if(userLocated&&curCat==='all'){
+    const nearby=fl.filter(p=>p._km!=null&&p._km<0.7);
+    const far=fl.filter(p=>p._km==null||p._km>=0.7);
+    if(nearby.length){
+      html+=`<div style="font-size:12px;font-weight:700;color:var(--gr);margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--gr);flex-shrink:0"></span>📍 Près de toi (${nearby.length})</div>`;
+      html+=nearby.map(p=>placeCardH(p)).join('');
+      if(far.length){html+=`<div style="font-size:12px;font-weight:600;color:var(--tx3);margin:16px 0 8px;display:flex;align-items:center;gap:8px"><span style="flex:1;height:1px;background:var(--bd)"></span>📦 Plus loin<span style="flex:1;height:1px;background:var(--bd)"></span></div>`;html+=far.map(p=>placeCardH(p)).join('');}
+    }else{html+=fl.map(p=>placeCardH(p)).join('');}
+  }else{html+=fl.map(p=>placeCardH(p)).join('');}
+  el.innerHTML=html;
+}
+function placeCardH(p){
+  const c=CC[p.type]||CC.autre;const revs=p.reviews||[];
+  const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
+  const avg=avgS(revs),nc=revs.length,ps=pStars['p'+p.id]||0;
+  const km=p._km!=null?p._km:(p.dist?parseFloat(p.dist)/1000:null);
+  const distBadge=(userLocated&&km!=null&&km<9999)?`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${km<0.3?'var(--gd)':km<0.7?'var(--adim)':'rgba(148,163,184,.12)'};color:${km<0.3?'var(--gr)':km<0.7?'var(--ac)':'var(--tx3)'};margin-top:4px;margin-right:4px">📍 ${fmtDist(km)}</span>`:(p.dist?`<span style="font-size:10px;color:var(--tx3);display:inline-block;margin-top:3px">📍 ${esc(p.dist)}</span>`:'');
+  const osmBadge=p._fromOSM?`<span style="font-size:9px;font-weight:600;padding:1px 5px;border-radius:10px;background:rgba(16,185,129,.1);color:var(--gr);margin-left:4px">OSM</span>`:'';
+  // Extraction horaires depuis addr si présent
+  const hoursMatch=p.addr&&p.addr.match(/🕐 ([^·]+)/);
+  const hoursBadge=hoursMatch?`<div style="font-size:10px;color:var(--tx3);margin-top:3px">🕐 ${hoursMatch[1].trim()}</div>`:'';
+  const cleanAddr=p.addr?(p.addr.replace(/🕐[^·]*/g,'').replace(/· ·/g,'·').replace(/^·\s*/,'').replace(/\s*·\s*$/,'').trim()):'';
+  const dirBtn=p.lat&&p.lng?`<button onclick="openDirections(${p.lat},${p.lng},'${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--bld);border:1px solid var(--bl);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;margin-top:5px;margin-right:5px">🗺️ Y aller</button>`:'';
+  const shareBtn=`<button onclick="sharePlace('${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'${p.addr?`,'${cleanAddr.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'`:',""'})" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--card2);border:1px solid var(--bd);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--tx2);cursor:pointer;margin-top:5px">↗️ Partager</button>`;
+  return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}${osmBadge}</div><div class="plad">📍 ${esc(cleanAddr||p.addr||'')}</div>${hoursBadge}${distBadge}${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:0">${dirBtn}${shareBtn}<span class="plrb" style="margin-top:5px" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div></div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
 }
 function filtPl(el,cat){curCat=cat;renderPlaces();}
 function submitPlace(){
