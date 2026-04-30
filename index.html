@@ -479,6 +479,10 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
               <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
               Ma position
             </button>
+            <button class="loc-btn" style="background:rgba(16,185,129,.1);border-color:var(--gr);color:var(--gr)" onclick="if(userLocated){fetchOverpassUsefulPlaces(userLat,userLng);toast('🔄 Actualisation…');}else{askGeoPermission();}">
+              <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Rafraîchir
+            </button>
             <span class="badge bb" style="cursor:pointer;align-self:center" onclick="openModal('addPlaceModal')">+ Ajouter</span>
           </div>
         </div>
@@ -871,20 +875,7 @@ function defDeals(){return[
     {id:1,user:'Sylvie P.',stars:5,text:'Le marché Victor Hugo est le plus beau marché couvert de Toulouse. Le samedi matin les producteurs font des dégustations de foie gras, confits, fromages des Pyrénées... on peut facilement se faire un repas complet gratuit rien qu\'avec les dégus !',time:'Il y a 2j',src:'google'},
     {id:2,user:'Éric D.',stars:5,text:'Marché exceptionnel, les étals sont magnifiques et les producteurs très accueillants. Les dégustations le samedi sont généreuses. Allez voir le fromager du Comminges, son Ossau-Iraty est incroyable.',time:'Il y a 4j',src:'google'}]}
 ];}
-function defPlaces(){return[
-  {id:1,type:'wc',name:'Toilettes Publiques — République',addr:'Place de la République, Paris 11e',dist:'120 m',lat:48.8674,lng:2.3632,reviews:[
-    {id:1,user:'Céline R.',stars:4,text:'Propres, rénovées. Ouvertes 7h–22h.',time:'Il y a 2j',src:'google'}]},
-  {id:2,type:'eau',name:'Fontaine Wallace n°42',addr:'Bd Beaumarchais, Paris 3e',dist:'200 m',lat:48.8616,lng:2.3628,reviews:[
-    {id:1,user:'Pierre D.',stars:5,text:'Eau fraîche et propre. Je remplis ma gourde ici !',time:'Il y a 1j',src:'google'}]},
-  {id:3,type:'wifi',name:'Wi-Fi gratuit — Médiathèque',addr:'Mairie du 11e, Place Léon Blum',dist:'350 m',lat:48.8552,lng:2.3797,reviews:[
-    {id:1,user:'Thomas A.',stars:4,text:'~30 Mbps. Sans mot de passe. Espace calme.',time:'Il y a 4j',src:'google'}]},
-  {id:4,type:'prise',name:'Prises libres — McDonald\'s Voltaire',addr:'Bd Voltaire, Paris 11e',dist:'400 m',lat:48.8538,lng:2.3741,reviews:[
-    {id:1,user:'Hugo C.',stars:4,text:'Tables avec prises intégrées + Wi-Fi. Top !',time:'Il y a 2j',src:'google'}]},
-  {id:5,type:'parking',name:'Parking Gratuit — Dimanche',addr:'Rue Oberkampf, Paris 11e',dist:'500 m',lat:48.8646,lng:2.3763,reviews:[
-    {id:1,user:'Michel P.',stars:5,text:'Gratuit le dimanche toute la journée !',time:'Il y a 3j',src:'google'}]},
-  {id:6,type:'eau',name:'Fontaine réfrigérée — Gare de Lyon',addr:'Place Louis Armand, Paris 12e',dist:'800 m',lat:48.8448,lng:2.3736,reviews:[
-    {id:1,user:'Emma V.',stars:5,text:'Eau plate ET pétillante ! Froide même en juillet.',time:'Il y a 6j',src:'google'}]}
-];}
+function defPlaces(){return[];}
 function defPrices(){return[
   {id:1,name:'Lait demi-écrémé 1L',shop:'Lidl',emoji:'🥛',history:[{v:.89,d:'15 mars'},{v:.95,d:'1 avr.'},{v:.99,d:'18 avr.'},{v:.99,d:'Auj.'}]},
   {id:2,name:'Pain de mie Harrys',shop:'Franprix',emoji:'🍞',history:[{v:2.10,d:'1 mars'},{v:2.10,d:'15 mars'},{v:1.95,d:'5 avr.'},{v:1.95,d:'Auj.'}]},
@@ -894,7 +885,7 @@ function defPrices(){return[
 // ═══ STATE
 const S={
   deals:  lget('deals', null)||defDeals(),
-  places: lget('places',null)||defPlaces(),
+  places: (lget('places',null)||[]).filter(p=>!p._fromOSM),
   prices: lget('prices',null)||defPrices(),
   xp:     lget('xp',   0),
   streak: lget('streak',[]),
@@ -1068,8 +1059,77 @@ out center 20;`;
 }
 
 
+// ═══ OVERPASS — Vrais lieux utiles (toilettes, fontaines, Wi-Fi, prises, parkings)
+async function fetchOverpassUsefulPlaces(lat,lng){
+  if(overpassPlacesFetching)return;
+  if(lastOverpassPlaceLat&&distKm(lat,lng,lastOverpassPlaceLat,lastOverpassPlaceLng)<0.08)return;
+  overpassPlacesFetching=true;
+  lastOverpassPlaceLat=lat;lastOverpassPlaceLng=lng;
+  const r=700;
+  const query=`[out:json][timeout:14];
+(
+  node["amenity"="toilets"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="drinking_water"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="water_point"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="charging_station"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="parking"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  way["amenity"="parking"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["internet_access"="wlan"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["internet_access"="wlan"]["fee"!="yes"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="library"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+  node["amenity"="bench"]["name"](around:${r},${lat.toFixed(6)},${lng.toFixed(6)});
+);
+out center 40;`;
+  try{
+    const data=await overpassRequest(query);
+    if(!data||!data.elements||!data.elements.length){overpassPlacesFetching=false;if(curTab===1)renderPlaces();return;}
+    const typeMap={'toilets':'wc','drinking_water':'eau','water_point':'eau','charging_station':'prise','parking':'parking','library':'wifi'};
+    const nameMap={'toilets':'Toilettes publiques','drinking_water':'Point d\'eau potable','water_point':'Fontaine','charging_station':'Borne de recharge','parking':'Parking','library':'Bibliothèque — Wi-Fi gratuit'};
+    const seen=new Set();
+    const newPlaces=data.elements.filter(e=>{
+      const am=e.tags?.amenity||'';
+      const key=`${am}-${(e.lat||e.center?.lat||0).toFixed(4)}-${(e.lon||e.center?.lon||0).toFixed(4)}`;
+      if(seen.has(key))return false;seen.add(key);
+      return typeMap[am]||e.tags?.internet_access==='wlan';
+    }).slice(0,25).map((e,i)=>{
+      const t=e.tags||{};
+      const am=t.amenity||'';
+      const elat=e.lat||(e.center&&e.center.lat)||lat;
+      const elng=e.lon||(e.center&&e.center.lon)||lng;
+      const type=typeMap[am]||(t.internet_access==='wlan'?'wifi':'autre');
+      const distM=Math.round(distKm(lat,lng,elat,elng)*1000);
+      const defName=nameMap[am]||(t.internet_access==='wlan'?'Wi-Fi gratuit':'Lieu utile');
+      const name=t.name||t['name:fr']||defName;
+      const addrParts=[t['addr:housenumber'],t['addr:street']].filter(Boolean);
+      const addr=addrParts.length?addrParts.join(' '):'À '+distM+'m de ta position';
+      const extras=[
+        t.opening_hours&&('🕐 '+t.opening_hours.slice(0,40)),
+        t.fee==='yes'?'💶 Payant':(t.fee==='no'||!t.fee)?null:null,
+        t.access&&t.access!=='yes'&&('🔒 '+t.access),
+        t.operator&&('Par '+t.operator.slice(0,30))
+      ].filter(Boolean).join(' · ');
+      return{
+        id:20000+Date.now()%10000+i,
+        type,name,
+        addr:addr+(extras?' · '+extras:''),
+        lat:elat,lng:elng,
+        dist:distM+'m',
+        _fromOSM:true,
+        reviews:[]
+      };
+    });
+    S.places=S.places.filter(p=>!p._fromOSM);
+    newPlaces.forEach(p=>S.places.push(p));
+    sv('places');
+    if(curTab===1)renderPlaces();
+    if(newPlaces.length)toast('📍 '+newPlaces.length+' lieux utiles trouvés près de toi !');
+  }catch(e){console.warn('Overpass places erreur:',e);}
+  finally{overpassPlacesFetching=false;}
+}
+
 let curTab=0,curFilter='all',curCat='all',selDT='promo',selPT='wc',srchQ='',srchVis=false,lastAnti=-1,pStars={},settOpen=false,adT=null,authTab='login';
 let userLat=null,userLng=null,userLocated=false,mapInited=false;
+let lastOverpassPlaceLat=null,lastOverpassPlaceLng=null,overpassPlacesFetching=false;
 let lastGoogleFetchLat=null,lastGoogleFetchLng=null,googleFetching=false;
 const G=id=>document.getElementById(id);
 function getPseudo(){return S.user?(S.user.pseudo||S.user.name||'Anonyme'):null;}
@@ -1449,6 +1509,7 @@ function onGeoSuccess(pos){
   }
   // Charger les vrais avis Google Places si clé disponible
   fetchOverpassNearbyPlaces(userLat,userLng);
+  fetchOverpassUsefulPlaces(userLat,userLng);
   const cityMsg=city?' — '+city:'';
   const accTxt=acc<20?'GPS précis ±'+Math.round(acc)+'m':acc<60?'GPS ±'+Math.round(acc)+'m':'Position ±'+Math.round(acc)+'m';
   toast('✅ '+accTxt+cityMsg);
@@ -1479,7 +1540,7 @@ function updateMapIframe(lat,lng,zoom){
 
 function initMap(){
   if(mapInited)return;mapInited=true;
-  if(userLocated){updateMapIframe(userLat,userLng,17);return;}
+  if(userLocated){updateMapIframe(userLat,userLng,17);fetchOverpassUsefulPlaces(userLat,userLng);return;}
   const b=G('geoPermBanner');if(b)b.style.display='flex';
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
@@ -1524,6 +1585,7 @@ function startGeoWatch(){
         }
         // Relancer fetch Google si déplacé >200m
         if(movedM>200)fetchOverpassNearbyPlaces(userLat,userLng);
+        if(movedM>200)fetchOverpassUsefulPlaces(userLat,userLng);
       }
     },
     ()=>{},
@@ -1544,15 +1606,31 @@ function placeTypeToSwivo(types){
 
 function renderPlaces(){
   G('catGrid').innerHTML=`<div class="cc ${curCat==='all'?'on':''}" onclick="filtPl(this,'all')"><div class="ci">🗺️</div><span>Tout</span></div>`+Object.entries(CC).map(([k,v])=>`<div class="cc ${curCat===k?'on':''}" onclick="filtPl(this,'${k}')"><div class="ci">${v.i}</div><span>${v.l}</span></div>`).join('');
-  const fl=curCat==='all'?S.places:S.places.filter(p=>p.type===curCat);
-  G('plcCount').textContent=fl.length+' lieu(x) référencé(s)';
+  // Calcul distances + tri par proximité si géoloc active
+  let places=S.places.slice();
+  if(userLocated){
+    places=places.map(p=>({...p,_km:(p.lat&&p.lng)?distKm(userLat,userLng,p.lat,p.lng):9999}));
+    places.sort((a,b)=>a._km-b._km);
+  }
+  const fl=curCat==='all'?places:places.filter(p=>p.type===curCat);
+  const nearbyCount=userLocated?fl.filter(p=>p._km!=null&&p._km<0.7).length:0;
+  const plcEl=G('plcCount');
+  if(plcEl)plcEl.textContent=fl.length+' lieu(x) référencé(s)'+(userLocated&&nearbyCount?' · 🟢 '+nearbyCount+' <700m':'');
   const el=G('placeList');
-  if(!fl.length){el.innerHTML='<div class="empty"><div class="ei">📍</div><p>Aucun lieu dans cette catégorie</p></div>';return;}
+  // Skeleton pendant le chargement initial
+  if(overpassPlacesFetching&&!fl.length){showSkeleton('placeList',3);return;}
+  if(!fl.length){
+    el.innerHTML=`<div class="empty"><div class="ei">📍</div><p>${userLocated?'Aucun lieu utile trouvé dans ce secteur.<br><small style="color:var(--tx3)">Tu peux en ajouter un avec le bouton +</small>':'Active la localisation pour voir les lieux utiles réels près de toi.'}</p>${!userLocated?`<button onclick="askGeoPermission()" style="margin-top:14px;padding:10px 20px;background:var(--bl);border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:\'Sora\',sans-serif;color:#fff;cursor:pointer">📍 Activer la localisation</button>`:`<button onclick="fetchOverpassUsefulPlaces(userLat,userLng)" style="margin-top:14px;padding:10px 20px;background:var(--adim);border:1px solid var(--ac);border-radius:10px;font-size:13px;font-weight:700;font-family:\'Sora\',sans-serif;color:var(--ac);cursor:pointer">🔄 Rafraîchir</button>`}</div>`;
+    return;
+  }
   el.innerHTML=fl.map(p=>{
     const c=CC[p.type]||CC.autre;const revs=p.reviews||[];
     const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
     const avg=avgS(revs),nc=revs.length,ps=pStars['p'+p.id]||0;
-    return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}</div><div class="plad">📍 ${esc(p.addr)}</div>${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<span class="plrb" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div><div class="pldi">${esc(p.dist)}</div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
+    const km=p._km!=null?p._km:(p.dist?parseFloat(p.dist)/1000:null);
+    const distBadge=(userLocated&&km!=null&&km<9999)?`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${km<0.3?'var(--gd)':km<0.7?'var(--adim)':'rgba(148,163,184,.12)'};color:${km<0.3?'var(--gr)':km<0.7?'var(--ac)':'var(--tx3)'};margin-top:4px;margin-right:4px">📍 ${fmtDist(km)}</span>`:(p.dist?`<span style="font-size:10px;color:var(--tx3);display:inline-block;margin-top:3px">📍 ${esc(p.dist)}</span>`:'');
+    const osmBadge=p._fromOSM?`<span style="font-size:9px;font-weight:600;padding:1px 5px;border-radius:10px;background:rgba(16,185,129,.1);color:var(--gr);margin-left:4px">OSM</span>`:'';
+    return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}${osmBadge}</div><div class="plad">📍 ${esc(p.addr)}</div>${distBadge}${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<span class="plrb" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
   }).join('');
 }
 function filtPl(el,cat){curCat=cat;renderPlaces();}
@@ -1560,7 +1638,10 @@ function submitPlace(){
   const name=sanitize(G('plNm').value,100).trim(),addr=sanitize(G('plAd').value,100).trim();
   if(!name||!addr){toast('❌ Nom et adresse requis');return;}
   if(name.length<2){toast('❌ Nom trop court');return;}
-  S.places.unshift({id:Date.now(),type:selPT,name,addr,dist:'Près de vous',reviews:[]});
+  S.places.unshift({id:Date.now(),type:selPT,name,addr,
+    lat:userLocated?userLat:null,lng:userLocated?userLng:null,
+    dist:userLocated?'Ta position':'Près de vous',
+    reviews:[]});
   sv('places');closeModal('addPlaceModal');['plNm','plAd'].forEach(id=>G(id).value='');
   renderPlaces();addPlaceMarkersToMap();toast('📍 Lieu ajouté !');completeMis('m3');
 }
