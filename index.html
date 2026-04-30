@@ -104,6 +104,7 @@ input[type=range].dist-slider::-webkit-slider-thumb{-webkit-appearance:none;widt
 .ob-emoji{font-size:72px;line-height:1}
 .ob-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
 .ob-sub{font-size:14px;color:var(--tx2);line-height:1.6;max-width:280px}
+.ob-sub strong{color:var(--tx);font-weight:700}
 .ob-dots{display:flex;gap:8px;margin-bottom:20px}
 .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--bd2);transition:all .3s}
 .ob-dot.on{background:var(--ac);width:24px;border-radius:4px}
@@ -880,11 +881,11 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <div id="onboarding" style="display:none">
   <div class="ob-slides">
     <div class="ob-track" id="obTrack">
-      <div class="ob-slide"><div class="ob-emoji">🎯</div><div class="ob-title">Bienvenue sur DealSpot</div><div class="ob-sub">Trouve, partage et économise au quotidien avec toute la communauté.</div></div>
-      <div class="ob-slide"><div class="ob-emoji">📡</div><div class="ob-title">Radar de bons plans</div><div class="ob-sub">Découvre les meilleurs deals autour de toi, triés par distance et par catégorie.</div></div>
-      <div class="ob-slide"><div class="ob-emoji">🗺️</div><div class="ob-title">Carte interactive</div><div class="ob-sub">Visualise les lieux utiles — fontaines, Wi-Fi gratuit, prises, parking — autour de toi.</div></div>
-      <div class="ob-slide"><div class="ob-emoji">💰</div><div class="ob-title">Suivi des prix</div><div class="ob-sub">Note les prix de tes produits du quotidien et suis leurs variations pour faire les meilleures affaires.</div></div>
-      <div class="ob-slide"><div class="ob-emoji">🏆</div><div class="ob-title">Missions & XP</div><div class="ob-sub">Complète des missions, gagne de l'XP et monte en niveau. La communauté compte sur toi !</div></div>
+      <div class="ob-slide"><div class="ob-emoji">🎯</div><div class="ob-title">DealSpot, c'est simple</div><div class="ob-sub">Des <strong>vraies promos près de chez toi</strong>, partagées par des gens comme toi — pas par des marques. Gratuit, sans pub, sans fioritures.</div></div>
+      <div class="ob-slide"><div class="ob-emoji">📡</div><div class="ob-title">Le Radar</div><div class="ob-sub">Vois les bons plans du moment autour de toi : <strong>-50% chez Lidl, boulangerie qui brade ses invendus, vide-grenier dimanche…</strong> Filtrés par distance, en temps réel.</div></div>
+      <div class="ob-slide"><div class="ob-emoji">🗺️</div><div class="ob-title">La Carte</div><div class="ob-sub">Trouve en 2 secondes : <strong>le supermarché le plus proche, une fontaine d'eau gratuite, un parking pas cher, une pharmacie ouverte.</strong> Tout sur une carte.</div></div>
+      <div class="ob-slide"><div class="ob-emoji">📷</div><div class="ob-title">Scanne & compare les prix</div><div class="ob-sub">Scanne n'importe quel produit avec ta caméra. DealSpot te dit <strong>si le prix que tu vois est bon ou non</strong> par rapport à ce que la communauté a relevé.</div></div>
+      <div class="ob-slide"><div class="ob-emoji">✌️</div><div class="ob-title">Et toi, tu partages</div><div class="ob-sub">Tu as trouvé une promo ? <strong>Publie-la en 10 secondes.</strong> Les gens autour de toi en profitent direct. C'est ça DealSpot — une communauté qui s'entraide.</div></div>
     </div>
   </div>
   <div class="ob-dots" id="obDots"></div>
@@ -1029,27 +1030,43 @@ function restoreWeather(){
 }
 
 // ═══════════════════════════════════════════════════
-// FEATURE NOUVEAU — BATTERIE API
+// FEATURE NOUVEAU — BATTERIE API (rafraîchissement forcé toutes les 2min)
 // ═══════════════════════════════════════════════════
+let _battInterval=null;
 async function initBattery(){
   if(!('getBattery' in navigator))return;
-  try{
-    const bat=await navigator.getBattery();
-    const w=G('wthrWrap');
-    if(!w)return;
-    function renderBatt(){
+
+  // Fonction qui relit la batterie en instanciant un NOUVEAU BatteryManager
+  // (certains navigateurs ne mettent pas à jour l'objet existant)
+  async function refreshBattery(){
+    try{
+      const bat=await navigator.getBattery();
+      const w=G('wthrWrap');
+      if(!w)return;
       const pct=Math.round(bat.level*100);
       const color=pct>20?'var(--gr)':pct>10?'var(--ac)':'var(--re)';
       const charge=bat.charging?'⚡':'';
-      const el=document.getElementById('battEl');
       const html=`<div class="batt" id="battEl" style="color:${color}" title="Batterie : ${pct}%">${charge}<div class="batt-bar"><div class="batt-fill" style="width:${pct}%;background:${color}"></div></div><div class="batt-cap"></div><span>${pct}%</span></div>`;
+      const el=document.getElementById('battEl');
       if(el)el.outerHTML=html;
       else w.insertAdjacentHTML('beforeend',html);
-    }
-    renderBatt();
-    bat.addEventListener('levelchange',renderBatt);
-    bat.addEventListener('chargingchange',renderBatt);
+    }catch{}
+  }
+
+  try{
+    const bat=await navigator.getBattery();
+    // Écouter les événements natifs (fonctionne si le navigateur les supporte)
+    bat.addEventListener('levelchange',refreshBattery);
+    bat.addEventListener('chargingchange',refreshBattery);
   }catch{}
+
+  // Premier rendu immédiat…
+  await refreshBattery();
+  // …puis re-lecture forcée après 3s (le navigateur peut avoir des données stale au démarrage)
+  setTimeout(refreshBattery, 3000);
+  // Rafraîchissement toutes les 2 minutes (fallback fiable)
+  if(_battInterval)clearInterval(_battInterval);
+  _battInterval=setInterval(refreshBattery, 120000);
 }
 
 // ═══════════════════════════════════════════════════
@@ -2421,7 +2438,11 @@ function renderFavs(){
 // ═══ AUTH
 function handleAuthUser(data){
   const u=data.user||data;const prev=lget('user',null);
-  S.user={id:u.id||'',name:u.user_metadata?.full_name||u.email?.split('@')[0]||'Utilisateur',pseudo:prev?.pseudo||(u.user_metadata?.full_name||u.email?.split('@')[0]||'Utilisateur'),email:u.email||'',provider:u.app_metadata?.provider||'email',role:'user'};
+  // SÉCURITÉ: sanitiser les métadonnées OAuth avant stockage (le full_name peut être contrôlé par l'utilisateur)
+  const rawName=u.user_metadata?.full_name||u.email?.split('@')[0]||'Utilisateur';
+  const safeName=sanitize(rawName,40);
+  const prevPseudo=prev?.pseudo?sanitize(prev.pseudo,40):safeName;
+  S.user={id:sanitize(String(u.id||''),64),name:safeName,pseudo:prevPseudo,email:sanitize(u.email||'',100),provider:sanitize(u.app_metadata?.provider||'email',20),role:'user'};
   sv('user');updateUserBtn();renderSettAuth();closeModal('authModal');toast('✅ Bienvenue '+getPseudo()+' !');
 }
 function renderAuthModal(){
@@ -2942,9 +2963,13 @@ function launchConfetti(duration=2200){
 // ═══════════════════════════════════════════════════
 function addToSearchHistory(q){
   if(!q||q.length<2)return;
+  // SÉCURITÉ: limiter la longueur de la requête et la sanitiser avant stockage
+  const safeQ=sanitize(q,80);
+  if(!safeQ)return;
   let hist=lget('srchHist',[]);
-  hist=hist.filter(h=>h!==q);
-  hist.unshift(q);
+  if(!Array.isArray(hist))hist=[];
+  hist=hist.filter(h=>h!==safeQ);
+  hist.unshift(safeQ);
   lset('srchHist',hist.slice(0,8));
 }
 function showSrchHistory(){
@@ -3075,8 +3100,9 @@ async function lookupBarcode(barcode){
     const data=await res.json();
     if(data.status===1&&data.product){
       const p=data.product;
-      const name=(p.product_name_fr||p.product_name||p.abbreviated_product_name||'').trim();
-      const brand=(p.brands||'').split(',')[0].trim();
+      // SÉCURITÉ: sanitiser les données Open Food Facts à la source
+      const name=sanitize((p.product_name_fr||p.product_name||p.abbreviated_product_name||'').trim(),80);
+      const brand=sanitize((p.brands||'').split(',')[0].trim(),40);
       const cats=p.categories_tags?.join(' ')||'';
       const emoji=offCatToEmoji(cats,name);
       const fullName=name+(brand&&!name.toLowerCase().includes(brand.toLowerCase())?` — ${brand}`:'');
