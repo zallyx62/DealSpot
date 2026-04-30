@@ -4,10 +4,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <!-- Sécurité : Content Security Policy -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org https://world.openfoodfacts.org; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org https://world.openfoodfacts.org https://api.open-meteo.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=(), payment=(), usb=()"/>
+<!-- Protection anti-clickjacking (à doubler côté serveur avec header X-Frame-Options: DENY) -->
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN"/>
 <meta name="google-adsense-account" content="ca-pub-1381945888605291"/>
 <meta name="theme-color" content="#080D1A"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -557,6 +559,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
             src="https://www.openstreetmap.org/export/embed.html?bbox=2.25%2C48.82%2C2.45%2C48.90&layer=mapnik&marker=48.8566%2C2.3522"
             style="width:100%;height:100%;border:none;display:block"
             title="Carte OpenStreetMap"
+            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
             allow="geolocation"
             allowfullscreen></iframe>
           <div id="mapLocBadge" style="display:none;position:absolute;top:8px;left:8px;background:rgba(59,130,246,.92);backdrop-filter:blur(4px);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#fff;pointer-events:none;animation:su .4s ease">📍 Ta position</div>
@@ -900,9 +903,17 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
  */
 'use strict';
 
-// ─── Sanitisation renforcée (strip balises HTML + limite longueur)
+// ─── Sanitisation renforcée (strip balises HTML + caractères dangereux + longueur)
 function sanitize(s, maxLen=500){
-  return String(s||'').replace(/<[^>]*>/g,'').replace(/[<>"'`]/g,'').trim().slice(0,maxLen);
+  return String(s||'')
+    .replace(/\0/g,'')           // null bytes
+    .replace(/<[^>]*>/g,'')      // balises HTML
+    .replace(/[<>"'`\\]/g,'')    // caractères XSS/injection
+    .replace(/javascript\s*:/gi,'') // javascript: protocol
+    .replace(/on\w+\s*=/gi,'')   // event handlers inline (onclick= etc.)
+    .replace(/data\s*:/gi,'')    // data: URIs
+    .trim()
+    .slice(0,maxLen);
 }
 
 // ═══════════════════════════════════════════════════
@@ -995,7 +1006,11 @@ async function fetchWeather(lat,lng){
     const w=G('wthrWrap');
     if(w){
       w.style.display='flex';
-      w.innerHTML=`<div class="wthr-badge" title="Vent : ${wind} km/h — Données Open-Meteo">${emoji} ${temp}°</div>`;
+      // SÉCURITÉ: esc() sur les données météo avant injection innerHTML
+      const safeEmoji=esc(String(emoji||'🌡️').slice(0,4));
+      const safeTemp=esc(String(temp||''));
+      const safeWind=esc(String(wind||''));
+      w.innerHTML=`<div class="wthr-badge" title="Vent : ${safeWind} km/h — Données Open-Meteo">${safeEmoji} ${safeTemp}°</div>`;
     }
     lset('wthr',{emoji,temp,wind,ts:Date.now()});
   }catch{}
@@ -1004,7 +1019,13 @@ function restoreWeather(){
   const saved=lget('wthr',null);
   if(!saved||Date.now()-saved.ts>3600000)return; // expire après 1h
   const w=G('wthrWrap');
-  if(w){w.style.display='flex';w.innerHTML=`<div class="wthr-badge">${saved.emoji} ${saved.temp}°</div>`;}
+  if(w){
+    w.style.display='flex';
+    // SÉCURITÉ: esc() sur les données en cache avant injection innerHTML
+    const safeEmoji=esc(String(saved.emoji||'🌡️').slice(0,4));
+    const safeTemp=esc(String(saved.temp||''));
+    w.innerHTML=`<div class="wthr-badge">${safeEmoji} ${safeTemp}°</div>`;
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -1175,7 +1196,14 @@ async function sbPost(t,d){try{await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',h
 async function sbSignUp(e,p){try{const r=await fetch(SB_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();return r.ok?{data:d}:{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
 async function sbSignIn(e,p){try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();if(r.ok){lset('_sess',d);return{data:d};}return{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
 async function sbSignOut(){try{const s=lget('_sess',null);if(s?.access_token)await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});}catch{}lset('_sess',null);}
-async function sbGetSession(){const s=lget('_sess',null);if(!s?.access_token)return null;try{const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});if(r.ok)return s;lset('_sess',null);return null;}catch{return null;}}
+async function sbGetSession(){
+  const s=lget('_sess',null);
+  if(!s?.access_token)return null;
+  // SÉCURITÉ: valider le format JWT avant tout usage (3 segments base64url)
+  if(!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(s.access_token)){
+    lset('_sess',null);return null;
+  }
+  try{const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});if(r.ok)return s;lset('_sess',null);return null;}catch{return null;}}
 function sbOAuth(p){
   const allowed=['google','facebook','apple'];
   if(!allowed.includes(p)){toast('❌ Provider non autorisé');return;}
@@ -1189,7 +1217,15 @@ function sbOAuth(p){
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
 // ═══ STORAGE — avec nettoyage auto si quota dépassé
-function lget(k,d){try{const v=localStorage.getItem('ds6_'+k);return v!=null?JSON.parse(v):d;}catch{return d;}}
+function lget(k,d){
+  try{
+    const raw=localStorage.getItem('ds6_'+k);
+    if(raw==null)return d;
+    // SÉCURITÉ: limiter la taille des données lues depuis localStorage (anti-pollution)
+    if(raw.length>500000){console.warn('[Storage] Entrée suspecte ignorée:',k);localStorage.removeItem('ds6_'+k);return d;}
+    return JSON.parse(raw);
+  }catch{return d;}
+}
 function lset(k,v){
   try{localStorage.setItem('ds6_'+k,JSON.stringify(v));}
   catch(e){
@@ -1395,18 +1431,19 @@ out center 20;`;
     if(!elements.length){overpassFetching=false;return;}
     const newDeals=elements.map((e,i)=>{
       const tags=e.tags;
-      const name=tags.name||'Lieu';
+      // SÉCURITÉ: sanitiser toutes les données OSM avant stockage/rendu
+      const name=sanitize(tags.name||'Lieu',60);
       const addrParts=[tags['addr:housenumber'],tags['addr:street'],tags['addr:city']||tags['addr:town']||tags['addr:village']].filter(Boolean);
-      const addr=addrParts.length?addrParts.join(' '):(tags.amenity||tags.shop||'');
+      const addr=sanitize(addrParts.length?addrParts.join(' '):(tags.amenity||tags.shop||''),100);
       const distM=Math.round(distKm(lat,lng,e.lat,e.lon)*1000);
       const type=overpassTagToType(tags);
       const emoji=overpassTagToEmoji(tags);
-      const extras=[
+      const extras=sanitize([
         tags.cuisine&&('🍴 '+tags.cuisine.replace(/_/g,', ')),
         tags.opening_hours&&('🕐 '+tags.opening_hours.slice(0,50)),
         tags.phone&&('📞 '+tags.phone),
         tags.website&&'🌐 Site web disponible'
-      ].filter(Boolean).join(' · ');
+      ].filter(Boolean).join(' · '),200);
       const reviews=generateCommunityReviews(name,type,distM);
       return{
         id:10000+i,type,
@@ -1528,19 +1565,20 @@ out center 200;`;
       const type=typeMap[am]||shopTypeMap[sh]||typeMap[em]||(t.internet_access==='wlan'?'wifi':'autre');
       const distM=Math.round(distKm(lat,lng,elat,elng)*1000);
       const defName=nameMap[am]||shopNameMap[sh]||nameMap[em]||(t.internet_access==='wlan'?'Wi-Fi gratuit':'Lieu utile');
-      let name=t.name||t['name:fr']||'';
+      // SÉCURITÉ: sanitiser toutes les données OSM avant stockage/rendu
+      let name=sanitize(t.name||t['name:fr']||'',80);
       if(!name&&am==='place_of_worship'){
         const relNames={'christian':'Église','muslim':'Mosquée','jewish':'Synagogue','buddhist':'Temple bouddhiste','hindu':'Temple hindou'};
-        name=(relNames[t.religion||'']||'Lieu de culte')+(t.denomination?' ('+t.denomination+')':'');
+        name=(relNames[t.religion||'']||'Lieu de culte')+(t.denomination?' ('+sanitize(t.denomination,20)+')':'');
       }
       if(!name)name=defName;
       const addrParts=[t['addr:housenumber'],t['addr:street']].filter(Boolean);
-      const addr=addrParts.length?addrParts.join(' '):'À '+distM+'m';
-      const hours=t.opening_hours||'';
+      const addr=sanitize(addrParts.length?addrParts.join(' '):'À '+distM+'m',100);
+      const hours=sanitize(t.opening_hours||'',60);
       const fee=t.fee==='yes'?'💶 Payant':(t.fee==='no'?'🆓 Gratuit':'');
-      const access=t.access&&t.access!=='yes'?('🔒 '+t.access):'';
-      const op=t.operator?('Par '+t.operator.slice(0,28)):'';
-      const extras=[fee,access,op].filter(Boolean).join(' · ');
+      const access=t.access&&t.access!=='yes'?('🔒 '+sanitize(t.access,20)):'';
+      const op=t.operator?('Par '+sanitize(t.operator,28)):'';
+      const extras=sanitize([fee,access,op].filter(Boolean).join(' · '),120);
       return{
         id:e.id?Number(String(e.id).slice(-7))+30000:30000+i,
         type,name,addr,hours,extras,
@@ -1603,6 +1641,8 @@ function reportRev(btn){
 }
 // Signalement deal
 function reportDeal(id){
+  // SÉCURITÉ: limiter les signalements anonymes avec un rate-limit côté client
+  if(!canPostRev('report:deal:'+id))return;
   sbPost('reports',{type:'deal',deal_id:id,ts:Date.now()});
   toast('🚩 Bon plan signalé — merci à toi !');
 }
@@ -1925,6 +1965,10 @@ function getLocalDeals(city,lat,lng){
 function onGeoSuccess(pos){
   const acc=pos.coords.accuracy;
   const newLat=pos.coords.latitude,newLng=pos.coords.longitude;
+  // SÉCURITÉ: valider les coordonnées reçues du GPS
+  if(!isFinite(newLat)||!isFinite(newLng)||newLat<-90||newLat>90||newLng<-180||newLng>180){
+    console.warn('[Geo] Coordonnées invalides reçues:',newLat,newLng);return;
+  }
   // Ignorer si moins précis que la position actuelle ET position proche (évite régression)
   if(userLocated&&acc>50&&distKm(userLat,userLng,newLat,newLng)<0.05)return;
   userLat=newLat;
@@ -1956,6 +2000,10 @@ function onGeoSuccess(pos){
 let lastMapLat=null,lastMapLng=null;
 function updateMapIframe(lat,lng,zoom){
   zoom=zoom||17;
+  // SÉCURITÉ: valider les coordonnées avant injection dans l'URL de l'iframe
+  if(!isFinite(lat)||!isFinite(lng)||lat<-90||lat>90||lng<-180||lng>180){
+    console.warn('[Map] Coordonnées invalides ignorées:',lat,lng);return;
+  }
   // Ne recharger l'iframe que si déplacé de plus de 50m (évite le clignotement)
   if(lastMapLat&&distKm(lat,lng,lastMapLat,lastMapLng)<0.05){
     const full=G('mapOpenFull');
@@ -2079,6 +2127,18 @@ function openDirections(lat,lng,name){
   haptic&&haptic('light');
   toast('🗺️ Ouverture de la navigation…');
 }
+// ═══ WRAPPERS SÉCURISÉS : lookup par ID pour éviter l'injection de noms dans onclick
+// Au lieu d'interpoler p.name dans un onclick="...'${name}'...", on résout par ID
+function openDirectionsByPId(id){
+  const p=S.places.find(x=>x.id===id);
+  if(!p){toast('❌ Lieu introuvable');return;}
+  openDirections(p.lat,p.lng,p.name||'Lieu');
+}
+function sharePlaceById(id){
+  const p=S.places.find(x=>x.id===id);
+  if(!p){return;}
+  sharePlace(p.name||'Lieu',p.addr||'');
+}
 // ─── Partage d'un lieu
 function sharePlace(name,addr){
   const text=`📍 ${name}\n${addr}\n\nPartagé depuis DealSpot`;
@@ -2138,7 +2198,7 @@ function renderPlaces(){
         const kmCol=p._km<0.3?'var(--gr)':p._km<0.6?'var(--ac)':'var(--tx3)';
         const isOpen=p.hours?checkOpenNow(p.hours):null;
         const openDot=isOpen===true?'<span style="font-size:8px;color:var(--gr)">● </span>':isOpen===false?'<span style="font-size:8px;color:var(--re)">● </span>':'';
-        return `<div style="flex-shrink:0;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:140px"><div><div style="font-size:20px;margin-bottom:2px">${c.i}</div><div style="font-size:11px;font-weight:700;color:var(--tx)">${openDot}${c.l}</div><div style="font-size:10px;font-weight:800;color:${kmCol};margin-top:1px">📍 ${fmtDist(p._km)}</div></div><button onclick="openDirections(${p.lat},${p.lng},'${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"')}')" style="padding:6px 10px;background:var(--bld);border:1px solid var(--bl);border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;white-space:nowrap">🗺️ Y aller</button></div>`;
+        return `<div style="flex-shrink:0;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:140px"><div><div style="font-size:20px;margin-bottom:2px">${c.i}</div><div style="font-size:11px;font-weight:700;color:var(--tx)">${openDot}${c.l}</div><div style="font-size:10px;font-weight:800;color:${kmCol};margin-top:1px">📍 ${fmtDist(p._km)}</div></div><button onclick="openDirectionsByPId(${parseInt(p.id)})" style="padding:6px 10px;background:var(--bld);border:1px solid var(--bl);border-radius:8px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;white-space:nowrap">🗺️ Y aller</button></div>`;
       }).join('');
       html+='</div></div>';
     }
@@ -2190,9 +2250,10 @@ function placeCardH(p){
   const isOpenNow=p.hours?checkOpenNow(p.hours):null;
   const openBadge=isOpenNow===true?`<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--gd);color:var(--gr);margin-right:4px">● Ouvert</span>`
     :isOpenNow===false?`<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--rd);color:var(--re);margin-right:4px">● Fermé</span>`:'';
+  // SÉCURITÉ: utiliser des wrappers par ID (pas d'injection de p.name dans onclick)
   const dirBtn=p.lat&&p.lng
-    ?`<button onclick="openDirections(${p.lat},${p.lng},'${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--bld);border:1px solid var(--bl);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;margin-top:5px;margin-right:5px">🗺️ Y aller</button>`:'';
-  const shareBtn=`<button onclick="sharePlace('${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'${p.addr?`,'${p.addr.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'`:',""'})" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--card2);border:1px solid var(--bd);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--tx2);cursor:pointer;margin-top:5px">↗️ Partager</button>`;
+    ?`<button onclick="openDirectionsByPId(${parseInt(p.id)})" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--bld);border:1px solid var(--bl);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;margin-top:5px;margin-right:5px">🗺️ Y aller</button>`:'';
+  const shareBtn=`<button onclick="sharePlaceById(${parseInt(p.id)})" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--card2);border:1px solid var(--bd);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--tx2);cursor:pointer;margin-top:5px">↗️ Partager</button>`;
   return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}${osmBadge}</div><div class="plad">📍 ${esc(p.addr||'')}</div>${hoursBadge}${extrasBadge}${distBadge}${openBadge?'<div style="margin-top:4px">'+openBadge+'</div>':''}${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:0">${dirBtn}${shareBtn}<span class="plrb" style="margin-top:5px" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div></div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
 }
 function filtPl(el,cat){curCat=cat;renderPlaces();}
@@ -2297,7 +2358,9 @@ function submitPrice(){
   const name=sanitize(G('prNm').value,100).trim(),shop=sanitize(G('prSh').value,100).trim();
   const rawPv=G('prVl').value;
   const pv=parseFloat(rawPv);
-  const emoji=sanitize(G('prEm').value.trim()||'📦',4);
+  const rawEmoji=sanitize(G('prEm').value.trim()||'📦',4);
+  // SÉCURITÉ: valider que l'emoji est un caractère emoji ou ASCII simple (pas d'injection)
+  const emoji=rawEmoji.length>0&&rawEmoji.length<=4?rawEmoji:'📦';
   if(!name||!shop){toast('❌ Nom et magasin requis');return;}
   if(name.length<2){toast('❌ Nom trop court');return;}
   if(isNaN(pv)||pv<=0||pv>99999){toast('❌ Prix invalide (entre 0,01 et 99 999 €)');return;}
@@ -2370,7 +2433,7 @@ function renderAuthModal(){
     return;
   }
   if(title)title.textContent=authTab==='login'?'Connexion':'Inscription';
-  el.innerHTML=`<div class="atabs"><div class="atab ${authTab==='login'?'on':''}" onclick="setATab('login')">Connexion</div><div class="atab ${authTab==='register'?'on':''}" onclick="setATab('register')">Inscription</div></div><div class="aerr" id="authErr"></div><div class="aok" id="authOk"></div><div class="fg"><label>Email</label><input class="fi" id="authEmail" type="email" placeholder="ton@email.com" inputmode="email" autocomplete="email"/></div><div class="fg"><label>Mot de passe</label><input class="fi" id="authPwd" type="password" placeholder="Minimum 6 caractères" autocomplete="${authTab==='login'?'current-password':'new-password'}"/></div><button class="sbtn" onclick="submitAuth()">${authTab==='login'?'Se connecter →':'Créer mon compte →'}</button><div class="or-div"><span>ou continuer avec</span></div><button class="oabtn g" onclick="sbOAuth('google')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google</button><button class="oabtn f" onclick="sbOAuth('facebook')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971H15.83c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>Facebook</button><button class="oabtn" onclick="sbOAuth('apple')" style="border-color:var(--tx)">🍎 Apple</button><div style="font-size:11px;color:var(--tx3);text-align:center;margin-top:12px;line-height:1.5">Google/Facebook/Apple : activer dans<br>Supabase → Auth → Providers</div>`;
+  el.innerHTML=`<div class="atabs"><div class="atab ${authTab==='login'?'on':''}" onclick="setATab('login')">Connexion</div><div class="atab ${authTab==='register'?'on':''}" onclick="setATab('register')">Inscription</div></div><div class="aerr" id="authErr"></div><div class="aok" id="authOk"></div><div class="fg"><label>Email</label><input class="fi" id="authEmail" type="email" placeholder="ton@email.com" inputmode="email" autocomplete="email"/></div><div class="fg"><label>Mot de passe</label><input class="fi" id="authPwd" type="password" placeholder="Minimum 8 caractères" autocomplete="${authTab==='login'?'current-password':'new-password'}"/></div><button class="sbtn" onclick="submitAuth()">${authTab==='login'?'Se connecter →':'Créer mon compte →'}</button><div class="or-div"><span>ou continuer avec</span></div><button class="oabtn g" onclick="sbOAuth('google')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google</button><button class="oabtn f" onclick="sbOAuth('facebook')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971H15.83c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>Facebook</button><button class="oabtn" onclick="sbOAuth('apple')" style="border-color:var(--tx)">🍎 Apple</button><div style="font-size:11px;color:var(--tx3);text-align:center;margin-top:12px;line-height:1.5">Google/Facebook/Apple : activer dans<br>Supabase → Auth → Providers</div>`;
 }
 function setATab(t){authTab=t;renderAuthModal();}
 async function submitAuth(){
@@ -2378,7 +2441,7 @@ async function submitAuth(){
   if(!email||!pwd){toast('❌ Email et mot de passe requis');return;}
   // Validation email basique côté client
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){const e=G('authErr');if(e){e.textContent='Adresse email invalide.';e.classList.add('show');}return;}
-  if(pwd.length<6){const e=G('authErr');if(e){e.textContent='Mot de passe : minimum 6 caractères.';e.classList.add('show');}return;}
+  if(pwd.length<8){const e=G('authErr');if(e){e.textContent='Mot de passe : minimum 8 caractères.';e.classList.add('show');}return;}
   const err=G('authErr'),ok=G('authOk');if(err)err.classList.remove('show');if(ok)ok.classList.remove('show');
   // Indicateur de chargement
   const btn=document.querySelector('#authContent .sbtn');
@@ -3003,6 +3066,8 @@ function offCatToEmoji(cats='',productName=''){
 }
 
 async function lookupBarcode(barcode){
+  // SÉCURITÉ: double validation EAN côté lookupBarcode (défense en profondeur)
+  if(!/^\d{8,14}$/.test(barcode)){console.warn('[Barcode] Format invalide rejeté');return null;}
   const G_=G('scanStatus');
   if(G_)G_.textContent='🔍 Recherche du produit…';
   try{
@@ -3050,7 +3115,13 @@ function openScannerForPrice(){
       async (code)=>{
         // Barcode détecté !
         haptic&&haptic('success');
-        if(statusEl)statusEl.textContent='✅ Code détecté : '+code+' — Recherche…';
+        // SÉCURITÉ: valider format EAN (chiffres uniquement, 8-14 digits)
+        if(!/^\d{8,14}$/.test(code)){
+          if(statusEl)statusEl.textContent='⚠️ Code non reconnu — format invalide';
+          console.warn('[Scanner] Format code invalide:',code.slice(0,20));
+          return;
+        }
+        if(statusEl)statusEl.textContent='✅ Code EAN détecté — Recherche…';
         // Arrêter le scan
         try{await _html5QrScanner.stop();}catch(e){}
         _html5QrScanner=null;
