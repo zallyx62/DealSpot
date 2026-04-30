@@ -4,10 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <!-- Sécurité : Content Security Policy -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org https://world.openfoodfacts.org; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
-<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), payment=(), usb=()"/>
+<meta http-equiv="Permissions-Policy" content="camera=(self), microphone=(), payment=(), usb=()"/>
 <meta name="google-adsense-account" content="ca-pub-1381945888605291"/>
 <meta name="theme-color" content="#080D1A"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -19,6 +19,8 @@
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<!-- Barcode scanner -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <!-- Google AdSense — pub réelle -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1381945888605291" crossorigin="anonymous"></script>
 <style>
@@ -107,6 +109,39 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 .sh-chip-del{color:var(--tx3);font-size:11px;margin-left:2px}
 /* ═══ PRICE ALERT ═══ */
 .price-drop-badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;background:var(--gd);color:var(--gr);margin-left:4px}
+/* ═══ SCANNER OVERLAY ═══ */
+#scanOverlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.97);display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:env(safe-area-inset-top,0)}
+#scanOverlay.show{display:flex}
+.scan-head{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;flex-shrink:0}
+.scan-title{font-size:16px;font-weight:800;color:#fff}
+.scan-close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;cursor:pointer}
+#qr-reader{width:100%;max-width:380px;border-radius:20px;overflow:hidden;position:relative}
+#qr-reader video{border-radius:20px}
+.scan-frame{position:absolute;inset:0;pointer-events:none;z-index:2}
+.scan-line{position:absolute;left:12%;right:12%;height:2px;background:var(--ac);box-shadow:0 0 10px var(--ac);animation:scanAnim 2s ease-in-out infinite}
+@keyframes scanAnim{0%{top:18%}50%{top:78%}100%{top:18%}}
+.scan-hint{margin-top:20px;font-size:13px;color:rgba(255,255,255,.6);font-weight:500;text-align:center;padding:0 24px;line-height:1.5}
+.scan-manual{margin-top:16px;padding:10px 24px;background:rgba(245,158,11,.15);border:1px solid var(--ac);border-radius:12px;font-size:13px;font-weight:700;color:var(--ac);cursor:pointer;font-family:'Sora',sans-serif}
+#scanStatus{margin-top:14px;font-size:14px;font-weight:700;color:#fff;text-align:center;min-height:24px;padding:0 24px}
+/* ═══ SCAN BTN IN MODAL ═══ */
+.scan-trigger-btn{display:flex;align-items:center;gap:8px;width:100%;padding:11px 14px;background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(245,158,11,.05));border:1.5px dashed var(--ac);border-radius:12px;font-size:13px;font-weight:700;color:var(--ac);cursor:pointer;font-family:'Sora',sans-serif;justify-content:center;margin-bottom:2px;transition:background .15s}
+.scan-trigger-btn:active{background:var(--adim)}
+.scan-trigger-btn .stb-icon{font-size:20px}
+/* ═══ PRIX CARD — delete & sort ═══ */
+.price-del-btn{font-size:11px;color:var(--tx3);cursor:pointer;padding:3px 8px;border-radius:7px;border:1px solid var(--bd);background:none;font-family:'Sora',sans-serif;transition:all .15s}
+.price-del-btn:active{color:var(--re);border-color:var(--re)}
+/* ═══ PRODUCT FOUND CARD ═══ */
+.pf-card{background:var(--gd);border:1px solid var(--gr);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pf-icon{font-size:28px;flex-shrink:0}
+.pf-info{flex:1;min-width:0}
+.pf-name{font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-brand{font-size:11px;color:var(--tx2);margin-top:1px}
+.pf-ok{font-size:11px;font-weight:700;color:var(--gr)}
+/* ═══ PRICE SORT BAR ═══ */
+.price-sort-bar{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.price-sort-bar::-webkit-scrollbar{display:none}
+.psb-chip{flex-shrink:0;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;background:var(--card);border:1px solid var(--bd);color:var(--tx2);transition:all .2s}
+.psb-chip.on{background:var(--adim);border-color:var(--ac);color:var(--ac)}
 #topbar{flex-shrink:0;height:var(--nh);display:flex;align-items:center;padding:0 12px;background:var(--sf);border-bottom:1px solid var(--bd);z-index:50;gap:8px}
 .logo{display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;user-select:none}
 .logo-mk{width:30px;height:30px;background:var(--ac);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#000;flex-shrink:0}
@@ -502,6 +537,17 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
           <div class="pst"><div class="v" id="pDn" style="color:var(--gr)">0</div><div class="l">Baisses</div></div>
         </div>
       </div>
+      <!-- Raccourci scan rapide -->
+      <button class="scan-trigger-btn" onclick="openScannerForPrice()">
+        <span class="stb-icon">📷</span> Scanner un article (code-barres)
+      </button>
+      <!-- Tri -->
+      <div class="price-sort-bar" id="priceSortBar">
+        <div class="psb-chip on" data-sort="recent" onclick="setPriceSort(this,'recent')">🕐 Récents</div>
+        <div class="psb-chip" data-sort="alpha" onclick="setPriceSort(this,'alpha')">🔤 A–Z</div>
+        <div class="psb-chip" data-sort="drop" onclick="setPriceSort(this,'drop')">📉 Baisses</div>
+        <div class="psb-chip" data-sort="rise" onclick="setPriceSort(this,'rise')">📈 Hausses</div>
+      </div>
       <div class="sh"><h2 style="font-size:15px">Produits suivis</h2><span class="badge ba" style="cursor:pointer" onclick="openModal('addPriceModal')">+ Ajouter</span></div>
       <div id="priceList"></div>
     </div>
@@ -591,6 +637,19 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   <span>·</span>
   <span>© 2025 DealSpot</span>
 </div>
+<!-- SCANNER OVERLAY -->
+<div id="scanOverlay">
+  <div class="scan-head">
+    <div class="scan-title">📷 Scanner un article</div>
+    <div class="scan-close" onclick="closeScanner()">✕</div>
+  </div>
+  <div id="qr-reader" style="width:calc(100% - 32px);max-width:360px;position:relative">
+    <div class="scan-frame"><div class="scan-line"></div></div>
+  </div>
+  <div id="scanStatus">Pointez vers un code-barres EAN</div>
+  <div class="scan-hint">Fonctionne avec les codes EAN-13 / EAN-8<br>des produits alimentaires et ménagers</div>
+  <button class="scan-manual" onclick="closeScanner();openModal('addPriceModal')">✏️ Saisir manuellement</button>
+</div>
 <!-- TOAST — élément manquant, cause du TypeError -->
 <div id="toast"></div>
 <!-- SCROLL TO TOP -->
@@ -662,6 +721,12 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <div class="moverlay" id="addPriceModal" onclick="cmbg(event,'addPriceModal')" role="dialog" aria-modal="true" aria-label="Enregistrer un prix">
   <div class="mbox">
     <div class="mhead"><button class="mback" onclick="closeModal('addPriceModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>Enregistrer un Prix</h3></div>
+    <!-- Scanner rapide -->
+    <button class="scan-trigger-btn" onclick="openScannerForPrice()">
+      <span class="stb-icon">📷</span> Scanner le code-barres du produit
+    </button>
+    <!-- Produit trouvé (affiché après scan réussi) -->
+    <div id="prFoundCard" style="display:none"></div>
     <div class="fg"><label>Produit *</label><input class="fi" id="prNm" placeholder="Ex: Lait demi-écrémé 1L" maxlength="100" autocomplete="off"/></div>
     <div class="fg"><label>Magasin *</label><input class="fi" id="prSh" placeholder="Ex: Lidl République" maxlength="100" autocomplete="off"/></div>
     <div class="fg"><label>Prix actuel (€) *</label><input class="fi" id="prVl" type="number" step="0.01" min="0.01" max="99999" placeholder="1.09" inputmode="decimal"/></div>
@@ -1835,18 +1900,45 @@ function submitPlace(){
 }
 
 // ═══ MODULE 3: PRIX
+let curPriceSort='recent';
+function setPriceSort(el,sort){
+  curPriceSort=sort;
+  document.querySelectorAll('.psb-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  renderPrices();
+}
+function getSortedPrices(){
+  let arr=S.prices.slice();
+  if(curPriceSort==='alpha')arr.sort((a,b)=>a.name.localeCompare(b.name,'fr'));
+  else if(curPriceSort==='drop')arr.sort((a,b)=>{
+    const da=a.history.length>=2?a.history[a.history.length-1].v-a.history[a.history.length-2].v:0;
+    const db=b.history.length>=2?b.history[b.history.length-1].v-b.history[b.history.length-2].v:0;
+    return da-db;
+  });
+  else if(curPriceSort==='rise')arr.sort((a,b)=>{
+    const da=a.history.length>=2?a.history[a.history.length-1].v-a.history[a.history.length-2].v:0;
+    const db=b.history.length>=2?b.history[b.history.length-1].v-b.history[b.history.length-2].v:0;
+    return db-da;
+  });
+  // default: recent (insertion order, déjà en place)
+  return arr;
+}
+function deletePrice(id){
+  S.prices=S.prices.filter(p=>p.id!==id);
+  sv('prices');renderPrices();haptic&&haptic('light');toast('🗑️ Produit supprimé');
+}
 function renderPrices(){
   let up=0,dn=0,sav=0;
   S.prices.forEach(p=>{const h=p.history;if(h.length>=2){const l=h[h.length-1].v,pv=h[h.length-2].v;if(l>pv)up++;else if(l<pv){dn++;sav+=+(pv-l).toFixed(2);}}});
   G('pProd')&&(G('pProd').textContent=S.prices.length);G('pUp')&&(G('pUp').textContent=up);G('pDn')&&(G('pDn').textContent=dn);
   const st=G('savTotal');if(st)st.innerHTML=sav.toFixed(2)+' <span>€ économisés</span>';
   const el=G('priceList');
-  if(!S.prices.length){el.innerHTML='<div class="empty"><div class="ei">📦</div><p>Aucun produit suivi.<br>Ajoutez-en un !</p></div>';return;}
-  el.innerHTML=S.prices.map(p=>{
+  if(!S.prices.length){el.innerHTML='<div class="empty"><div class="ei">📦</div><p>Aucun produit suivi.<br>Scannez ou ajoutez-en un !</p></div>';return;}
+  el.innerHTML=getSortedPrices().map(p=>{
     const h=p.history,curr=h[h.length-1].v,prev=h.length>=2?h[h.length-2].v:curr,diff=+(curr-prev).toFixed(2);
     const tc=diff>0?'up':diff<0?'dn':'eq';const mx=Math.max(...h.map(x=>x.v));
     const bars=h.map(x=>`<div class="mb" style="height:${Math.round((x.v/mx)*100)}%;background:${x===h[h.length-1]?'var(--ac)':'var(--bd2)'}"></div>`).join('');
-    return `<div class="pii" data-price-id="${parseInt(p.id)}"><div class="pih"><div class="piic">${esc(p.emoji||'📦')}</div><div style="flex:1"><div class="pinm">${esc(p.name)}</div><div class="pish">${esc(p.shop)}</div></div><div style="text-align:right"><div class="pipr" style="color:${diff>0?'var(--re)':diff<0?'var(--gr)':'var(--tx)'}">${curr.toFixed(2)} €</div><div class="pitr ${tc}">${diff>0?'▲':diff<0?'▼':'='} ${Math.abs(diff).toFixed(2)} €</div></div></div><div class="mch">${bars}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--tx3)">MAJ: ${esc(h[h.length-1].d)}</span><span class="badge ${diff>0?'br':diff<0?'bg':'ba'}" style="cursor:pointer" onclick="updPrice(${parseInt(p.id)})">+ Nouveau prix</span></div></div>`;
+    return `<div class="pii" data-price-id="${parseInt(p.id)}"><div class="pih"><div class="piic">${esc(p.emoji||'📦')}</div><div style="flex:1"><div class="pinm">${esc(p.name)}</div><div class="pish">${esc(p.shop)}</div></div><div style="text-align:right"><div class="pipr" style="color:${diff>0?'var(--re)':diff<0?'var(--gr)':'var(--tx)'}">${curr.toFixed(2)} €</div><div class="pitr ${tc}">${diff>0?'▲':diff<0?'▼':'='} ${Math.abs(diff).toFixed(2)} €</div></div></div><div class="mch">${bars}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--tx3)">MAJ: ${esc(h[h.length-1].d)}</span><div style="display:flex;gap:6px;align-items:center"><button class="price-del-btn" onclick="if(confirm('Supprimer ce produit ?'))deletePrice(${parseInt(p.id)})">🗑️</button><span class="badge ${diff>0?'br':diff<0?'bg':'ba'}" style="cursor:pointer" onclick="updPrice(${parseInt(p.id)})">+ Nouveau prix</span></div></div></div>`;
   }).join('');
 }
 function updPrice(id){
@@ -1895,6 +1987,7 @@ function submitPrice(){
   const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
   S.prices.push({id:Date.now(),name,shop,emoji,history:[{v:parseFloat(pv.toFixed(2)),d:today}]});
   sv('prices');closeModal('addPriceModal');['prNm','prSh','prVl','prEm'].forEach(id=>G(id).value='');
+  const fc=G('prFoundCard');if(fc)fc.style.display='none';
   renderPrices();toast('💰 Prix enregistré !');completeMis('m2');
 }
 
@@ -2554,6 +2647,140 @@ function scrollToTop(){const t=G('tab-'+curTab);if(t)t.scrollTo({top:0,behavior:
     },{passive:true});
   });
 })();
+
+// ═══════════════════════════════════════════════════
+// FEATURE I — BARCODE SCANNER + OPEN FOOD FACTS
+// ═══════════════════════════════════════════════════
+let _html5QrScanner=null;
+let _scanCallback=null;
+
+// Mapping catégorie Open Food Facts → emoji
+function offCatToEmoji(cats='',productName=''){
+  const c=(cats+productName).toLowerCase();
+  if(c.includes('lait')||c.includes('milk'))return'🥛';
+  if(c.includes('pain')||c.includes('bread')||c.includes('mie'))return'🍞';
+  if(c.includes('eau')||c.includes('water'))return'💧';
+  if(c.includes('beurre')||c.includes('butter'))return'🧈';
+  if(c.includes('fromage')||c.includes('cheese'))return'🧀';
+  if(c.includes('yaourt')||c.includes('yogurt')||c.includes('yoghurt'))return'🥄';
+  if(c.includes('oeuf')||c.includes('egg'))return'🥚';
+  if(c.includes('fruit')||c.includes('pomme')||c.includes('apple'))return'🍎';
+  if(c.includes('légume')||c.includes('vegetable'))return'🥦';
+  if(c.includes('viande')||c.includes('meat')||c.includes('poulet')||c.includes('chicken'))return'🍗';
+  if(c.includes('poisson')||c.includes('fish'))return'🐟';
+  if(c.includes('café')||c.includes('coffee'))return'☕';
+  if(c.includes('thé')||c.includes('tea'))return'🍵';
+  if(c.includes('jus')||c.includes('juice'))return'🧃';
+  if(c.includes('soda')||c.includes('cola')||c.includes('boisson'))return'🥤';
+  if(c.includes('chocolat')||c.includes('chocolate'))return'🍫';
+  if(c.includes('biscuit')||c.includes('cookie')||c.includes('gâteau'))return'🍪';
+  if(c.includes('pâte')||c.includes('pasta'))return'🍝';
+  if(c.includes('riz')||c.includes('rice'))return'🍚';
+  if(c.includes('huile')||c.includes('oil'))return'🫙';
+  if(c.includes('sucre')||c.includes('sugar'))return'🍬';
+  if(c.includes('sel')||c.includes('salt'))return'🧂';
+  if(c.includes('shampoo')||c.includes('shampooing')||c.includes('cheveux'))return'🚿';
+  if(c.includes('savon')||c.includes('soap'))return'🧼';
+  if(c.includes('dentifrice')||c.includes('toothpaste'))return'🪥';
+  return'📦';
+}
+
+async function lookupBarcode(barcode){
+  const G_=G('scanStatus');
+  if(G_)G_.textContent='🔍 Recherche du produit…';
+  try{
+    const res=await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+    const data=await res.json();
+    if(data.status===1&&data.product){
+      const p=data.product;
+      const name=(p.product_name_fr||p.product_name||p.abbreviated_product_name||'').trim();
+      const brand=(p.brands||'').split(',')[0].trim();
+      const cats=p.categories_tags?.join(' ')||'';
+      const emoji=offCatToEmoji(cats,name);
+      const fullName=name+(brand&&!name.toLowerCase().includes(brand.toLowerCase())?` — ${brand}`:'');
+      return {name:fullName||barcode,emoji,brand,barcode};
+    }
+  }catch(e){console.warn('[Scanner] OFF lookup error:',e);}
+  return null;
+}
+
+function openScannerForPrice(){
+  // Fermer le modal si ouvert
+  closeModal('addPriceModal');
+  const overlay=G('scanOverlay');
+  if(!overlay)return;
+  overlay.classList.add('show');
+  const statusEl=G('scanStatus');
+  if(statusEl)statusEl.textContent='Pointez vers un code-barres EAN';
+
+  if(typeof Html5Qrcode==='undefined'){
+    if(statusEl)statusEl.textContent='⚠️ Scanner non disponible — saisis manuellement';
+    return;
+  }
+  try{
+    if(_html5QrScanner){try{_html5QrScanner.stop().catch(()=>{});}catch(e){}_html5QrScanner=null;}
+    _html5QrScanner=new Html5Qrcode('qr-reader');
+    _html5QrScanner.start(
+      {facingMode:'environment'},
+      {fps:10,qrbox:{width:260,height:120},aspectRatio:1.5,
+       formatsToSupport:[
+         Html5QrcodeSupportedFormats?.EAN_13,
+         Html5QrcodeSupportedFormats?.EAN_8,
+         Html5QrcodeSupportedFormats?.UPC_A,
+         Html5QrcodeSupportedFormats?.UPC_E
+       ].filter(Boolean)
+      },
+      async (code)=>{
+        // Barcode détecté !
+        haptic&&haptic('success');
+        if(statusEl)statusEl.textContent='✅ Code détecté : '+code+' — Recherche…';
+        // Arrêter le scan
+        try{await _html5QrScanner.stop();}catch(e){}
+        _html5QrScanner=null;
+        // Lookup produit
+        const product=await lookupBarcode(code);
+        closeScanner();
+        // Ouvrir le modal avec les infos pré-remplies
+        openModal('addPriceModal');
+        if(product){
+          const nm=G('prNm'),em=G('prEm'),fc=G('prFoundCard');
+          if(nm)nm.value=product.name;
+          if(em)em.value=product.emoji;
+          if(fc){
+            fc.style.display='flex';
+            fc.className='pf-card';
+            fc.innerHTML=`<div class="pf-icon">${product.emoji}</div><div class="pf-info"><div class="pf-name">${esc(product.name)}</div><div class="pf-brand">${product.brand?'Marque : '+esc(product.brand):'Code : '+esc(code)}</div></div><div class="pf-ok">✓ Trouvé</div>`;
+          }
+          toast('✅ Produit identifié !');
+          // Focus sur le champ prix
+          setTimeout(()=>G('prVl')?.focus(),200);
+        } else {
+          const fc=G('prFoundCard');
+          if(fc){fc.style.display='none';}
+          const nm=G('prNm');if(nm&&!nm.value)nm.value='Code: '+code;
+          toast('⚠️ Produit inconnu — saisis le nom manuellement');
+          setTimeout(()=>G('prNm')?.focus(),200);
+        }
+      },
+      (err)=>{/* erreur silencieuse pendant le scan */}
+    ).catch(err=>{
+      if(statusEl)statusEl.textContent='❌ Caméra non disponible';
+      console.warn('[Scanner]',err);
+    });
+  }catch(e){
+    if(statusEl)statusEl.textContent='❌ Erreur scanner — saisis manuellement';
+    console.warn('[Scanner]',e);
+  }
+}
+
+function closeScanner(){
+  const overlay=G('scanOverlay');
+  if(overlay)overlay.classList.remove('show');
+  if(_html5QrScanner){
+    try{_html5QrScanner.stop().catch(()=>{});}catch(e){}
+    _html5QrScanner=null;
+  }
+}
 
 (function init(){
   try{
