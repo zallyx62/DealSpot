@@ -28,7 +28,28 @@ html[data-theme="light"]{--bg:#F0F4FF;--sf:#FFF;--card:#FFF;--card2:#F1F5F9;--bd
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:var(--bg);color:var(--tx);transition:background .3s,color .3s}
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
-/* ═══ ONBOARDING ═══ */
+/* ═══ SETTINGS REDESIGN ═══ */
+.sett-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0 16px}
+.sett-card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;cursor:default;transition:background .15s}
+.sett-card.full{grid-column:1/-1}
+.sett-card.tap{cursor:pointer}
+.sett-card.tap:active{background:var(--card2)}
+.sett-card-icon{font-size:24px;line-height:1}
+.sett-card-label{font-size:12px;font-weight:700;color:var(--tx)}
+.sett-card-sub{font-size:10px;color:var(--tx3);line-height:1.4}
+.sett-tog-row{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
+.sett-user{display:flex;align-items:center;gap:10px;grid-column:1/-1}
+.sett-av{width:44px;height:44px;border-radius:14px;background:var(--ac);color:#000;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sett-info{flex:1;min-width:0}
+.sett-info .name{font-size:14px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sett-info .sub{font-size:11px;color:var(--tx3)}
+.sett-chevron{font-size:18px;color:var(--tx3)}
+/* ═══ SWIPE HINT ═══ */
+@keyframes swipeHintAnim{0%{transform:translateX(0);opacity:.9}30%{transform:translateX(-18px);opacity:1}60%{transform:translateX(0);opacity:.9}100%{transform:translateX(0);opacity:.9}}
+#swipeHint{position:absolute;bottom:calc(var(--nb) + 12px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);backdrop-filter:blur(8px);color:#fff;font-size:11px;font-weight:700;padding:7px 14px;border-radius:30px;display:flex;align-items:center;gap:6px;white-space:nowrap;pointer-events:none;z-index:100;opacity:0;transition:opacity .4s}
+#swipeHint.show{opacity:1}
+#swipeHint .sh-arrow{font-size:16px;animation:swipeHintAnim 1.6s ease-in-out infinite}
+
 #onboarding{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:40px}
 .ob-slides{width:100%;flex:1;overflow:hidden;position:relative}
 .ob-track{display:flex;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)}
@@ -477,6 +498,8 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     </div>
   </div>
 </div>
+<!-- SWIPE HINT — indique qu'on peut swiper vers la mémoire de prix -->
+<div id="swipeHint"><span class="sh-arrow">←</span> Swipe pour voir la Mémoire de Prix</div>
 <!-- DOTS -->
 <div class="dots" id="dotsWrap"></div>
 <!-- NAV -->
@@ -600,44 +623,58 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <div class="moverlay" id="settingsModal" onclick="cmbg(event,'settingsModal')">
   <div class="mbox">
     <div class="mhead"><div class="mback" onclick="closeModal('settingsModal')">←</div><h3>⚙️ Paramètres</h3></div>
-    <div class="ss"><h4>Compte</h4><div id="settAuth"></div></div>
-    <div class="ss">
-      <h4>Apparence</h4>
-      <div class="togrow">
-        <div><div class="tl">Thème sombre</div><div class="ts">Économise la batterie</div></div>
-        <div class="tog on" id="togTheme" onclick="toggleTheme()"></div>
-      </div>
-    </div>
-    <div class="ss">
-      <h4>💛 Soutenir DealSpot</h4>
-      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <div style="flex:1;font-size:12px;color:var(--tx2);min-width:100px">Aide à garder DealSpot gratuit !</div>
-        <div style="display:flex;gap:6px">
-          <button class="supbtn ad" onclick="closeModal('settingsModal');watchAd()">📺 Pub</button>
-          <a href="https://www.paypal.com/paypalme/zallyx" target="_blank" rel="noopener noreferrer" style="text-decoration:none"><button class="supbtn pp">💙 Don</button></a>
+    <div class="sett-grid">
+
+      <!-- Compte (pleine largeur) -->
+      <div class="sett-card sett-user tap" onclick="closeModal('settingsModal');openModal('authModal')" id="settAuth"></div>
+
+      <!-- Thème -->
+      <div class="sett-card">
+        <div class="sett-card-icon">🌗</div>
+        <div class="sett-card-label">Apparence</div>
+        <div class="sett-card-sub">Thème sombre</div>
+        <div class="sett-tog-row">
+          <span style="font-size:10px;color:var(--tx3)" id="themeLabel">Sombre</span>
+          <div class="tog on" id="togTheme" onclick="toggleTheme();event.stopPropagation()"></div>
         </div>
       </div>
-    </div>
-    <div class="ss">
-      <h4>🔔 Notifications</h4>
-      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px">
-        <div class="notif-row">
-          <div style="font-size:13px;font-weight:600">Nouveaux bons plans proches</div>
-          <button id="notifBtn" onclick="requestNotifPerm()" style="font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;background:var(--ac);color:#000;border:none;cursor:pointer;font-family:'Sora',sans-serif">Activer</button>
+
+      <!-- Notifications -->
+      <div class="sett-card tap" onclick="requestNotifPerm()">
+        <div class="sett-card-icon">🔔</div>
+        <div class="sett-card-label">Notifications</div>
+        <div class="sett-card-sub">Deals près de toi</div>
+        <div style="margin-top:4px">
+          <span id="notifBtn" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--ac);color:#000;display:inline-block">Activer</span>
         </div>
-        <div style="font-size:11px;color:var(--tx3);margin-top:6px">Reçois une alerte quand un deal est posté à moins de 2km de toi.</div>
       </div>
-    </div>
-      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px;font-size:12px;color:var(--tx2)">
-        <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--gd);color:var(--gr);margin-bottom:6px">● Supabase connecté</span><br>
-        Tes bons plans sont partagés en temps réel avec toute la communauté.
+
+      <!-- Soutenir -->
+      <div class="sett-card full">
+        <div class="sett-card-icon">💛</div>
+        <div class="sett-card-label">Soutenir DealSpot</div>
+        <div class="sett-card-sub">Aide à garder DealSpot 100% gratuit !</div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="supbtn ad" style="flex:1;padding:9px 0;border-radius:12px;font-size:12px" onclick="closeModal('settingsModal');watchAd()">📺 Regarder une pub</button>
+          <a href="https://www.paypal.com/paypalme/zallyx" target="_blank" rel="noopener noreferrer" style="flex:1;text-decoration:none"><button class="supbtn pp" style="width:100%;padding:9px 0;border-radius:12px;font-size:12px">💙 Faire un don</button></a>
+        </div>
       </div>
-    </div>
-    <div class="ss">
-      <h4>À propos</h4>
-      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px;font-size:12px;color:var(--tx2);line-height:1.6">
-        <strong style="color:var(--tx)">DealSpot v1.0</strong> — Par tous, pour tous.<br/>Trouve, partage et économise au quotidien.
+
+      <!-- Temps réel -->
+      <div class="sett-card">
+        <div class="sett-card-icon">🔗</div>
+        <div class="sett-card-label">Temps réel</div>
+        <div class="sett-card-sub">Supabase</div>
+        <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--gd);color:var(--gr);display:inline-block;margin-top:4px">● Connecté</span>
       </div>
+
+      <!-- À propos -->
+      <div class="sett-card">
+        <div class="sett-card-icon">ℹ️</div>
+        <div class="sett-card-label">À propos</div>
+        <div class="sett-card-sub">DealSpot v1.0<br/>Par tous, pour tous.</div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1033,13 +1070,28 @@ function logoClick(){
 // ═══ SWIPE
 const track=G('tabsTrack');const area=G('swipeArea');
 let tsX=0,tsY=0,dragging=false,mdX=0,mouseD=false;
+let _swipeHintShown=false;
+function showSwipeHint(){
+  if(_swipeHintShown||lget('swipeHintDone',false))return;
+  _swipeHintShown=true;
+  const h=G('swipeHint');if(!h)return;
+  setTimeout(()=>{
+    h.classList.add('show');
+    setTimeout(()=>{h.classList.remove('show');lset('swipeHintDone',true);},3500);
+  },1200); // apparaît 1.2s après chargement
+}
+function dismissSwipeHint(){
+  const h=G('swipeHint');if(h)h.classList.remove('show');
+  lset('swipeHintDone',true);
+}
 function goTab(idx){
   if(idx<0||idx>4)return;
   const prev=G('tab-'+curTab);if(prev)prev.scrollTop=0;
   curTab=idx;
+  // Masquer le swipe hint dès le premier swipe
+  if(idx!==0)dismissSwipeHint();
   track.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';
   track.style.transform='translateX(-'+idx*100+'%)';
-  // Nav — 0=radar,1=carte,skip center,3=favoris(nav idx 3),4=anti(nav idx 4)
   const navItems=document.querySelectorAll('#nav .ni');
   const tabMap=[0,1,3,4];
   navItems.forEach((n,i)=>n.classList.toggle('active',tabMap[i]===idx));
@@ -1525,9 +1577,11 @@ function renderSettAuth(){
   const el=G('settAuth');if(!el)return;
   if(S.user){
     const ini=esc((S.user.pseudo||S.user.name||'?')[0].toUpperCase());
-    el.innerHTML=`<div class="pcard"><div class="pav">${ini}</div><div style="flex:1;min-width:0"><div class="pnm">${esc(S.user.pseudo||S.user.name)}</div><div class="pem">${esc(S.user.email)}</div></div><span class="pedb" onclick="showEP('epSett')">Modifier</span></div><div id="epSett" style="display:none"><div class="perow"><input id="piSett" placeholder="Nouveau pseudo…" value="${esc(S.user.pseudo||S.user.name)}" maxlength="30"/><button onclick="savePseudo('piSett')">OK</button></div></div><button class="strw so" onclick="signOutUser()">🚪 Se déconnecter</button>`;
+    el.innerHTML=`<div class="sett-av">${ini}</div><div class="sett-info"><div class="name">${esc(S.user.pseudo||S.user.name)}</div><div class="sub">${esc(S.user.email)}</div></div><div class="sett-chevron">›</div>`;
+    // Remplace onclick pour utilisateur connecté → profil/déco
+    if(el.parentElement){el.parentElement.onclick=()=>{openModal('authModal');};}
   }else{
-    el.innerHTML=`<button class="strw" onclick="closeModal('settingsModal');openModal('authModal')">🔑 Se connecter / S'inscrire</button>`;
+    el.innerHTML=`<div class="sett-av" style="background:var(--bd2);color:var(--tx3);font-size:20px">?</div><div class="sett-info"><div class="name">Non connecté</div><div class="sub">Appuie pour te connecter</div></div><div class="sett-chevron">›</div>`;
   }
 }
 function showEP(id){const w=G(id);if(w)w.style.display=w.style.display==='none'?'block':'none';}
@@ -1543,7 +1597,7 @@ function updateUserBtn(){
 function applyTheme(t){
   document.documentElement.dataset.theme=t;S.theme=t;sv('theme');
   const tog=G('togTheme');if(tog)tog.className='tog'+(t==='dark'?' on':'');
-  // Met à jour la meta theme-color
+  const lbl=G('themeLabel');if(lbl)lbl.textContent=t==='dark'?'Sombre':'Clair';
   const mc=document.querySelector('meta[name="theme-color"]');
   if(mc)mc.content=t==='dark'?'#080D1A':'#F0F4FF';
 }
@@ -1729,9 +1783,10 @@ function syncDealsAndNotify(newDeals){
 // Mise à jour du bouton notif selon l'état actuel
 function updateNotifBtn(){
   const btn=G('notifBtn');if(!btn)return;
-  if(!('Notification' in window)){btn.textContent='Non supporté';btn.disabled=true;return;}
-  if(Notification.permission==='granted'){btn.textContent='Activées ✓';btn.style.background='var(--gr)';}
-  else if(Notification.permission==='denied'){btn.textContent='Bloquées';btn.style.background='var(--re)';}
+  if(!('Notification' in window)){btn.textContent='Non supporté';btn.style.background='var(--bd2)';return;}
+  if(Notification.permission==='granted'){btn.textContent='Activées ✓';btn.style.background='var(--gr)';btn.style.color='#fff';}
+  else if(Notification.permission==='denied'){btn.textContent='Bloquées';btn.style.background='var(--re)';btn.style.color='#fff';}
+  else{btn.textContent='Activer';btn.style.background='var(--ac)';btn.style.color='#000';}
 }
 
 // ═══════════════════════════════════════════════════
@@ -1819,6 +1874,8 @@ function cleanStorage(){
 
     // Feature 7 : onboarding premier lancement
     initOnboarding();
+    // Swipe hint — montré une seule fois
+    showSwipeHint();
 
     // Feature 1 : Service Worker
     setupServiceWorker();
