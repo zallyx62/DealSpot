@@ -4,7 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <!-- Sécurité : Content Security Policy -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org https://world.openfoodfacts.org; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://unpkg.com https://tpc.googlesyndication.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; frame-src https://www.openstreetmap.org https://googleads.g.doubleclick.net https://tpc.googlesyndication.com; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org https://world.openfoodfacts.org https://world.openfoodfacts.net; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"/>
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN"/>
+<meta http-equiv="X-XSS-Protection" content="1; mode=block"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=(), payment=(), usb=()"/>
@@ -76,6 +78,29 @@ html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:v
 /* ═══ NOTIFY BTN ═══ */
 .notif-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd)}
 .notif-row:last-child{border-bottom:none}
+/* ═══ ACCENT COLOR PICKER ═══ */
+.accent-picker{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.accent-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;flex-shrink:0}
+.accent-swatch.active{border-color:var(--tx);transform:scale(1.15)}
+/* ═══ SHOPPING LIST ═══ */
+.sl-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.sl-item:last-child{border-bottom:none}
+.sl-cb{width:20px;height:20px;border-radius:6px;border:2px solid var(--bd2);background:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:12px}
+.sl-cb.done{background:var(--gr);border-color:var(--gr);color:#fff}
+.sl-name{flex:1;font-size:13px;font-weight:600;color:var(--tx);transition:all .2s}
+.sl-name.done{text-decoration:line-through;color:var(--tx3)}
+.sl-price{font-size:11px;font-weight:700;color:var(--ac);background:var(--adim);padding:2px 7px;border-radius:10px;flex-shrink:0}
+.sl-del{font-size:11px;color:var(--tx3);cursor:pointer;padding:4px;border-radius:6px;border:1px solid var(--bd);background:none;font-family:'Sora',sans-serif}
+.sl-del:active{color:var(--re);border-color:var(--re)}
+.sl-add-row{display:flex;gap:8px;margin-top:10px}
+.sl-add-row .fi{flex:1}
+.sl-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.sl-stat{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;text-align:center}
+.sl-stat-n{font-size:20px;font-weight:800;color:var(--tx)}
+.sl-stat-l{font-size:10px;color:var(--tx3);margin-top:2px}
+/* ═══ BARCODE HINT ═══ */
+.bc-formats{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;justify-content:center}
+.bc-tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
 
 /* ═══ SKELETON LOADING ═══ */
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
@@ -646,9 +671,39 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   <div id="qr-reader" style="width:calc(100% - 32px);max-width:360px;position:relative">
     <div class="scan-frame"><div class="scan-line"></div></div>
   </div>
-  <div id="scanStatus">Pointez vers un code-barres EAN</div>
-  <div class="scan-hint">Fonctionne avec les codes EAN-13 / EAN-8<br>des produits alimentaires et ménagers</div>
+  <div id="scanStatus">Pointez vers un code-barres</div>
+  <div class="scan-hint">Tous codes-barres supportés<br>EAN-13 · EAN-8 · UPC · Code 128 · QR…</div>
+  <div class="bc-formats">
+    <span class="bc-tag">EAN-13</span><span class="bc-tag">EAN-8</span><span class="bc-tag">UPC-A</span><span class="bc-tag">UPC-E</span>
+    <span class="bc-tag">Code 128</span><span class="bc-tag">Code 39</span><span class="bc-tag">ITF</span><span class="bc-tag">QR Code</span>
+    <span class="bc-tag">DataMatrix</span><span class="bc-tag">PDF 417</span><span class="bc-tag">Codabar</span><span class="bc-tag">Aztec</span>
+  </div>
   <button class="scan-manual" onclick="closeScanner();openModal('addPriceModal')">✏️ Saisir manuellement</button>
+</div>
+<!-- MODAL: SHOPPING LIST -->
+<div class="moverlay" id="shoppingListModal" onclick="cmbg(event,'shoppingListModal')" role="dialog" aria-modal="true" aria-label="Liste de courses">
+  <div class="mbox">
+    <div class="mhead"><button class="mback" onclick="closeModal('shoppingListModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>🛒 Liste de courses</h3></div>
+    <div class="sl-stats">
+      <div class="sl-stat"><div class="sl-stat-n" id="slTot">0</div><div class="sl-stat-l">Articles</div></div>
+      <div class="sl-stat"><div class="sl-stat-n" id="slDone">0</div><div class="sl-stat-l">Cochés</div></div>
+      <div class="sl-stat"><div class="sl-stat-n" id="slBudget">—</div><div class="sl-stat-l">Budget est.</div></div>
+    </div>
+    <!-- Suggestion depuis mémoire de prix -->
+    <div id="slSuggest" style="display:none;background:var(--adim);border:1px solid var(--ac);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--ac);font-weight:600">
+      💡 Ajouter depuis ta mémoire de prix :
+      <div id="slSuggestChips" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px"></div>
+    </div>
+    <div id="slItems"></div>
+    <div class="sl-add-row">
+      <input class="fi" id="slNewItem" placeholder="Ajouter un article…" maxlength="60" autocomplete="off" onkeydown="if(event.key==='Enter')slAddItem()"/>
+      <button class="sbtn" style="width:auto;padding:10px 16px;flex-shrink:0" onclick="slAddItem()">+</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button onclick="slClearDone()" style="flex:1;padding:10px;background:var(--card2);border:1px solid var(--bd);border-radius:12px;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;color:var(--tx2);cursor:pointer">🗑️ Effacer cochés</button>
+      <button onclick="slShareList()" style="flex:1;padding:10px;background:var(--bld);border:1px solid var(--bl);border-radius:12px;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer">↗️ Partager liste</button>
+    </div>
+  </div>
 </div>
 <!-- TOAST — élément manquant, cause du TypeError -->
 <div id="toast"></div>
@@ -769,6 +824,21 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         </div>
       </div>
 
+      <!-- Couleur d'accent -->
+      <div class="sett-card">
+        <div class="sett-card-icon">🎨</div>
+        <div class="sett-card-label">Couleur</div>
+        <div class="sett-card-sub">Teinte principale</div>
+        <div class="accent-picker" id="accentPicker">
+          <div class="accent-swatch" style="background:#F59E0B" data-color="#F59E0B" onclick="setAccentColor('#F59E0B',this)" title="Orange (défaut)"></div>
+          <div class="accent-swatch" style="background:#3B82F6" data-color="#3B82F6" onclick="setAccentColor('#3B82F6',this)" title="Bleu"></div>
+          <div class="accent-swatch" style="background:#10B981" data-color="#10B981" onclick="setAccentColor('#10B981',this)" title="Vert"></div>
+          <div class="accent-swatch" style="background:#8B5CF6" data-color="#8B5CF6" onclick="setAccentColor('#8B5CF6',this)" title="Violet"></div>
+          <div class="accent-swatch" style="background:#EC4899" data-color="#EC4899" onclick="setAccentColor('#EC4899',this)" title="Rose"></div>
+          <div class="accent-swatch" style="background:#EF4444" data-color="#EF4444" onclick="setAccentColor('#EF4444',this)" title="Rouge"></div>
+        </div>
+      </div>
+
       <!-- Notifications -->
       <div class="sett-card tap" onclick="requestNotifPerm()">
         <div class="sett-card-icon">🔔</div>
@@ -790,6 +860,18 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         </div>
       </div>
 
+      <!-- Liste de courses -->
+      <div class="sett-card tap full" onclick="closeModal('settingsModal');openModal('shoppingListModal')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="sett-card-icon">🛒</div>
+          <div>
+            <div class="sett-card-label">Liste de courses</div>
+            <div class="sett-card-sub">Courses intelligentes avec prix estimés</div>
+          </div>
+          <span style="margin-left:auto;color:var(--tx3);font-size:18px">›</span>
+        </div>
+      </div>
+
       <!-- Temps réel -->
       <div class="sett-card">
         <div class="sett-card-icon">🔗</div>
@@ -802,7 +884,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       <div class="sett-card">
         <div class="sett-card-icon">ℹ️</div>
         <div class="sett-card-label">À propos</div>
-        <div class="sett-card-sub">DealSpot v1.0<br/>Par tous, pour tous.</div>
+        <div class="sett-card-sub">DealSpot v1.1<br/>Par tous, pour tous.</div>
       </div>
 
     </div>
@@ -837,9 +919,56 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
  */
 'use strict';
 
-// ─── Sanitisation renforcée (strip balises HTML + limite longueur)
+// ─── Rate limiting global anti-spam/DDoS (côté client)
+const _rlMap={};
+function rateLimit(key, maxPerMin=5){
+  const now=Date.now();
+  if(!_rlMap[key])_rlMap[key]=[];
+  _rlMap[key]=_rlMap[key].filter(t=>now-t<60000);
+  if(_rlMap[key].length>=maxPerMin){
+    const wait=Math.ceil((60000-(now-_rlMap[key][0]))/1000);
+    toast(`⏳ Trop de requêtes — attends ${wait}s`);
+    return false;
+  }
+  _rlMap[key].push(now);
+  return true;
+}
+
+// ─── Throttle pour les appels API externes
+const _throttleMap={};
+function throttleApi(key, minMs=2000){
+  const now=Date.now();
+  if(_throttleMap[key]&&now-_throttleMap[key]<minMs)return false;
+  _throttleMap[key]=now;
+  return true;
+}
+
+// ─── Sanitisation renforcée (strip balises HTML + encodage + limite longueur)
 function sanitize(s, maxLen=500){
-  return String(s||'').replace(/<[^>]*>/g,'').replace(/[<>"'`]/g,'').trim().slice(0,maxLen);
+  if(s==null)return'';
+  // Convertir en string, supprimer balises HTML, caractères dangereux
+  const cleaned=String(s)
+    .replace(/<[^>]*>/g,'')         // strip HTML tags
+    .replace(/javascript:/gi,'')    // strip js: URIs
+    .replace(/data:/gi,'')          // strip data: URIs
+    .replace(/on\w+\s*=/gi,'')      // strip event handlers
+    .replace(/[<>"'`\\]/g,'')       // strip dangerous chars
+    .trim();
+  return cleaned.slice(0,maxLen);
+}
+
+// ─── Validation barcode (formats connus)
+function validateBarcode(code){
+  if(!code||typeof code!=='string')return false;
+  const c=code.trim().replace(/\s/g,'');
+  // EAN-13, EAN-8, UPC-A (12), UPC-E (8), Code-128/39 alphanumeric, ITF (pairs)
+  if(/^\d{8}$/.test(c))return true;   // EAN-8
+  if(/^\d{12}$/.test(c))return true;  // UPC-A
+  if(/^\d{13}$/.test(c))return true;  // EAN-13
+  if(/^\d{14}$/.test(c))return true;  // ITF-14
+  if(/^[A-Z0-9\-\.\$\/\+\% ]{4,48}$/i.test(c))return true; // Code-39, Code-128 alphanum
+  if(/^\d{6,48}$/.test(c))return true; // Numeric codes
+  return false;
 }
 
 // ─── Rate limiting avis : 1 avis max toutes les 60s par deal/lieu
@@ -863,7 +992,12 @@ const SB_URL='https://vwapbxglpxcmvgcfkxbt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3YXBieGdscHhjbXZnY2ZreGJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTYyOTksImV4cCI6MjA5MjU3MjI5OX0.3OVOrzOYiik_cA8uQQaHRXBy_V9FZRpwfsJPv0V7Lng';
 const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
 async function sbGet(t,q){try{const r=await fetch(SB_URL+'/rest/v1/'+t+'?'+(q||''),{headers:SBH});return r.ok?r.json():null;}catch{return null;}}
-async function sbPost(t,d){try{await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:SBH,body:JSON.stringify(d)});}catch{}}
+const SB_ALLOWED_TABLES=new Set(['deals','places','reviews','reports','prices']);
+async function sbPost(t,d){
+  // Sécurité: whitelist des tables autorisées
+  if(!SB_ALLOWED_TABLES.has(t)){console.warn('[Security] Table non autorisée:',t);return;}
+  try{await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:SBH,body:JSON.stringify(d)});}catch{}
+}
 async function sbSignUp(e,p){try{const r=await fetch(SB_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();return r.ok?{data:d}:{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
 async function sbSignIn(e,p){try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();if(r.ok){lset('_sess',d);return{data:d};}return{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
 async function sbSignOut(){try{const s=lget('_sess',null);if(s?.access_token)await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});}catch{}lset('_sess',null);}
@@ -1464,6 +1598,7 @@ function togRevs(ctx,id){const rs=G('rs-'+ctx+'-'+id);if(rs)rs.classList.toggle(
 function setStar(ctx,id,n){pStars[ctx+id]=n;const sp=G('sp-'+ctx+'-'+id);if(sp)sp.querySelectorAll('.sp').forEach((s,i)=>s.classList.toggle('on',i<n));}
 function postRev(ctx,id){
   if(!S.user){toast('❌ Connecte-toi pour commenter');openModal('authModal');return;}
+  if(!rateLimit('postRev',3)){return;}
   const inp=G('ri-'+ctx+'-'+id);const raw=inp?inp.value.trim():'';
   if(!raw){toast('❌ Écris quelque chose d\'abord');return;}
   if(raw.length<5){toast('❌ Avis trop court (5 caractères min)');return;}
@@ -1502,6 +1637,7 @@ function updateFavBadge(){
 }
 function selT(el,ctx){const gid=ctx==='deal'?'dealTG':'placeTG';document.querySelectorAll('#'+gid+' .tc').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');if(ctx==='deal')selDT=el.dataset.type;else selPT=el.dataset.type;}
 function submitDeal(){
+  if(!rateLimit('submitDeal',3)){return;}
   const title=sanitize(G('dTit').value,100),place=sanitize(G('dPl').value,100);
   if(!title||!place){toast('❌ Titre et lieu requis');return;}
   if(title.length<3){toast('❌ Titre trop court');return;}
@@ -1888,6 +2024,7 @@ function placeCardH(p){
 }
 function filtPl(el,cat){curCat=cat;renderPlaces();}
 function submitPlace(){
+  if(!rateLimit('submitPlace',3)){return;}
   const name=sanitize(G('plNm').value,100).trim(),addr=sanitize(G('plAd').value,100).trim();
   if(!name||!addr){toast('❌ Nom et adresse requis');return;}
   if(name.length<2){toast('❌ Nom trop court');return;}
@@ -1977,6 +2114,7 @@ function updPrice(id){
   }
 }
 function submitPrice(){
+  if(!rateLimit('submitPrice',5)){return;}
   const name=sanitize(G('prNm').value,100).trim(),shop=sanitize(G('prSh').value,100).trim();
   const rawPv=G('prVl').value;
   const pv=parseFloat(rawPv);
@@ -2106,6 +2244,40 @@ function applyTheme(t){
   if(mc)mc.content=t==='dark'?'#080D1A':'#F0F4FF';
 }
 function toggleTheme(){applyTheme(S.theme==='dark'?'light':'dark');}
+
+// ─── Couleur d'accent personnalisable
+const ACCENT_PRESETS={
+  '#F59E0B':['rgba(245,158,11,.12)','rgba(245,158,11,.4)'],
+  '#3B82F6':['rgba(59,130,246,.12)','rgba(59,130,246,.4)'],
+  '#10B981':['rgba(16,185,129,.12)','rgba(16,185,129,.4)'],
+  '#8B5CF6':['rgba(139,92,246,.12)','rgba(139,92,246,.4)'],
+  '#EC4899':['rgba(236,72,153,.12)','rgba(236,72,153,.4)'],
+  '#EF4444':['rgba(239,68,68,.12)','rgba(239,68,68,.4)'],
+};
+function setAccentColor(hex,swatchEl){
+  // Sécurité : vérifier que la couleur est dans la liste autorisée
+  if(!ACCENT_PRESETS[hex]){toast('❌ Couleur non autorisée');return;}
+  const preset=ACCENT_PRESETS[hex];
+  const root=document.documentElement.style;
+  root.setProperty('--ac',hex);
+  root.setProperty('--adim',preset[0]);
+  root.setProperty('--ac-shadow',preset[1]);
+  // Recalc couleur ac2 (teinte plus claire ~+30%)
+  root.setProperty('--ac2',hex);
+  lset('accentColor',hex);
+  // Mettre à jour les swatches
+  document.querySelectorAll('.accent-swatch').forEach(s=>s.classList.remove('active'));
+  if(swatchEl)swatchEl.classList.add('active');
+  toast('🎨 Couleur appliquée !');haptic('light');
+}
+function initAccentColor(){
+  const saved=lget('accentColor','#F59E0B');
+  if(saved&&ACCENT_PRESETS[saved]){
+    const fakeEl=document.querySelector(`.accent-swatch[data-color="${saved}"]`);
+    setAccentColor(saved,fakeEl);
+  }
+}
+
 // Écoute les changements du thème système
 const _sysDark=window.matchMedia('(prefers-color-scheme: dark)');
 function applySystemTheme(e){
@@ -2170,9 +2342,17 @@ function closeAd(){const ov=G('adOverlay');if(ov)ov.classList.remove('show');if(
 function openModal(id){
   const el=document.getElementById(id);if(!el)return;
   el.classList.add('open');
-  if(id==='settingsModal'){settOpen=true;renderSettAuth();applyTheme(S.theme);}
+  if(id==='settingsModal'){
+    settOpen=true;renderSettAuth();applyTheme(S.theme);
+    // Restaurer la swatch de couleur active
+    setTimeout(()=>{
+      const ac=lget('accentColor','#F59E0B');
+      document.querySelectorAll('.accent-swatch').forEach(s=>s.classList.toggle('active',s.dataset.color===ac));
+    },50);
+  }
   if(id==='authModal')renderAuthModal();
   if(id==='favModal')renderFavs();
+  if(id==='shoppingListModal')setTimeout(slRender,50);
   // Focus le premier élément interactif pour l'accessibilité (piège de focus)
   requestAnimationFrame(()=>{
     const focusable=el.querySelector('button,.mback,input,textarea,select,[tabindex]:not([tabindex="-1"])');
@@ -2636,6 +2816,83 @@ function initLongPress(){
 
 
 // ═══ SCROLL TO TOP
+// ═══════════════════════════════════════════════════
+// MODULE LISTE DE COURSES 🛒
+// ═══════════════════════════════════════════════════
+function slGetList(){return lget('shoppingList',[]);}
+function slSave(list){lset('shoppingList',list);}
+function slRender(){
+  const list=slGetList();
+  const el=G('slItems');if(!el)return;
+  const tot=list.length,done=list.filter(i=>i.done).length;
+  // Budget estimé depuis la mémoire de prix
+  let budget=0,budgetKnown=0;
+  list.forEach(item=>{
+    const match=S.prices.find(p=>p.name.toLowerCase().includes(item.name.toLowerCase())||item.name.toLowerCase().includes(p.name.toLowerCase().slice(0,6)));
+    if(match&&match.history.length){budget+=match.history[match.history.length-1].v;budgetKnown++;}
+  });
+  G('slTot').textContent=tot;
+  G('slDone').textContent=done;
+  G('slBudget').textContent=budgetKnown?'~'+budget.toFixed(2)+'€':'—';
+  if(!list.length){
+    el.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--tx3);font-size:13px">🛒 Ta liste est vide<br><small>Ajoute des articles ci-dessous !</small></div>';
+  } else {
+    el.innerHTML=list.map((item,i)=>{
+      const priceMatch=S.prices.find(p=>p.name.toLowerCase().includes(item.name.toLowerCase())||item.name.toLowerCase().includes(p.name.toLowerCase().slice(0,6)));
+      const priceTag=priceMatch&&priceMatch.history.length?`<span class="sl-price">~${priceMatch.history[priceMatch.history.length-1].v.toFixed(2)}€</span>`:'';
+      return `<div class="sl-item">
+        <div class="sl-cb ${item.done?'done':''}" onclick="slToggle(${i})">${item.done?'✓':''}</div>
+        <span class="sl-name ${item.done?'done':''}">${esc(item.emoji||'📦')} ${esc(item.name)}</span>
+        ${priceTag}
+        <button class="sl-del" onclick="slDelete(${i})">🗑️</button>
+      </div>`;
+    }).join('');
+  }
+  // Suggestions depuis la mémoire de prix (items non encore dans la liste)
+  const listNames=list.map(i=>i.name.toLowerCase());
+  const suggestions=S.prices.filter(p=>!listNames.some(n=>n.includes(p.name.toLowerCase().slice(0,6)))).slice(0,5);
+  const sugEl=G('slSuggest');const sugChips=G('slSuggestChips');
+  if(suggestions.length&&sugEl&&sugChips){
+    sugEl.style.display='block';
+    sugChips.innerHTML=suggestions.map(p=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--ac);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--ac)" onclick="slAddFromMemory('${esc(p.name)}','${esc(p.emoji||'📦')}')">${esc(p.emoji||'📦')} ${esc(p.name.slice(0,22))}</span>`).join('');
+  } else if(sugEl){sugEl.style.display='none';}
+}
+function slAddItem(){
+  const inp=G('slNewItem');if(!inp)return;
+  const name=sanitize(inp.value.trim(),60);
+  if(!name||name.length<1){toast('❌ Nom requis');return;}
+  if(!rateLimit('slAdd',20)){return;}
+  const emoji=offCatToEmoji('',name);
+  const list=slGetList();
+  list.push({name,emoji,done:false,added:Date.now()});
+  slSave(list);inp.value='';slRender();haptic('light');
+}
+function slAddFromMemory(name,emoji){
+  if(!rateLimit('slAdd',20)){return;}
+  const list=slGetList();
+  if(list.some(i=>i.name===name)){toast('ℹ️ Déjà dans la liste');return;}
+  list.push({name,emoji,done:false,added:Date.now()});
+  slSave(list);slRender();toast(`✅ ${emoji} ${name} ajouté !`);haptic('light');
+}
+function slToggle(idx){
+  const list=slGetList();
+  if(list[idx])list[idx].done=!list[idx].done;
+  slSave(list);slRender();haptic('light');
+  if(list[idx]?.done)toast('✅ Coché !');
+}
+function slDelete(idx){
+  const list=slGetList();list.splice(idx,1);slSave(list);slRender();haptic('light');
+}
+function slClearDone(){
+  const list=slGetList().filter(i=>!i.done);slSave(list);slRender();toast('🗑️ Articles cochés supprimés');
+}
+function slShareList(){
+  const list=slGetList();
+  if(!list.length){toast('ℹ️ Liste vide');return;}
+  const text='🛒 Ma liste de courses DealSpot :\n'+list.map(i=>`${i.done?'☑':' ☐'} ${i.emoji||'📦'} ${i.name}`).join('\n');
+  if(navigator.share){navigator.share({title:'Ma liste de courses',text}).catch(()=>{});}
+  else{navigator.clipboard?.writeText(text).then(()=>toast('📋 Liste copiée !'),()=>toast('❌ Partage non disponible'));}
+}
 function scrollToTop(){const t=G('tab-'+curTab);if(t)t.scrollTo({top:0,behavior:'smooth'});}
 (function initScrollTop(){
   const btn=G('scrollTop');if(!btn)return;
@@ -2654,53 +2911,116 @@ function scrollToTop(){const t=G('tab-'+curTab);if(t)t.scrollTo({top:0,behavior:
 let _html5QrScanner=null;
 let _scanCallback=null;
 
-// Mapping catégorie Open Food Facts → emoji
+// Mapping catégorie Open Food Facts + produits ménagers → emoji
 function offCatToEmoji(cats='',productName=''){
-  const c=(cats+productName).toLowerCase();
-  if(c.includes('lait')||c.includes('milk'))return'🥛';
-  if(c.includes('pain')||c.includes('bread')||c.includes('mie'))return'🍞';
+  const c=(cats+' '+productName).toLowerCase();
+  // ── Boissons
   if(c.includes('eau')||c.includes('water'))return'💧';
-  if(c.includes('beurre')||c.includes('butter'))return'🧈';
-  if(c.includes('fromage')||c.includes('cheese'))return'🧀';
-  if(c.includes('yaourt')||c.includes('yogurt')||c.includes('yoghurt'))return'🥄';
-  if(c.includes('oeuf')||c.includes('egg'))return'🥚';
-  if(c.includes('fruit')||c.includes('pomme')||c.includes('apple'))return'🍎';
-  if(c.includes('légume')||c.includes('vegetable'))return'🥦';
-  if(c.includes('viande')||c.includes('meat')||c.includes('poulet')||c.includes('chicken'))return'🍗';
-  if(c.includes('poisson')||c.includes('fish'))return'🐟';
-  if(c.includes('café')||c.includes('coffee'))return'☕';
-  if(c.includes('thé')||c.includes('tea'))return'🍵';
-  if(c.includes('jus')||c.includes('juice'))return'🧃';
-  if(c.includes('soda')||c.includes('cola')||c.includes('boisson'))return'🥤';
-  if(c.includes('chocolat')||c.includes('chocolate'))return'🍫';
-  if(c.includes('biscuit')||c.includes('cookie')||c.includes('gâteau'))return'🍪';
-  if(c.includes('pâte')||c.includes('pasta'))return'🍝';
+  if(c.includes('café')||c.includes('coffee')||c.includes('expresso')||c.includes('espresso'))return'☕';
+  if(c.includes('thé')||c.includes('tea')||c.includes('infusion')||c.includes('tisane'))return'🍵';
+  if(c.includes('jus')||c.includes('juice')||c.includes('nectar')||c.includes('smoothie'))return'🧃';
+  if(c.includes('soda')||c.includes('cola')||c.includes('limonade')||c.includes('tonic')||c.includes('boisson gazeuse'))return'🥤';
+  if(c.includes('bière')||c.includes('beer')||c.includes('cerveza')||c.includes('ale'))return'🍺';
+  if(c.includes('vin')||c.includes('wine')||c.includes('champagne')||c.includes('rosé'))return'🍷';
+  if(c.includes('lait')||c.includes('milk')||c.includes('lactose'))return'🥛';
+  if(c.includes('jus d\'orange')||c.includes('orange juice'))return'🍊';
+  // ── Produits laitiers
+  if(c.includes('beurre')||c.includes('butter')||c.includes('margarine'))return'🧈';
+  if(c.includes('fromage')||c.includes('cheese')||c.includes('emmental')||c.includes('camembert')||c.includes('brie')||c.includes('gruyère'))return'🧀';
+  if(c.includes('yaourt')||c.includes('yogurt')||c.includes('yoghurt')||c.includes('skyr'))return'🥄';
+  if(c.includes('crème')||c.includes('cream')||c.includes('fraîche'))return'🍶';
+  if(c.includes('oeuf')||c.includes('egg')||c.includes('oeufs'))return'🥚';
+  // ── Boulangerie / pâtisserie
+  if(c.includes('pain')||c.includes('bread')||c.includes('baguette')||c.includes('mie')||c.includes('brioche')||c.includes('toast'))return'🍞';
+  if(c.includes('croissant')||c.includes('viennoiserie'))return'🥐';
+  if(c.includes('gâteau')||c.includes('cake')||c.includes('tarte')||c.includes('madeleine'))return'🎂';
+  if(c.includes('biscuit')||c.includes('cookie')||c.includes('crackers')||c.includes('galette'))return'🍪';
+  if(c.includes('céréal')||c.includes('muesli')||c.includes('granola')||c.includes('corn flakes'))return'🥣';
+  // ── Fruits & légumes
+  if(c.includes('pomme')||c.includes('apple'))return'🍎';
+  if(c.includes('banane')||c.includes('banana'))return'🍌';
+  if(c.includes('tomate')||c.includes('tomato'))return'🍅';
+  if(c.includes('carotte')||c.includes('carrot'))return'🥕';
+  if(c.includes('pomme de terre')||c.includes('potato')||c.includes('patate')||c.includes('frite'))return'🥔';
+  if(c.includes('oignon')||c.includes('ail')||c.includes('échalote'))return'🧅';
+  if(c.includes('salade')||c.includes('laitue')||c.includes('épinard')||c.includes('roquette'))return'🥬';
+  if(c.includes('fruit')||c.includes('fraise')||c.includes('framboise')||c.includes('myrtille'))return'🍓';
+  if(c.includes('légume')||c.includes('vegetable')||c.includes('courgette')||c.includes('brocoli'))return'🥦';
+  if(c.includes('citron')||c.includes('lemon')||c.includes('orange')||c.includes('pamplemousse'))return'🍋';
+  if(c.includes('avocat')||c.includes('avocado'))return'🥑';
+  if(c.includes('champignon')||c.includes('mushroom'))return'🍄';
+  // ── Viandes & poissons
+  if(c.includes('poulet')||c.includes('chicken')||c.includes('volaille')||c.includes('dinde'))return'🍗';
+  if(c.includes('boeuf')||c.includes('beef')||c.includes('steak')||c.includes('hamburger'))return'🥩';
+  if(c.includes('viande')||c.includes('meat')||c.includes('porc')||c.includes('jambon')||c.includes('saucisse'))return'🥓';
+  if(c.includes('poisson')||c.includes('fish')||c.includes('saumon')||c.includes('thon')||c.includes('sardine'))return'🐟';
+  if(c.includes('crevette')||c.includes('shrimp')||c.includes('fruits de mer')||c.includes('moule'))return'🦐';
+  // ── Épicerie
+  if(c.includes('pâte')||c.includes('pasta')||c.includes('spaghetti')||c.includes('macaroni'))return'🍝';
   if(c.includes('riz')||c.includes('rice'))return'🍚';
-  if(c.includes('huile')||c.includes('oil'))return'🫙';
-  if(c.includes('sucre')||c.includes('sugar'))return'🍬';
-  if(c.includes('sel')||c.includes('salt'))return'🧂';
-  if(c.includes('shampoo')||c.includes('shampooing')||c.includes('cheveux'))return'🚿';
-  if(c.includes('savon')||c.includes('soap'))return'🧼';
-  if(c.includes('dentifrice')||c.includes('toothpaste'))return'🪥';
+  if(c.includes('huile')||c.includes('oil')||c.includes('olive'))return'🫙';
+  if(c.includes('sucre')||c.includes('sugar')||c.includes('confiture')||c.includes('miel'))return'🍯';
+  if(c.includes('sel')||c.includes('salt')||c.includes('poivre')||c.includes('épice'))return'🧂';
+  if(c.includes('chocolat')||c.includes('chocolate')||c.includes('cacao'))return'🍫';
+  if(c.includes('chips')||c.includes('snack')||c.includes('pop-corn')||c.includes('noix')||c.includes('amande'))return'🍿';
+  if(c.includes('soupe')||c.includes('soup')||c.includes('bouillon')||c.includes('velouté'))return'🍲';
+  if(c.includes('conserve')||c.includes('boite')||c.includes('sauce')||c.includes('ketchup')||c.includes('mayonnaise'))return'🥫';
+  if(c.includes('farine')||c.includes('flour')||c.includes('levure'))return'🌾';
+  if(c.includes('pizza')||c.includes('quiche')||c.includes('surgelé'))return'🍕';
+  // ── Hygiène & beauté (très élargi)
+  if(c.includes('shampoo')||c.includes('shampooing')||c.includes('cheveux')||c.includes('hair'))return'🚿';
+  if(c.includes('savon')||c.includes('soap')||c.includes('gel douche')||c.includes('body wash'))return'🧼';
+  if(c.includes('dentifrice')||c.includes('toothpaste')||c.includes('brosse à dents'))return'🪥';
+  if(c.includes('déodorant')||c.includes('deodorant')||c.includes('antiperspirant'))return'💨';
+  if(c.includes('rasoir')||c.includes('razor')||c.includes('rasage')||c.includes('mousse à raser'))return'🪒';
+  if(c.includes('crème')||c.includes('lotion')||c.includes('moisturizer')||c.includes('hydratant'))return'🧴';
+  if(c.includes('parfum')||c.includes('cologne')||c.includes('eau de toilette'))return'💐';
+  if(c.includes('maquillage')||c.includes('rouge à lèvres')||c.includes('mascara')||c.includes('fond de teint'))return'💄';
+  if(c.includes('serviette hygienique')||c.includes('tampon')||c.includes('protection féminine'))return'🌸';
+  if(c.includes('coton')||c.includes('coton-tige')||c.includes('mouchoir')||c.includes('kleenex'))return'🧻';
+  // ── Produits ménagers
+  if(c.includes('lessive')||c.includes('laundry')||c.includes('detergent')||c.includes('adoucissant'))return'🫧';
+  if(c.includes('vaisselle')||c.includes('liquide vaisselle')||c.includes('dishwash'))return'🍽️';
+  if(c.includes('nettoyant')||c.includes('spray')||c.includes('désinfectant')||c.includes('javel')||c.includes('bleach'))return'🧹';
+  if(c.includes('papier toilette')||c.includes('toilet paper')||c.includes('essuie-tout'))return'🧻';
+  if(c.includes('sac poubelle')||c.includes('sac plastique')||c.includes('aluminium'))return'♻️';
+  if(c.includes('piles')||c.includes('battery')||c.includes('ampoule')||c.includes('led'))return'🔋';
+  // ── Bébé & animaux
+  if(c.includes('couche')||c.includes('diaper')||c.includes('bébé')||c.includes('baby'))return'👶';
+  if(c.includes('croquette')||c.includes('cat food')||c.includes('dog food')||c.includes('litière')||c.includes('animal'))return'🐾';
+  // ── Autres
+  if(c.includes('alcool')||c.includes('spirits')||c.includes('whisky')||c.includes('vodka')||c.includes('rhum'))return'🥃';
+  if(c.includes('bonbon')||c.includes('candy')||c.includes('chewing-gum')||c.includes('caramel'))return'🍬';
+  if(c.includes('glace')||c.includes('ice cream')||c.includes('sorbet'))return'🍦';
   return'📦';
 }
 
 async function lookupBarcode(barcode){
-  const G_=G('scanStatus');
-  if(G_)G_.textContent='🔍 Recherche du produit…';
+  const statusEl=G('scanStatus');
+  if(statusEl)statusEl.textContent='🔍 Recherche du produit…';
+  // Throttle : max 1 lookup par seconde
+  if(!throttleApi('barcodeApi',1000)){
+    if(statusEl)statusEl.textContent='⏳ Patiente un instant…';
+    await new Promise(r=>setTimeout(r,1000));
+  }
   try{
-    const res=await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-    const data=await res.json();
-    if(data.status===1&&data.product){
-      const p=data.product;
-      const name=(p.product_name_fr||p.product_name||p.abbreviated_product_name||'').trim();
-      const brand=(p.brands||'').split(',')[0].trim();
-      const cats=p.categories_tags?.join(' ')||'';
-      const emoji=offCatToEmoji(cats,name);
-      const fullName=name+(brand&&!name.toLowerCase().includes(brand.toLowerCase())?` — ${brand}`:'');
-      return {name:fullName||barcode,emoji,brand,barcode};
+    // API primaire : Open Food Facts (monde entier)
+    const res=await fetch(`https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(barcode)}.json`,{signal:AbortSignal.timeout?AbortSignal.timeout(8000):undefined});
+    if(res.ok){
+      const data=await res.json();
+      if(data.status===1&&data.product){
+        const p=data.product;
+        const name=(p.product_name_fr||p.product_name||p.abbreviated_product_name||'').trim();
+        const brand=(p.brands||'').split(',')[0].trim();
+        const cats=p.categories_tags?.join(' ')||'';
+        const qty=p.quantity?` (${p.quantity})`:'';
+        const emoji=offCatToEmoji(cats,name);
+        const fullName=(name+(brand&&!name.toLowerCase().includes(brand.toLowerCase())?` — ${brand}`:'')+qty).trim();
+        return {name:fullName||barcode,emoji,brand,barcode,source:'OFF'};
+      }
     }
   }catch(e){console.warn('[Scanner] OFF lookup error:',e);}
+  // Si pas trouvé : retour null (l'utilisateur saisit manuellement)
   return null;
 }
 
@@ -2720,17 +3040,26 @@ function openScannerForPrice(){
   try{
     if(_html5QrScanner){try{_html5QrScanner.stop().catch(()=>{});}catch(e){}_html5QrScanner=null;}
     _html5QrScanner=new Html5Qrcode('qr-reader');
+    // Tous les formats supportés (produits alimentaires, ménagers, cosmétiques, etc.)
+    const ALL_FORMATS=[
+      'EAN_13','EAN_8','UPC_A','UPC_E',
+      'CODE_128','CODE_39','CODE_93',
+      'ITF','CODABAR',
+      'QR_CODE','DATA_MATRIX','AZTEC','PDF_417',
+      'MAXICODE'
+    ].map(f=>Html5QrcodeSupportedFormats?.[f]).filter(Boolean);
     _html5QrScanner.start(
       {facingMode:'environment'},
-      {fps:10,qrbox:{width:260,height:120},aspectRatio:1.5,
-       formatsToSupport:[
-         Html5QrcodeSupportedFormats?.EAN_13,
-         Html5QrcodeSupportedFormats?.EAN_8,
-         Html5QrcodeSupportedFormats?.UPC_A,
-         Html5QrcodeSupportedFormats?.UPC_E
-       ].filter(Boolean)
+      {fps:12,qrbox:{width:260,height:140},aspectRatio:1.5,
+       formatsToSupport:ALL_FORMATS.length?ALL_FORMATS:undefined
       },
       async (code)=>{
+        // Validation du code détecté
+        const cleanCode=code.trim();
+        if(!validateBarcode(cleanCode)){
+          if(statusEl)statusEl.textContent='⚠️ Code non reconnu, réessaie…';
+          return;
+        }
         // Barcode détecté !
         haptic&&haptic('success');
         if(statusEl)statusEl.textContent='✅ Code détecté : '+code+' — Recherche…';
@@ -2790,6 +3119,7 @@ function closeScanner(){
 
     // Feature 5 : thème auto système (avant affichage)
     initTheme();
+    initAccentColor();
     // Feature 6 : nettoyage stockage
     cleanStorage();
 
