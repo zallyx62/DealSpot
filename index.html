@@ -112,7 +112,15 @@ input[type=range].dist-slider::-webkit-slider-thumb{-webkit-appearance:none;widt
 /* ═══ OFFLINE BANNER ═══ */
 #offlineBanner{display:none;position:fixed;top:var(--nh);left:0;right:0;z-index:200;background:var(--re);color:#fff;font-size:12px;font-weight:700;text-align:center;padding:6px 12px}
 /* ═══ SHARE BTN ═══ */
-.abtn.sh{background:var(--bld);color:var(--bl)}
+.abtn.rm{background:rgba(139,92,246,.12);border-color:#8B5CF6;color:#8B5CF6}
+.abtn.rm.set{background:rgba(16,185,129,.12);border-color:var(--gr);color:var(--gr)}
+/* Picker rappel */
+.remind-picker{display:none;flex-direction:column;gap:6px;margin-top:8px;padding:10px;background:var(--card2);border:1px solid var(--bd);border-radius:12px}
+.remind-picker.open{display:flex}
+.rp-title{font-size:11px;font-weight:700;color:var(--tx3);margin-bottom:2px}
+.rp-opts{display:flex;gap:6px;flex-wrap:wrap}
+.rp-opt{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--bd);color:var(--tx2);font-family:'Sora',sans-serif;transition:all .15s}
+.rp-opt:active{background:rgba(139,92,246,.15);border-color:#8B5CF6;color:#8B5CF6}
 /* ═══ REPORT ═══ */
 .rep-btn{font-size:10px;color:var(--tx3);cursor:pointer;padding:2px 6px;border-radius:6px;border:1px solid var(--bd);background:none;font-family:'Sora',sans-serif;margin-left:4px;flex-shrink:0}
 .rep-btn:hover{color:var(--re);border-color:var(--re)}
@@ -223,8 +231,6 @@ input[type=range].dist-slider::-webkit-slider-thumb{-webkit-appearance:none;widt
 .ni.active span{color:var(--ac)}
 .ni.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--ac);border-radius:0 0 4px 4px}
 .fav-badge{position:absolute;top:4px;right:6px;min-width:16px;height:16px;border-radius:8px;background:var(--re);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;pointer-events:none}
-.new-deals-badge{position:absolute;top:4px;right:4px;min-width:17px;height:17px;border-radius:9px;background:#10B981;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;pointer-events:none;animation:popIn .35s cubic-bezier(.4,0,.2,1)}
-@keyframes popIn{0%{transform:scale(0);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .ncw{flex:0 0 72px;display:flex;align-items:center;justify-content:center}
 .nc{width:48px;height:48px;border-radius:16px;background:var(--ac);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(245,158,11,.4);transition:transform .15s}
 .nc:active{transform:scale(.91)}
@@ -679,7 +685,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <div class="dots" id="dotsWrap"></div>
 <!-- NAV -->
 <div id="nav">
-  <div class="ni active" id="radarNavBtn" onclick="goTab(0)">
+  <div class="ni active" onclick="goTab(0)">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="11"/></svg>
     <span>Radar</span>
   </div>
@@ -1823,7 +1829,10 @@ function dealCardH(d){
   const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
   const avg=avgS(revs),nc=revs.length,ps=pStars['d'+d.id]||0;
   const distBadge=(userLocated&&d._km!=null&&d._km<9999)?`<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:${d._km<5?'var(--gd)':'var(--adim)'};color:${d._km<5?'var(--gr)':'var(--ac)'};margin-top:4px">📍 ${fmtDist(d._km)}</span>`:'';
-  return `<div class="dc"><div class="dh"><div class="dic" style="background:${t.b}">${t.i}</div><div class="din"><div class="dtt">${hl(d.title)}</div><div class="dpl">📍 ${hl(d.place)}</div>${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}${distBadge}${avg>0?`<div style="margin-top:4px">${starsH(avg,nc,true)}</div>`:''}</div></div><div class="df"><div class="da"><div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${d.id})">❤️ ${d.likes}</div><div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${d.id})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div><div class="abtn sh" onclick="shareDeal(${d.id})">↗️ Partager</div><div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${d.id})">💬 ${nc} avis</div></div><span class="dtm">${esc(d.time)}</span></div><div class="revs" id="rs-d-${d.id}">${ordered.map(r=>revH(r,d.id)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-d-${d.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${d.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-d-${d.id}" rows="2" placeholder="${S.user?'Ton avis…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'} maxlength="500"></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span><button class="rsnd" onclick="postRev('d',${d.id})">Publier</button></div></div></div></div>`;
+  const rmSet=getReminderSet(d.id);
+  const rmCls=rmSet?'set':'';
+  const rmLbl=rmSet?'⏰ Rappel actif':'⏰ Rappelle-moi';
+  return `<div class="dc"><div class="dh"><div class="dic" style="background:${t.b}">${t.i}</div><div class="din"><div class="dtt">${hl(d.title)}</div><div class="dpl">📍 ${hl(d.place)}</div>${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}${distBadge}${avg>0?`<div style="margin-top:4px">${starsH(avg,nc,true)}</div>`:''}</div></div><div class="df"><div class="da"><div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${d.id})">❤️ ${d.likes}</div><div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${d.id})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div><div class="abtn sh" onclick="shareDeal(${d.id})">↗️ Partager</div><div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${d.id})">💬 ${nc} avis</div><div class="abtn rm ${rmCls}" id="rmbtn-${d.id}" onclick="toggleRemindPicker(${d.id})">${rmLbl}</div></div><span class="dtm">${esc(d.time)}</span></div><div class="remind-picker" id="rp-${d.id}"><div class="rp-title">Dans combien de temps ?</div><div class="rp-opts"><button class="rp-opt" onclick="setReminder(${d.id},60,'1h')">1h</button><button class="rp-opt" onclick="setReminder(${d.id},180,'3h')">3h</button><button class="rp-opt" onclick="setReminder(${d.id},480,'8h')">8h</button><button class="rp-opt" onclick="setReminder(${d.id},1440,'demain')">Demain matin</button><button class="rp-opt" style="color:var(--re)" onclick="cancelReminder(${d.id})">✕ Annuler</button></div></div><div class="revs" id="rs-d-${d.id}">${ordered.map(r=>revH(r,d.id)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-d-${d.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${d.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-d-${d.id}" rows="2" placeholder="${S.user?'Ton avis…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'} maxlength="500"></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span><button class="rsnd" onclick="postRev('d',${d.id})">Publier</button></div></div></div></div>`;
 }
 function togRevs(ctx,id){const rs=G('rs-'+ctx+'-'+id);if(rs)rs.classList.toggle('open');}
 function setStar(ctx,id,n){pStars[ctx+id]=n;const sp=G('sp-'+ctx+'-'+id);if(sp)sp.querySelectorAll('.sp').forEach((s,i)=>s.classList.toggle('on',i<n));}
@@ -1856,6 +1865,87 @@ function postRev(ctx,id){
   toast('⭐ Avis publié !');
   sbPost('reviews',{context:ctx,ref_id:id,user:pseudo,stars,text:txt});
 }
+// ═══ RAPPELLE-MOI ═══
+function getReminderSet(id){
+  const reminders=lget('reminders',{});
+  return reminders[id]&&reminders[id].fireAt>Date.now();
+}
+function toggleRemindPicker(id){
+  const picker=G('rp-'+id);
+  if(!picker)return;
+  picker.classList.toggle('open');
+}
+function setReminder(id,minutes,label){
+  // Demander la permission notif si pas encore accordée
+  if(!('Notification' in window)){toast('❌ Notifications non supportées');return;}
+  const doSet=()=>{
+    const deal=S.deals.find(x=>x.id===id);if(!deal)return;
+    const fireAt=Date.now()+minutes*60000;
+    // Pour "demain matin" : 8h du matin
+    const actualFireAt=label==='demain'
+      ?(()=>{const d=new Date();d.setDate(d.getDate()+1);d.setHours(8,0,0,0);return d.getTime();})()
+      :fireAt;
+    const delay=actualFireAt-Date.now();
+    // Sauvegarder
+    const reminders=lget('reminders',{});
+    if(reminders[id]?.timerId)clearTimeout(reminders[id].timerId);
+    const timerId=setTimeout(()=>{
+      if(Notification.permission==='granted'){
+        new Notification('⏰ DealSpot — Rappel !',{
+          body:deal.title+' · '+deal.place,
+          icon:'/favicon.ico',
+          tag:'remind-'+id
+        });
+      }
+      // Nettoyer
+      const r=lget('reminders',{});delete r[id];lset('reminders',r);
+      const btn=G('rmbtn-'+id);
+      if(btn){btn.textContent='⏰ Rappelle-moi';btn.classList.remove('set');}
+    },delay);
+    reminders[id]={fireAt:actualFireAt,title:deal.title,timerId};
+    lset('reminders',reminders);
+    // Fermer le picker, mettre à jour le bouton
+    const picker=G('rp-'+id);if(picker)picker.classList.remove('open');
+    const btn=G('rmbtn-'+id);
+    if(btn){btn.textContent='⏰ Rappel actif';btn.classList.add('set');}
+    toast('⏰ Rappel dans '+(label==='demain'?'demain matin':label)+' !');
+    haptic&&haptic('success');
+  };
+  if(Notification.permission==='granted'){doSet();}
+  else if(Notification.permission!=='denied'){
+    Notification.requestPermission().then(p=>{if(p==='granted')doSet();else toast('❌ Autorise les notifications pour les rappels');});
+  } else {
+    toast('❌ Notifications bloquées — autorise-les dans les paramètres');
+  }
+}
+function cancelReminder(id){
+  const reminders=lget('reminders',{});
+  if(reminders[id]?.timerId)clearTimeout(reminders[id].timerId);
+  delete reminders[id];lset('reminders',reminders);
+  const picker=G('rp-'+id);if(picker)picker.classList.remove('open');
+  const btn=G('rmbtn-'+id);
+  if(btn){btn.textContent='⏰ Rappelle-moi';btn.classList.remove('set');}
+  toast('🗑️ Rappel annulé');
+}
+// Restaurer les rappels actifs au démarrage (après rechargement de page)
+function restoreReminders(){
+  try{
+    const reminders=lget('reminders',{});
+    const now=Date.now();
+    Object.keys(reminders).forEach(id=>{
+      const r=reminders[id];
+      if(!r||r.fireAt<=now){delete reminders[id];return;}
+      const delay=r.fireAt-now;
+      r.timerId=setTimeout(()=>{
+        if(Notification.permission==='granted'){
+          new Notification('⏰ DealSpot — Rappel !',{body:r.title,icon:'/favicon.ico',tag:'remind-'+id});
+        }
+        const rs=lget('reminders',{});delete rs[id];lset('reminders',rs);
+      },delay);
+    });
+    lset('reminders',reminders);
+  }catch(e){}
+}
 function likeDeal(id){const d=S.deals.find(x=>x.id===id);if(!d)return;d.liked=!d.liked;d.likes+=d.liked?1:-1;sv('deals');renderDeals();}
 function saveDeal(id){const d=S.deals.find(x=>x.id===id);if(!d)return;d.saved=!d.saved;sv('deals');renderDeals();toast(d.saved?'🔖 Sauvegardé !':'Retiré des favoris');updateFavBadge();}
 function updateFavBadge(){
@@ -1875,7 +1965,7 @@ function submitDeal(){
   const desc=sanitize(G('dDs').value,300);
   const deal={id:Date.now(),type:selDT,title,place,desc,
     lat:userLocated?userLat:null,lng:userLocated?userLng:null,
-    likes:0,saved:false,liked:false,time:'À l\'instant',createdAt:Date.now(),reviews:[]};
+    likes:0,saved:false,liked:false,time:'À l\'instant',reviews:[]};
   S.deals.unshift(deal);sv('deals');closeModal('addModal');
   ['dTit','dPl','dDs'].forEach(id=>{const el=G(id);if(el)el.value='';});
   goTab(0);renderDeals();toast('🎯 Bon plan publié !');completeMis('m1');
@@ -3278,56 +3368,10 @@ function closeScanner(){
     setTimeout(initLongPress, 500);
     // Nettoyage hebdo en arrière-plan
     setTimeout(cleanStorage,5000);
-    // Badge "nouveaux deals depuis ta dernière visite"
-    initNewDealsBadge();
+    // Restaurer les rappels actifs
+    restoreReminders();
   }catch(e){G('loadScreen').style.display='none';G('app').style.display='flex';renderDeals();}
 })();
-
-// ═══ BADGE NOUVEAUX DEALS ═══
-function initNewDealsBadge(){
-  try{
-    const now=Date.now();
-    const lastVisit=lget('lastVisit',null);
-    lset('lastVisit',now);
-    if(!lastVisit)return; // première visite — pas de badge
-
-    // Compter les deals apparus depuis la dernière visite
-    // On compare via le champ time approximatif ou l'id (les ids locaux sont > 9000, distants < 9000)
-    const newCount=S.deals.filter(d=>{
-      // Les deals distants (Supabase) ont un champ created_at ou on approche via l'ID croissant
-      if(d.createdAt&&typeof d.createdAt==='number')return d.createdAt>lastVisit;
-      // Fallback : deals "Il y a X min/h" récents
-      if(d.time&&typeof d.time==='string'){
-        const t=d.time.toLowerCase();
-        if(t.includes('min')||t.includes('1h')||t.includes('2h'))return true;
-      }
-      return false;
-    }).length;
-
-    if(newCount<1)return;
-
-    // Injecter le badge sur le bouton Radar
-    const btn=G('radarNavBtn');
-    if(!btn)return;
-    const existing=btn.querySelector('.new-deals-badge');
-    if(existing)existing.remove();
-    const badge=document.createElement('div');
-    badge.className='new-deals-badge';
-    badge.id='newDealsBadge';
-    badge.textContent=newCount>9?'9+':String(newCount);
-    btn.appendChild(badge);
-
-    // Toast discret
-    setTimeout(()=>toast('🆕 '+newCount+' nouveau'+(newCount>1?'x':'')+' deal'+(newCount>1?'s':'')+' depuis ta dernière visite !'),800);
-
-    // Effacer le badge quand l'utilisateur ouvre le Radar
-    const orig=btn.onclick;
-    btn.onclick=function(){
-      const b=G('newDealsBadge');if(b)b.remove();
-      if(orig)orig.call(this);else goTab(0);
-    };
-  }catch(e){}
-}
 </script>
 </body>
 </html>
