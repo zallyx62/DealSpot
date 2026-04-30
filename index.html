@@ -698,9 +698,9 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   </div>
 </div>
 <div class="app-footer">
-  <a href="/about.html">À propos</a>
+  <a href="mailto:yl3315203@gmail.com">Contact</a>
   <span>·</span>
-  <a href="/privacy.html">Confidentialité</a>
+  <a href="#" onclick="event.preventDefault();openModal('settingsModal')" style="cursor:pointer">Confidentialité & RGPD</a>
   <span>·</span>
   <span>© 2025 DealSpot</span>
 </div>
@@ -870,6 +870,19 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         <div class="sett-card-icon">ℹ️</div>
         <div class="sett-card-label">À propos</div>
         <div class="sett-card-sub">DealSpot v1.0<br/>Par tous, pour tous.</div>
+      </div>
+
+      <!-- RGPD / Confidentialité -->
+      <div class="sett-card full" style="border-color:rgba(59,130,246,.3)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div class="sett-card-icon">🔒</div>
+          <div class="sett-card-label">Confidentialité & RGPD</div>
+        </div>
+        <div class="sett-card-sub" style="margin-bottom:8px">Tes données (deals, prix, favoris) restent sur ton appareil. Aucune vente à des tiers. Pour exercer tes droits (accès, rectification, suppression) :</div>
+        <a href="mailto:yl3315203@gmail.com" style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;background:var(--bld);border:1px solid var(--bl);color:var(--bl);font-size:11px;font-weight:700;text-decoration:none;margin-bottom:8px">
+          ✉️ yl3315203@gmail.com
+        </a>
+        <button onclick="clearLocalData()" style="width:100%;padding:9px;border-radius:10px;background:var(--rd);border:1px solid var(--re);color:var(--re);font-size:11px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer">🗑️ Effacer toutes mes données locales</button>
       </div>
 
     </div>
@@ -2156,6 +2169,12 @@ function sharePlaceById(id){
   if(!p){return;}
   sharePlace(p.name||'Lieu',p.addr||'');
 }
+function copyAddrById(id){
+  const p=S.places.find(x=>x.id===id);
+  if(!p||!p.addr){toast('❌ Adresse introuvable');return;}
+  const txt=p.name?`${p.name} — ${p.addr}`:p.addr;
+  navigator.clipboard?.writeText(txt).then(()=>toast('📋 Adresse copiée !'),()=>toast('❌ Copie non disponible'));
+}
 // ─── Partage d'un lieu
 function sharePlace(name,addr){
   const text=`📍 ${name}\n${addr}\n\nPartagé depuis DealSpot`;
@@ -2270,8 +2289,9 @@ function placeCardH(p){
   // SÉCURITÉ: utiliser des wrappers par ID (pas d'injection de p.name dans onclick)
   const dirBtn=p.lat&&p.lng
     ?`<button onclick="openDirectionsByPId(${parseInt(p.id)})" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--bld);border:1px solid var(--bl);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--bl);cursor:pointer;margin-top:5px;margin-right:5px">🗺️ Y aller</button>`:'';
+  const copyBtn=p.addr?`<button onclick="copyAddrById(${parseInt(p.id)})" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--card2);border:1px solid var(--bd);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--tx2);cursor:pointer;margin-top:5px;margin-right:5px">📋 Copier</button>`:'';
   const shareBtn=`<button onclick="sharePlaceById(${parseInt(p.id)})" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:var(--card2);border:1px solid var(--bd);border-radius:7px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;color:var(--tx2);cursor:pointer;margin-top:5px">↗️ Partager</button>`;
-  return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}${osmBadge}</div><div class="plad">📍 ${esc(p.addr||'')}</div>${hoursBadge}${extrasBadge}${distBadge}${openBadge?'<div style="margin-top:4px">'+openBadge+'</div>':''}${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:0">${dirBtn}${shareBtn}<span class="plrb" style="margin-top:5px" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div></div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
+  return `<div class="pli"><div class="plr"><div class="pld" style="background:${c.c}22">${c.i}</div><div style="flex:1;min-width:0"><div class="plnm">${esc(p.name)}${osmBadge}</div><div class="plad">📍 ${esc(p.addr||'')}</div>${hoursBadge}${extrasBadge}${distBadge}${openBadge?'<div style="margin-top:4px">'+openBadge+'</div>':''}${avg>0?`<div style="margin-top:3px">${starsH(avg,nc,true)}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:0">${dirBtn}${copyBtn}${shareBtn}<span class="plrb" style="margin-top:5px" onclick="togRevs('p',${p.id})">💬 ${nc} avis</span></div></div></div><div class="revs" id="rs-p-${p.id}">${ordered.map(r=>revH(r)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-p-${p.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('p',${p.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-p-${p.id}" rows="2" placeholder="${S.user?'Ton avis sur ce lieu…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'}></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis</span><button class="rsnd" onclick="postRev('p',${p.id})">Publier</button></div></div></div></div>`;
 }
 function filtPl(el,cat){curCat=cat;renderPlaces();}
 function submitPlace(){
@@ -2492,6 +2512,25 @@ function savePseudo(inputId){
   S.user.pseudo=v;sv('user');renderSettAuth();renderAuthModal();updateUserBtn();toast('✅ Pseudo : '+esc(v));
 }
 async function signOutUser(){await sbSignOut();S.user=null;sv('user');updateUserBtn();renderSettAuth();renderAuthModal();toast('👋 Déconnecté');}
+let _clearPending=false;
+function clearLocalData(){
+  if(!_clearPending){
+    _clearPending=true;
+    toast('⚠️ Appuie à nouveau pour confirmer la suppression');
+    setTimeout(()=>{_clearPending=false;},3500);
+    return;
+  }
+  _clearPending=false;
+  try{
+    const keys=Object.keys(localStorage).filter(k=>k.startsWith('ds6_'));
+    keys.forEach(k=>localStorage.removeItem(k));
+    S.deals=defDeals();S.prices=defPrices();S.places=[];S.user=null;S.xp=0;S.streak=[];S.mDone=[];S.antCnt=0;S.antSav=0;S.supDis=false;
+    ['deals','prices','places','user','xp','streak','mDone','antCnt','antSav','supDis'].forEach(k=>sv(k));
+    renderDeals();renderPrices();updateFavBadge();updateUserBtn();renderSettAuth();
+    closeModal('settingsModal');
+    toast('🗑️ Données locales effacées');
+  }catch(e){toast('❌ Erreur lors de l\'effacement');}
+}
 function updateUserBtn(){
   const btn=G('userBtn');if(!btn)return;
   if(S.user){const ini=esc((S.user.pseudo||S.user.name||'?')[0].toUpperCase());btn.innerHTML=`<div style="width:22px;height:22px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#000">${ini}</div>`;btn.style.border='2px solid var(--ac)';btn.onclick=()=>openModal('authModal');}
@@ -3247,8 +3286,15 @@ function closeScanner(){
     // AdSense
     setTimeout(()=>{try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}},1000);
 
-    // Session Supabase
-    sbGetSession().then(sess=>{if(sess)handleAuthUser({user:{id:'',email:'',user_metadata:{},app_metadata:{provider:'email'}}});});
+    // Session Supabase — récupérer les vraies données utilisateur (fix: plus d'user vide)
+    sbGetSession().then(async sess=>{
+      if(sess){
+        try{
+          const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+sess.access_token}});
+          if(r.ok){const u=await r.json();if(u?.id)handleAuthUser({user:u});}
+        }catch(e){console.warn('[Auth] Impossible de récupérer l\'utilisateur:',e);}
+      }
+    });
     // OAuth redirect — nettoyer le hash immédiatement pour éviter l'exposition du token dans l'historique
     if(location.hash.includes('access_token')){
       // Nettoyer le hash AVANT tout traitement (empêche le token d'apparaître dans les logs/referrers)
@@ -3259,7 +3305,14 @@ function closeScanner(){
         // Valider le format JWT (3 segments base64 séparés par des points)
         if(tk&&/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(tk)){
           lset('_sess',{access_token:tk});
-          sbGetSession().then(s=>{if(s)handleAuthUser(s);});
+          sbGetSession().then(async s=>{
+            if(s){
+              try{
+                const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});
+                if(r.ok){const u=await r.json();if(u?.id)handleAuthUser({user:u});}
+              }catch(e){console.warn('[Auth] Erreur récupération user OAuth:',e);}
+            }
+          });
         }
       }catch(e){console.warn('[Auth] Erreur parsing token OAuth:',e);}
     }
