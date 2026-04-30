@@ -28,6 +28,15 @@ a{color:#F59E0B;text-decoration:none}
 a:hover{text-decoration:underline}
 .card{background:#161F30;border:1px solid #243048;border-radius:14px;padding:18px;margin-bottom:8px}
 .card.important{border-color:#F59E0B;background:rgba(245,158,11,.07)}
+/* ── Barre de progression lecture ── */
+#readBar{position:fixed;top:0;left:0;height:3px;background:#F59E0B;width:0%;z-index:999;transition:width .1s linear;border-radius:0 2px 2px 0}
+/* ── Bouton retour en haut ── */
+#topBtn{position:fixed;bottom:24px;right:20px;width:42px;height:42px;border-radius:50%;background:#F59E0B;color:#000;font-size:18px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(245,158,11,.4);opacity:0;transform:translateY(12px);transition:opacity .3s,transform .3s;pointer-events:none}
+#topBtn.show{opacity:1;transform:translateY(0);pointer-events:auto}
+/* ── Bouton copier email ── */
+.copy-email-btn{display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:3px 10px;border-radius:20px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#F59E0B;font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all .2s;vertical-align:middle}
+.copy-email-btn:hover{background:rgba(245,158,11,.22)}
+.copy-email-btn.ok{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:#10B981}
 .tag{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:#F59E0B;margin-bottom:10px}
 .contact-box{background:#161F30;border:1px solid #243048;border-radius:14px;padding:20px;margin-top:32px;text-align:center}
 .contact-box p{margin-bottom:4px}
@@ -212,5 +221,46 @@ footer a{color:#94A3B8}
   <br/><br/>
   © 2025 DealSpot — Par tous, pour tous.
 </footer>
+
+<!-- Barre de progression lecture -->
+<div id="readBar"></div>
+<!-- Bouton retour en haut -->
+<button id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Retour en haut">↑</button>
+
+<script>
+// ── Barre de progression de lecture
+window.addEventListener('scroll',function(){
+  const doc=document.documentElement;
+  const scrolled=doc.scrollTop||document.body.scrollTop;
+  const total=doc.scrollHeight-doc.clientHeight;
+  const pct=total>0?Math.min(100,(scrolled/total)*100):0;
+  document.getElementById('readBar').style.width=pct+'%';
+  // Bouton retour en haut
+  const btn=document.getElementById('topBtn');
+  if(scrolled>300){btn.classList.add('show');}else{btn.classList.remove('show');}
+},{passive:true});
+
+// ── Boutons copier email
+function copyEmail(el){
+  const email='yl3315203@gmail.com';
+  navigator.clipboard.writeText(email).then(function(){
+    el.textContent='✓ Copié !';
+    el.classList.add('ok');
+    setTimeout(function(){el.textContent='📋 Copier';el.classList.remove('ok');},2000);
+  }).catch(function(){
+    el.textContent='❌ Erreur';
+    setTimeout(function(){el.textContent='📋 Copier';},2000);
+  });
+}
+
+// Injecter le bouton "Copier" à côté de chaque lien email
+document.querySelectorAll('a[href="mailto:yl3315203@gmail.com"]').forEach(function(link){
+  var btn=document.createElement('button');
+  btn.className='copy-email-btn';
+  btn.textContent='📋 Copier';
+  btn.onclick=function(e){e.preventDefault();copyEmail(this);};
+  link.parentNode.insertBefore(btn,link.nextSibling);
+});
+</script>
 </body>
 </html>
