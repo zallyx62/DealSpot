@@ -223,6 +223,8 @@ input[type=range].dist-slider::-webkit-slider-thumb{-webkit-appearance:none;widt
 .ni.active span{color:var(--ac)}
 .ni.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--ac);border-radius:0 0 4px 4px}
 .fav-badge{position:absolute;top:4px;right:6px;min-width:16px;height:16px;border-radius:8px;background:var(--re);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;pointer-events:none}
+.new-deals-badge{position:absolute;top:4px;right:4px;min-width:17px;height:17px;border-radius:9px;background:#10B981;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;pointer-events:none;animation:popIn .35s cubic-bezier(.4,0,.2,1)}
+@keyframes popIn{0%{transform:scale(0);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .ncw{flex:0 0 72px;display:flex;align-items:center;justify-content:center}
 .nc{width:48px;height:48px;border-radius:16px;background:var(--ac);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(245,158,11,.4);transition:transform .15s}
 .nc:active{transform:scale(.91)}
@@ -677,7 +679,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <div class="dots" id="dotsWrap"></div>
 <!-- NAV -->
 <div id="nav">
-  <div class="ni active" onclick="goTab(0)">
+  <div class="ni active" id="radarNavBtn" onclick="goTab(0)">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="11"/></svg>
     <span>Radar</span>
   </div>
@@ -700,7 +702,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <div class="app-footer">
   <a href="/about.html">À propos</a>
   <span>·</span>
-  <a href="#" onclick="event.preventDefault();openModal('privacyModal')">Confidentialité</a>
+  <a href="/privacy.html">Confidentialité</a>
   <span>·</span>
   <span>© 2025 DealSpot</span>
 </div>
@@ -721,18 +723,6 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <div id="toast"></div>
 <!-- SCROLL TO TOP -->
 <div id="scrollTop" onclick="scrollToTop()" title="Retour en haut" role="button" aria-label="Retour en haut de la page" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')scrollToTop()">↑</div>
-<!-- MODAL: CONFIDENTIALITÉ -->
-<div class="moverlay" id="privacyModal" onclick="cmbg(event,'privacyModal')" role="dialog" aria-modal="true" aria-label="Confidentialité">
-  <div class="mbox">
-    <div class="mhead"><button class="mback" onclick="closeModal('privacyModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>🔒 Confidentialité & RGPD</h3></div>
-    <div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:14px">
-      <p style="margin-bottom:10px">DealSpot stocke tes données (deals, prix, favoris) <strong style="color:var(--tx)">uniquement sur ton appareil</strong>. Aucune revente à des tiers.</p>
-      <p style="margin-bottom:10px">Conformément au RGPD, tu peux à tout moment demander l'accès, la rectification ou la suppression de tes données.</p>
-      <p style="font-size:12px;color:var(--tx3)">Pour exercer tes droits, contacte-nous :</p>
-    </div>
-    <a href="mailto:yl3315203@gmail.com" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;background:var(--bld);border:1px solid var(--bl);color:var(--bl);font-size:13px;font-weight:700;text-decoration:none">✉️ yl3315203@gmail.com</a>
-  </div>
-</div>
 </main>
 
 <!-- AD OVERLAY -->
@@ -1885,7 +1875,7 @@ function submitDeal(){
   const desc=sanitize(G('dDs').value,300);
   const deal={id:Date.now(),type:selDT,title,place,desc,
     lat:userLocated?userLat:null,lng:userLocated?userLng:null,
-    likes:0,saved:false,liked:false,time:'À l\'instant',reviews:[]};
+    likes:0,saved:false,liked:false,time:'À l\'instant',createdAt:Date.now(),reviews:[]};
   S.deals.unshift(deal);sv('deals');closeModal('addModal');
   ['dTit','dPl','dDs'].forEach(id=>{const el=G(id);if(el)el.value='';});
   goTab(0);renderDeals();toast('🎯 Bon plan publié !');completeMis('m1');
@@ -3288,8 +3278,56 @@ function closeScanner(){
     setTimeout(initLongPress, 500);
     // Nettoyage hebdo en arrière-plan
     setTimeout(cleanStorage,5000);
+    // Badge "nouveaux deals depuis ta dernière visite"
+    initNewDealsBadge();
   }catch(e){G('loadScreen').style.display='none';G('app').style.display='flex';renderDeals();}
 })();
+
+// ═══ BADGE NOUVEAUX DEALS ═══
+function initNewDealsBadge(){
+  try{
+    const now=Date.now();
+    const lastVisit=lget('lastVisit',null);
+    lset('lastVisit',now);
+    if(!lastVisit)return; // première visite — pas de badge
+
+    // Compter les deals apparus depuis la dernière visite
+    // On compare via le champ time approximatif ou l'id (les ids locaux sont > 9000, distants < 9000)
+    const newCount=S.deals.filter(d=>{
+      // Les deals distants (Supabase) ont un champ created_at ou on approche via l'ID croissant
+      if(d.createdAt&&typeof d.createdAt==='number')return d.createdAt>lastVisit;
+      // Fallback : deals "Il y a X min/h" récents
+      if(d.time&&typeof d.time==='string'){
+        const t=d.time.toLowerCase();
+        if(t.includes('min')||t.includes('1h')||t.includes('2h'))return true;
+      }
+      return false;
+    }).length;
+
+    if(newCount<1)return;
+
+    // Injecter le badge sur le bouton Radar
+    const btn=G('radarNavBtn');
+    if(!btn)return;
+    const existing=btn.querySelector('.new-deals-badge');
+    if(existing)existing.remove();
+    const badge=document.createElement('div');
+    badge.className='new-deals-badge';
+    badge.id='newDealsBadge';
+    badge.textContent=newCount>9?'9+':String(newCount);
+    btn.appendChild(badge);
+
+    // Toast discret
+    setTimeout(()=>toast('🆕 '+newCount+' nouveau'+(newCount>1?'x':'')+' deal'+(newCount>1?'s':'')+' depuis ta dernière visite !'),800);
+
+    // Effacer le badge quand l'utilisateur ouvre le Radar
+    const orig=btn.onclick;
+    btn.onclick=function(){
+      const b=G('newDealsBadge');if(b)b.remove();
+      if(orig)orig.call(this);else goTab(0);
+    };
+  }catch(e){}
+}
 </script>
 </body>
 </html>
