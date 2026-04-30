@@ -4,9 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <!-- Sécurité : Content Security Policy -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org; object-src 'none'; base-uri 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), payment=(), usb=()"/>
 <meta name="google-adsense-account" content="ca-pub-1381945888605291"/>
 <meta name="theme-color" content="#080D1A"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -20,7 +21,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <!-- Google AdSense — pub réelle -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1381945888605291" crossorigin="anonymous"></script>
-<meta name="google-adsense-account" content="ca-pub-1381945888605291"/>
 <style>
 html[data-theme="dark"]{--bg:#080D1A;--sf:#0F1623;--card:#161F30;--card2:#1C2840;--bd:#243048;--bd2:#2E3D5C;--tx:#F1F5F9;--tx2:#CBD5E1;--tx3:#94A3B8;--inp:#0F1623;--mbg:#111827;--ov:rgba(0,0,0,.88)}
 html[data-theme="light"]{--bg:#F0F4FF;--sf:#FFF;--card:#FFF;--card2:#F1F5F9;--bd:#E2E8F0;--bd2:#CBD5E1;--tx:#0F172A;--tx2:#374151;--tx3:#64748B;--inp:#F8FAFC;--mbg:#FFF;--ov:rgba(0,0,0,.6)}
@@ -311,8 +311,8 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 .mbox::-webkit-scrollbar{display:none}
 @keyframes sm{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .mhead{display:flex;align-items:center;gap:10px;padding:14px 0 12px;position:sticky;top:0;background:var(--mbg);z-index:1;border-bottom:1px solid var(--bd);margin:0 0 14px}
-.mback{width:36px;height:36px;border-radius:11px;border:1px solid var(--bd);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--tx);flex-shrink:0;font-weight:700;transition:transform .15s}
-.mback:active{transform:scale(.9)}
+.mback{width:36px;height:36px;border-radius:11px;border:1.5px solid var(--bd);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--tx);flex-shrink:0;font-weight:700;transition:transform .15s,background .15s;appearance:none;-webkit-appearance:none;font-family:inherit}
+.mback:active,.mback:hover{transform:scale(.9);background:var(--card2)}
 .mhead h3{font-size:17px;font-weight:700;flex:1}
 .fg{margin-bottom:12px}
 .fg label{display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
@@ -590,7 +590,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 <!-- TOAST — élément manquant, cause du TypeError -->
 <div id="toast"></div>
 <!-- SCROLL TO TOP -->
-<div id="scrollTop" onclick="scrollToTop()" title="Retour en haut">↑</div>
+<div id="scrollTop" onclick="scrollToTop()" title="Retour en haut" role="button" aria-label="Retour en haut de la page" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')scrollToTop()">↑</div>
 </main>
 
 <!-- AD OVERLAY -->
@@ -616,9 +616,9 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 </div>
 
 <!-- MODAL: ADD DEAL -->
-<div class="moverlay" id="addModal" onclick="cmbg(event,'addModal')">
+<div class="moverlay" id="addModal" onclick="cmbg(event,'addModal')" role="dialog" aria-modal="true" aria-label="Signaler un bon plan">
   <div class="mbox">
-    <div class="mhead"><div class="mback" onclick="closeModal('addModal')">←</div><h3>Signaler un Bon Plan</h3></div>
+    <div class="mhead"><button class="mback" onclick="closeModal('addModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>Signaler un Bon Plan</h3></div>
     <div class="fg"><label>Type</label>
       <div class="tgrid" id="dealTG">
         <div class="tc sel" data-type="promo" onclick="selT(this,'deal')"><div class="tci">🏷️</div><span class="tcl">Promo</span></div>
@@ -629,16 +629,16 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         <div class="tc" data-type="autre" onclick="selT(this,'deal')"><div class="tci">💡</div><span class="tcl">Autre</span></div>
       </div>
     </div>
-    <div class="fg"><label>Titre *</label><input class="fi" id="dTit" placeholder="Ex: 30% chez Monoprix ce week-end"/></div>
-    <div class="fg"><label>Lieu / Adresse *</label><input class="fi" id="dPl" placeholder="Ex: Monoprix République, Paris"/></div>
-    <div class="fg"><label>Description</label><input class="fi" id="dDs" placeholder="Détails, conditions, durée…"/></div>
+    <div class="fg"><label>Titre *</label><input class="fi" id="dTit" placeholder="Ex: 30% chez Monoprix ce week-end" maxlength="100" autocomplete="off"/></div>
+    <div class="fg"><label>Lieu / Adresse *</label><input class="fi" id="dPl" placeholder="Ex: Monoprix République, Paris" maxlength="100" autocomplete="off"/></div>
+    <div class="fg"><label>Description</label><input class="fi" id="dDs" placeholder="Détails, conditions, durée…" maxlength="300" autocomplete="off"/></div>
     <button class="sbtn" onclick="submitDeal()">Publier 🎯</button>
   </div>
 </div>
 <!-- MODAL: ADD PLACE -->
-<div class="moverlay" id="addPlaceModal" onclick="cmbg(event,'addPlaceModal')">
+<div class="moverlay" id="addPlaceModal" onclick="cmbg(event,'addPlaceModal')" role="dialog" aria-modal="true" aria-label="Ajouter un lieu">
   <div class="mbox">
-    <div class="mhead"><div class="mback" onclick="closeModal('addPlaceModal')">←</div><h3>Ajouter un Lieu Utile</h3></div>
+    <div class="mhead"><button class="mback" onclick="closeModal('addPlaceModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>Ajouter un Lieu Utile</h3></div>
     <div class="fg"><label>Catégorie</label>
       <div class="tgrid" id="placeTG">
         <div class="tc sel" data-type="wc" onclick="selT(this,'place')"><div class="tci">🚻</div><span class="tcl">Toilettes</span></div>
@@ -649,40 +649,40 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         <div class="tc" data-type="autre" onclick="selT(this,'place')"><div class="tci">📍</div><span class="tcl">Autre</span></div>
       </div>
     </div>
-    <div class="fg"><label>Nom *</label><input class="fi" id="plNm" placeholder="Ex: Fontaine Trocadéro"/></div>
-    <div class="fg"><label>Adresse *</label><input class="fi" id="plAd" placeholder="Ex: Place du Trocadéro, Paris"/></div>
+    <div class="fg"><label>Nom *</label><input class="fi" id="plNm" placeholder="Ex: Fontaine Trocadéro" maxlength="100" autocomplete="off"/></div>
+    <div class="fg"><label>Adresse *</label><input class="fi" id="plAd" placeholder="Ex: Place du Trocadéro, Paris" maxlength="100" autocomplete="off"/></div>
     <button class="sbtn" onclick="submitPlace()">Ajouter 📍</button>
   </div>
 </div>
 <!-- MODAL: ADD PRICE -->
-<div class="moverlay" id="addPriceModal" onclick="cmbg(event,'addPriceModal')">
+<div class="moverlay" id="addPriceModal" onclick="cmbg(event,'addPriceModal')" role="dialog" aria-modal="true" aria-label="Enregistrer un prix">
   <div class="mbox">
-    <div class="mhead"><div class="mback" onclick="closeModal('addPriceModal')">←</div><h3>Enregistrer un Prix</h3></div>
-    <div class="fg"><label>Produit *</label><input class="fi" id="prNm" placeholder="Ex: Lait demi-écrémé 1L"/></div>
-    <div class="fg"><label>Magasin *</label><input class="fi" id="prSh" placeholder="Ex: Lidl République"/></div>
-    <div class="fg"><label>Prix actuel (€) *</label><input class="fi" id="prVl" type="number" step="0.01" placeholder="1.09" inputmode="decimal"/></div>
-    <div class="fg"><label>Émoji produit</label><input class="fi" id="prEm" placeholder="🥛" maxlength="2"/></div>
+    <div class="mhead"><button class="mback" onclick="closeModal('addPriceModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>Enregistrer un Prix</h3></div>
+    <div class="fg"><label>Produit *</label><input class="fi" id="prNm" placeholder="Ex: Lait demi-écrémé 1L" maxlength="100" autocomplete="off"/></div>
+    <div class="fg"><label>Magasin *</label><input class="fi" id="prSh" placeholder="Ex: Lidl République" maxlength="100" autocomplete="off"/></div>
+    <div class="fg"><label>Prix actuel (€) *</label><input class="fi" id="prVl" type="number" step="0.01" min="0.01" max="99999" placeholder="1.09" inputmode="decimal"/></div>
+    <div class="fg"><label>Émoji produit</label><input class="fi" id="prEm" placeholder="🥛" maxlength="4"/></div>
     <button class="sbtn" onclick="submitPrice()">Enregistrer 💰</button>
   </div>
 </div>
 <!-- MODAL: FAVORIS -->
-<div class="moverlay" id="favModal" onclick="cmbg(event,'favModal')">
+<div class="moverlay" id="favModal" onclick="cmbg(event,'favModal')" role="dialog" aria-modal="true" aria-label="Mes favoris">
   <div class="mbox">
-    <div class="mhead"><div class="mback" onclick="closeModal('favModal')">←</div><h3>🔖 Mes Favoris</h3></div>
+    <div class="mhead"><button class="mback" onclick="closeModal('favModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>🔖 Mes Favoris</h3></div>
     <div id="favList"></div>
   </div>
 </div>
 <!-- MODAL: AUTH -->
-<div class="moverlay" id="authModal" onclick="cmbg(event,'authModal')">
+<div class="moverlay" id="authModal" onclick="cmbg(event,'authModal')" role="dialog" aria-modal="true" aria-label="Authentification">
   <div class="mbox">
-    <div class="mhead"><div class="mback" onclick="closeModal('authModal')">←</div><h3 id="authTitle">Connexion</h3></div>
+    <div class="mhead"><button class="mback" onclick="closeModal('authModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3 id="authTitle">Connexion</h3></div>
     <div id="authContent"></div>
   </div>
 </div>
 <!-- MODAL: SETTINGS -->
-<div class="moverlay" id="settingsModal" onclick="cmbg(event,'settingsModal')">
+<div class="moverlay" id="settingsModal" onclick="cmbg(event,'settingsModal')" role="dialog" aria-modal="true" aria-label="Paramètres">
   <div class="mbox">
-    <div class="mhead"><div class="mback" onclick="closeModal('settingsModal')">←</div><h3>⚙️ Paramètres</h3></div>
+    <div class="mhead"><button class="mback" onclick="closeModal('settingsModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>⚙️ Paramètres</h3></div>
     <div class="sett-grid">
 
       <!-- Compte (pleine largeur) -->
@@ -716,7 +716,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         <div class="sett-card-sub">Aide à garder DealSpot 100% gratuit !</div>
         <div style="display:flex;gap:8px;margin-top:4px">
           <button class="supbtn ad" style="flex:1;padding:9px 0;border-radius:12px;font-size:12px" onclick="closeModal('settingsModal');watchAd()">📺 Regarder une pub</button>
-          <a href="https://www.paypal.com/paypalme/zallyx" target="_blank" rel="noopener noreferrer" style="flex:1;text-decoration:none"><button class="supbtn pp" style="width:100%;padding:9px 0;border-radius:12px;font-size:12px">💙 Faire un don</button></a>
+          <a href="https://www.paypal.com/paypalme/zallyx" target="_blank" rel="noopener noreferrer" style="flex:1;text-decoration:none"><button class="supbtn pp" style="width:100%;padding:9px 0;border-radius:12px;font-size:12px" type="button">💙 Faire un don</button></a>
         </div>
       </div>
 
@@ -788,6 +788,8 @@ function canPostRev(key){
 
 
 // ═══ SUPABASE REST (sans SDK — 0 dépendance CDN bloquable)
+// ⚠️ SB_KEY = clé anon Supabase (publique par design). ACTIVER RLS sur toutes les tables !
+// Voir : Supabase Dashboard → Authentication → Policies
 const SB_URL='https://vwapbxglpxcmvgcfkxbt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3YXBieGdscHhjbXZnY2ZreGJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTYyOTksImV4cCI6MjA5MjU3MjI5OX0.3OVOrzOYiik_cA8uQQaHRXBy_V9FZRpwfsJPv0V7Lng';
 const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
@@ -800,7 +802,10 @@ async function sbGetSession(){const s=lget('_sess',null);if(!s?.access_token)ret
 function sbOAuth(p){
   const allowed=['google','facebook','apple'];
   if(!allowed.includes(p)){toast('❌ Provider non autorisé');return;}
-  window.location.href=SB_URL+'/auth/v1/authorize?provider='+encodeURIComponent(p)+'&redirect_to='+encodeURIComponent(window.location.origin+window.location.pathname);
+  // SÉCURITÉ: construire redirect_to à partir de l'origine validée uniquement, jamais depuis un paramètre externe
+  const safeOrigin=window.location.origin.replace(/[^a-zA-Z0-9:.\-_]/g,'');
+  const safePath=window.location.pathname.replace(/[^a-zA-Z0-9/.\-_]/g,'');
+  window.location.href=SB_URL+'/auth/v1/authorize?provider='+encodeURIComponent(p)+'&redirect_to='+encodeURIComponent(safeOrigin+safePath);
 }
 
 // ═══ SECURITY
@@ -815,7 +820,7 @@ function lset(k,v){
       // Nettoyage : supprimer les vieux deals (garder 40 max), vieux prix (garder 30)
       try{
         const deals=lget('deals',[]);
-        if(deals.length>40){lget('deals',[]);localStorage.setItem('ds6_deals',JSON.stringify(deals.slice(0,40)));}
+        if(deals.length>40){localStorage.setItem('ds6_deals',JSON.stringify(deals.slice(0,40)));} // Correction: l'ancien code appelait lget() au lieu d'utiliser la variable
         const prices=lget('prices',[]);
         if(prices.length>30){localStorage.setItem('ds6_prices',JSON.stringify(prices.slice(0,30)));}
         localStorage.setItem('ds6_'+k,JSON.stringify(v));
@@ -1123,8 +1128,11 @@ function hl(t){
 // ═══ LOGO CLICK — ferme les modals ouverts, sinon va à l'accueil
 function logoClick(){
   const open=document.querySelector('.moverlay.open');
-  if(open){open.classList.remove('open');settOpen=false;}
-  else goTab(0);
+  if(open){
+    const id=open.id;
+    if(id)closeModal(id);
+    else{open.classList.remove('open');settOpen=false;}
+  } else goTab(0);
 }
 
 // ═══ SWIPE
@@ -1277,8 +1285,9 @@ function postRev(ctx,id){
   const rlKey=(S.user.id||S.user.email||'anon')+':'+ctx+':'+id;
   if(!canPostRev(rlKey))return;
   const txt=sanitize(raw,500);
-  const stars=Math.min(5,Math.max(1,pStars[ctx+id]||5));
+  const stars=Math.min(5,Math.max(1,parseInt(pStars[ctx+id])||5));
   const pseudo=sanitize(getPseudo()||'Anonyme',30);
+  // Vérification supplémentaire: éviter le flood sur Supabase (1 avis / 30s global)
   const r={id:Date.now(),user:pseudo,pseudo,stars,text:txt,time:'À l\'instant',src:'dealspot'};
   if(ctx==='d'){
     const d=S.deals.find(x=>x.id===id);if(!d)return;
@@ -1548,8 +1557,9 @@ function renderPlaces(){
 }
 function filtPl(el,cat){curCat=cat;renderPlaces();}
 function submitPlace(){
-  const name=G('plNm').value.trim(),addr=G('plAd').value.trim();
+  const name=sanitize(G('plNm').value,100).trim(),addr=sanitize(G('plAd').value,100).trim();
   if(!name||!addr){toast('❌ Nom et adresse requis');return;}
+  if(name.length<2){toast('❌ Nom trop court');return;}
   S.places.unshift({id:Date.now(),type:selPT,name,addr,dist:'Près de vous',reviews:[]});
   sv('places');closeModal('addPlaceModal');['plNm','plAd'].forEach(id=>G(id).value='');
   renderPlaces();addPlaceMarkersToMap();toast('📍 Lieu ajouté !');completeMis('m3');
@@ -1567,15 +1577,54 @@ function renderPrices(){
     const h=p.history,curr=h[h.length-1].v,prev=h.length>=2?h[h.length-2].v:curr,diff=+(curr-prev).toFixed(2);
     const tc=diff>0?'up':diff<0?'dn':'eq';const mx=Math.max(...h.map(x=>x.v));
     const bars=h.map(x=>`<div class="mb" style="height:${Math.round((x.v/mx)*100)}%;background:${x===h[h.length-1]?'var(--ac)':'var(--bd2)'}"></div>`).join('');
-    return `<div class="pii"><div class="pih"><div class="piic">${esc(p.emoji||'📦')}</div><div style="flex:1"><div class="pinm">${esc(p.name)}</div><div class="pish">${esc(p.shop)}</div></div><div style="text-align:right"><div class="pipr" style="color:${diff>0?'var(--re)':diff<0?'var(--gr)':'var(--tx)'}">${curr.toFixed(2)} €</div><div class="pitr ${tc}">${diff>0?'▲':diff<0?'▼':'='} ${Math.abs(diff).toFixed(2)} €</div></div></div><div class="mch">${bars}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--tx3)">MAJ: ${esc(h[h.length-1].d)}</span><span class="badge ${diff>0?'br':diff<0?'bg':'ba'}" style="cursor:pointer" onclick="updPrice(${p.id})">+ Nouveau prix</span></div></div>`;
+    return `<div class="pii" data-price-id="${parseInt(p.id)}"><div class="pih"><div class="piic">${esc(p.emoji||'📦')}</div><div style="flex:1"><div class="pinm">${esc(p.name)}</div><div class="pish">${esc(p.shop)}</div></div><div style="text-align:right"><div class="pipr" style="color:${diff>0?'var(--re)':diff<0?'var(--gr)':'var(--tx)'}">${curr.toFixed(2)} €</div><div class="pitr ${tc}">${diff>0?'▲':diff<0?'▼':'='} ${Math.abs(diff).toFixed(2)} €</div></div></div><div class="mch">${bars}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--tx3)">MAJ: ${esc(h[h.length-1].d)}</span><span class="badge ${diff>0?'br':diff<0?'bg':'ba'}" style="cursor:pointer" onclick="updPrice(${parseInt(p.id)})">+ Nouveau prix</span></div></div>`;
   }).join('');
 }
-function updPrice(id){const nv=prompt('Nouveau prix (€) ?');if(!nv||isNaN(+nv)||+nv<=0)return;const p=S.prices.find(x=>x.id===id);if(!p)return;const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});p.history.push({v:parseFloat(nv),d:today});sv('prices');renderPrices();toast('💰 Prix mis à jour !');}
+function updPrice(id){
+  const p=S.prices.find(x=>x.id===id);if(!p)return;
+  // Remplacement de prompt() par une saisie inline dans la carte prix
+  const cardEl=document.querySelector(`[data-price-id="${id}"]`);
+  if(cardEl){
+    const existing=cardEl.querySelector('.inline-price-input');
+    if(existing){existing.remove();return;}
+    const form=document.createElement('div');
+    form.className='inline-price-input';
+    form.style.cssText='display:flex;gap:8px;margin-top:8px;align-items:center';
+    form.innerHTML=`<input type="number" step="0.01" min="0.01" max="99999" placeholder="Nouveau prix (€)" style="flex:1;padding:8px 10px;background:var(--inp);border:1.5px solid var(--ac);border-radius:9px;font-size:13px;font-family:Sora,sans-serif;color:var(--tx);outline:none" inputmode="decimal"/><button style="padding:8px 14px;background:var(--ac);border:none;border-radius:9px;font-size:12px;font-weight:700;font-family:Sora,sans-serif;color:#000;cursor:pointer">OK</button><button style="padding:8px 10px;background:var(--card2);border:1px solid var(--bd);border-radius:9px;font-size:12px;font-weight:600;font-family:Sora,sans-serif;color:var(--tx3);cursor:pointer">✕</button>`;
+    const inp=form.querySelector('input');
+    const okBtn=form.querySelectorAll('button')[0];
+    const cancelBtn=form.querySelectorAll('button')[1];
+    const submit=()=>{
+      const nv=parseFloat(inp.value);
+      if(!nv||nv<=0||nv>99999){toast('❌ Prix invalide');return;}
+      const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+      p.history.push({v:parseFloat(nv.toFixed(2)),d:today});
+      sv('prices');form.remove();renderPrices();toast('💰 Prix mis à jour !');
+    };
+    okBtn.addEventListener('click',submit);
+    cancelBtn.addEventListener('click',()=>form.remove());
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')submit();if(e.key==='Escape')form.remove();});
+    cardEl.appendChild(form);
+    setTimeout(()=>inp.focus(),50);
+  } else {
+    // Fallback si la carte n'est pas trouvée
+    const nv=parseFloat(prompt('Nouveau prix (€) ?'));
+    if(!nv||nv<=0)return;
+    const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+    p.history.push({v:parseFloat(nv.toFixed(2)),d:today});
+    sv('prices');renderPrices();toast('💰 Prix mis à jour !');
+  }
+}
 function submitPrice(){
-  const name=G('prNm').value.trim(),shop=G('prSh').value.trim(),pv=parseFloat(G('prVl').value),emoji=G('prEm').value.trim()||'📦';
-  if(!name||!shop||isNaN(pv)||pv<=0){toast('❌ Remplis tous les champs');return;}
+  const name=sanitize(G('prNm').value,100).trim(),shop=sanitize(G('prSh').value,100).trim();
+  const rawPv=G('prVl').value;
+  const pv=parseFloat(rawPv);
+  const emoji=sanitize(G('prEm').value.trim()||'📦',4);
+  if(!name||!shop){toast('❌ Nom et magasin requis');return;}
+  if(name.length<2){toast('❌ Nom trop court');return;}
+  if(isNaN(pv)||pv<=0||pv>99999){toast('❌ Prix invalide (entre 0,01 et 99 999 €)');return;}
   const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
-  S.prices.push({id:Date.now(),name,shop,emoji,history:[{v:pv,d:today}]});
+  S.prices.push({id:Date.now(),name,shop,emoji,history:[{v:parseFloat(pv.toFixed(2)),d:today}]});
   sv('prices');closeModal('addPriceModal');['prNm','prSh','prVl','prEm'].forEach(id=>G(id).value='');
   renderPrices();toast('💰 Prix enregistré !');completeMis('m2');
 }
@@ -1648,9 +1697,15 @@ function setATab(t){authTab=t;renderAuthModal();}
 async function submitAuth(){
   const email=G('authEmail')?.value.trim(),pwd=G('authPwd')?.value;
   if(!email||!pwd){toast('❌ Email et mot de passe requis');return;}
+  // Validation email basique côté client
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){const e=G('authErr');if(e){e.textContent='Adresse email invalide.';e.classList.add('show');}return;}
   if(pwd.length<6){const e=G('authErr');if(e){e.textContent='Mot de passe : minimum 6 caractères.';e.classList.add('show');}return;}
   const err=G('authErr'),ok=G('authOk');if(err)err.classList.remove('show');if(ok)ok.classList.remove('show');
+  // Indicateur de chargement
+  const btn=document.querySelector('#authContent .sbtn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Connexion…';}
   const {data,error}=authTab==='register'?await sbSignUp(email,pwd):await sbSignIn(email,pwd);
+  if(btn){btn.disabled=false;btn.textContent=authTab==='login'?'Se connecter →':'Créer mon compte →';}
   if(error){if(err){err.textContent=error.message||'Erreur de connexion';err.classList.add('show');}return;}
   if(authTab==='register'&&!data?.user){if(ok){ok.textContent='✅ Compte créé ! Vérifiez vos emails pour confirmer.';ok.classList.add('show');}return;}
   if(data?.user)handleAuthUser(data);
@@ -1667,7 +1722,12 @@ function renderSettAuth(){
   }
 }
 function showEP(id){const w=G(id);if(w)w.style.display=w.style.display==='none'?'block':'none';}
-function savePseudo(inputId){const inp=G(inputId);const v=inp?inp.value.trim():'';if(!v||v.length>30){toast('❌ Pseudo invalide');return;}S.user.pseudo=v;sv('user');renderSettAuth();renderAuthModal();updateUserBtn();toast('✅ Pseudo : '+esc(v));}
+function savePseudo(inputId){
+  const inp=G(inputId);
+  const v=inp?sanitize(inp.value,30).trim():'';
+  if(!v||v.length<2||v.length>30){toast('❌ Pseudo invalide (2 à 30 caractères)');return;}
+  S.user.pseudo=v;sv('user');renderSettAuth();renderAuthModal();updateUserBtn();toast('✅ Pseudo : '+esc(v));
+}
 async function signOutUser(){await sbSignOut();S.user=null;sv('user');updateUserBtn();renderSettAuth();renderAuthModal();toast('👋 Déconnecté');}
 function updateUserBtn(){
   const btn=G('userBtn');if(!btn)return;
@@ -1751,8 +1811,20 @@ function openModal(id){
   if(id==='settingsModal'){settOpen=true;renderSettAuth();applyTheme(S.theme);}
   if(id==='authModal')renderAuthModal();
   if(id==='favModal')renderFavs();
+  // Focus le premier élément interactif pour l'accessibilité (piège de focus)
+  requestAnimationFrame(()=>{
+    const focusable=el.querySelector('button,.mback,input,textarea,select,[tabindex]:not([tabindex="-1"])');
+    if(focusable)focusable.focus();
+  });
 }
-function closeModal(id){const el=document.getElementById(id);if(!el)return;el.classList.remove('open');if(id==='settingsModal')settOpen=false;}
+function closeModal(id){
+  const el=document.getElementById(id);if(!el)return;
+  el.classList.remove('open');
+  if(id==='settingsModal')settOpen=false;
+  // Rendre le focus au bouton déclencheur si possible
+  const trigger=document.querySelector(`[onclick*="${id}"], [onclick*="toggleSettings"]`);
+  if(trigger&&typeof trigger.focus==='function')trigger.focus();
+}
 function cmbg(e,id){if(e.target.classList.contains('moverlay'))closeModal(id);}
 function toggleSettings(){if(settOpen)closeModal('settingsModal');else openModal('settingsModal');}
 
@@ -1771,17 +1843,24 @@ async function syncDeals(){
   // Sanitiser les données distantes avant stockage (protection XSS stored)
   const clean=remote.map(d=>({
     ...d,
+    // SÉCURITÉ: forcer l'ID en entier pour éviter l'injection dans les onclick générés
+    id: Math.abs(parseInt(d.id)||0)||Date.now(),
     title:sanitize(d.title||'',100),
     place:sanitize(d.place||'',100),
     desc:sanitize(d.desc||'',300),
+    // Valider les coordonnées GPS
+    lat: (typeof d.lat==='number'&&isFinite(d.lat)&&d.lat>=-90&&d.lat<=90)?d.lat:null,
+    lng: (typeof d.lng==='number'&&isFinite(d.lng)&&d.lng>=-180&&d.lng<=180)?d.lng:null,
+    likes: Math.max(0,parseInt(d.likes)||0),
     reviews:(d.reviews||[]).map(r=>({
       ...r,
+      id: Math.abs(parseInt(r.id)||0)||Date.now(),
       text:sanitize(r.text||'',500),
       user:sanitize(r.user||'Anonyme',30),
       pseudo:sanitize(r.pseudo||r.user||'Anonyme',30),
       stars:Math.min(5,Math.max(1,parseInt(r.stars)||5))
-    }))
-  }));
+    })).slice(0,50) // max 50 avis par deal
+  })).filter(d=>d.id>0); // rejeter les IDs invalides
   const ids=new Set(S.deals.map(d=>d.id));
   const newD=clean.filter(d=>!ids.has(d.id));
   if(newD.length){S.deals=[...newD,...S.deals];sv('deals');if(curTab===0)renderDeals();}
@@ -1791,6 +1870,16 @@ async function syncDeals(){
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){const o=document.querySelector('.moverlay.open');if(o){o.classList.remove('open');settOpen=false;}}
   if(!document.querySelector('.moverlay.open')&&!srchVis){if(e.key==='ArrowLeft'&&curTab>0)goTab(curTab-1);if(e.key==='ArrowRight'&&curTab<4)goTab(curTab+1);}
+  // Piège de focus dans les modals ouverts (accessibilité)
+  if(e.key==='Tab'){
+    const modal=document.querySelector('.moverlay.open');
+    if(!modal)return;
+    const focusable=Array.from(modal.querySelectorAll('button,input,textarea,select,a[href],[tabindex]:not([tabindex="-1"])'));
+    if(!focusable.length)return;
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(e.shiftKey){if(document.activeElement===first){e.preventDefault();last.focus();}}
+    else{if(document.activeElement===last){e.preventDefault();first.focus();}}
+  }
 });
 
 // ═══════════════════════════════════════════════════
@@ -2104,8 +2193,21 @@ function showSrchHistory(){
   const el=G('srchHistory');if(!el)return;
   if(!hist.length){el.style.display='none';return;}
   el.style.display='block';
-  el.innerHTML=`<div class="srch-hist-label"><span>🕐 Recherches récentes</span><span class="srch-hist-clear" onclick="clearSrchHistory()">Effacer</span></div>`+
-    hist.map(h=>`<span class="sh-chip" onclick="applySearch('${esc(h)}')">${esc(h)}<span class="sh-chip-del" onclick="removeSrchHist(event,'${esc(h)}')">✕</span></span>`).join('');
+  // SÉCURITÉ: utiliser data-* au lieu de onclick inline pour éviter l'injection XSS
+  // esc() échappe les guillemets simples en &#39; mais le parseur HTML les décode avant JS
+  el.innerHTML=`<div class="srch-hist-label"><span>🕐 Recherches récentes</span><span class="srch-hist-clear" id="srchHistClear">Effacer</span></div>`+
+    hist.map((h,i)=>`<span class="sh-chip" data-idx="${i}"><span class="sh-chip-text">${esc(h)}</span><span class="sh-chip-del" data-del-idx="${i}">✕</span></span>`).join('');
+  // Délégation d'événements — sûre car on lit les données depuis lget(), pas depuis le DOM
+  el.querySelector('#srchHistClear')?.addEventListener('click',clearSrchHistory);
+  el.querySelectorAll('.sh-chip').forEach((chip,i)=>{
+    chip.addEventListener('click',e=>{
+      if(e.target.closest('.sh-chip-del'))return;
+      const q=lget('srchHist',[])[i];if(q)applySearch(q);
+    });
+    chip.querySelector('.sh-chip-del')?.addEventListener('click',e=>{
+      e.stopPropagation();removeSrchHistByIndex(i);
+    });
+  });
 }
 function hideSrchHistory(){const el=G('srchHistory');if(el)el.style.display='none';}
 function applySearch(q){
@@ -2116,6 +2218,12 @@ function clearSrchHistory(){lset('srchHist',[]);hideSrchHistory();}
 function removeSrchHist(e,q){
   e.stopPropagation();
   let hist=lget('srchHist',[]).filter(h=>h!==q);
+  lset('srchHist',hist);showSrchHistory();
+}
+// Nouvelle version par index (plus sûre, évite les collisions de valeur)
+function removeSrchHistByIndex(i){
+  let hist=lget('srchHist',[]);
+  hist.splice(i,1);
   lset('srchHist',hist);showSrchHistory();
 }
 // Cacher l'historique si on clique ailleurs
@@ -2202,8 +2310,20 @@ function scrollToTop(){const t=G('tab-'+curTab);if(t)t.scrollTo({top:0,behavior:
 
     // Session Supabase
     sbGetSession().then(sess=>{if(sess)handleAuthUser({user:{id:'',email:'',user_metadata:{},app_metadata:{provider:'email'}}});});
-    // OAuth redirect
-    if(location.hash.includes('access_token')){const p=new URLSearchParams(location.hash.replace('#','?'));const tk=p.get('access_token');if(tk){lset('_sess',{access_token:tk});history.replaceState(null,'',location.pathname);sbGetSession().then(s=>{if(s)handleAuthUser(s);});}}
+    // OAuth redirect — nettoyer le hash immédiatement pour éviter l'exposition du token dans l'historique
+    if(location.hash.includes('access_token')){
+      // Nettoyer le hash AVANT tout traitement (empêche le token d'apparaître dans les logs/referrers)
+      history.replaceState(null,'',location.pathname);
+      try{
+        const p=new URLSearchParams(location.hash.replace('#','?'));
+        const tk=p.get('access_token');
+        // Valider le format JWT (3 segments base64 séparés par des points)
+        if(tk&&/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(tk)){
+          lset('_sess',{access_token:tk});
+          sbGetSession().then(s=>{if(s)handleAuthUser(s);});
+        }
+      }catch(e){console.warn('[Auth] Erreur parsing token OAuth:',e);}
+    }
 
     setTimeout(()=>syncDeals(),2000);
     setInterval(()=>syncDeals(),25000);
