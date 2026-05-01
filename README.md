@@ -14,8 +14,9 @@
 
 ## 📸 Aperçu de l'interface
 
-<img width="985" height="2113" alt="1000016515" src="https://github.com/user-attachments/assets/07e4f0fd-d297-47b5-8ca1-7ad9221ab9b2" />
-
+| 🎯 Radar de Deals | 💰 Mémoire de Prix | 🛒 Liste de Courses |
+| :---: | :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/866e4695-8075-4882-9390-6927c015c1fe" width="250" alt="Radar"> | <img src="https://github.com/user-attachments/assets/742aa45e-7542-49a2-a393-19921bace4bd" width="250" alt="Prix"> | <img src="https://github.com/user-attachments/assets/16dae335-ecb5-40a5-a13e-d354c3bba50d" width="250" alt="Courses"> |
 
 ---
 
