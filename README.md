@@ -6,40 +6,40 @@
 ![JavaScript](https://img.shields.io/badge/javascript-%23F7DF1E.svg?style=for-the-badge&logo=javascript&logoColor=black)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 
-**DealSpot** est une plateforme communautaire interactive conçue pour aider les utilisateurs à économiser au quotidien. Plus qu'un simple site de bons plans, c'est un véritable outil d'entraide locale.
+**DealSpot** is an interactive community platform designed to help users save money on their daily expenses. More than just a deals website, it is a powerful local mutual aid tool.
 
-🚀 **[Voir le site en direct](https://dealspott.vercel.app/)**
+🚀 **[Live Demo](https://dealspott.vercel.app/)**
 
 ---
 
-## 📸 Aperçu de l'interface
+## 📸 Interface Overview
 
-| 🎯 Radar de Deals | 💰 Mémoire de Prix | 🛒 Liste de Courses |
+| 🎯 Deal Radar | 💰 Price Tracker | 🛒 Shopping List |
 | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/866e4695-8075-4882-9390-6927c015c1fe" width="250" alt="Radar"> | <img src="https://github.com/user-attachments/assets/742aa45e-7542-49a2-a393-19921bace4bd" width="250" alt="Prix"> | <img src="https://github.com/user-attachments/assets/16dae335-ecb5-40a5-a13e-d354c3bba50d" width="250" alt="Courses"> |
+| <img src="https://github.com/user-attachments/assets/866e4695-8075-4882-9390-6927c015c1fe" width="250" alt="Radar"> | <img src="https://github.com/user-attachments/assets/742aa45e-7542-49a2-a393-19921bace4bd" width="250" alt="Price Memory"> | <img src="https://github.com/user-attachments/assets/16dae335-ecb5-40a5-a13e-d354c3bba50d" width="250" alt="Shopping List"> |
 
 ---
 
-## ✨ Fonctionnalités Clés
+## ✨ Key Features
 
-* **🎯 Radar de Bons Plans** : Signalez et découvrez des promotions, objets gratuits, événements et services utiles autour de vous.
-* **🗺️ Carte des Lieux Utiles** : Toilettes gratuites, fontaines d'eau, Wi-Fi public, prises électriques et parkings gratuits — tous référencés par la communauté.
-* **💰 Mémoire de Prix** : Enregistrez les prix de vos produits du quotidien et détectez les hausses et baisses via le scanner intégré.
-* **🏆 Missions & Gamification** : Gagnez des points XP en contribuant à la communauté. Progressez de niveau et débloquez des récompenses.
-* **😩 Mode Anti-Flemme** : Une fonctionnalité unique pour vous aider à passer à l'action avec des mini-défis de 2 minutes.
+* **🎯 Deal Radar**: Share and discover real-time discounts, free items, events, and useful services near you.
+* **🗺️ Essential Map**: Find community-sourced free toilets, water fountains, public Wi-Fi, charging stations, and free parking.
+* **💰 Price Memory**: Save prices of your daily products and detect price drops or hikes using the built-in scanner.
+* **🏆 Missions & Gamification**: Earn XP points by contributing to the community. Level up and unlock rewards as you help others.
+* **😩 Anti-Procrastination Mode**: A unique feature helping you take action with quick 2-minute mini-challenges.
 
-## 🛠️ Stack Technique
+## 🛠️ Technical Stack
 
-* **Frontend** : HTML5, CSS3 (Variables, Flexbox, Grid), JavaScript Vanille.
-* **Cartographie** : Intégration OpenStreetMap pour la visualisation des deals et lieux.
-* **Backend / Data** : Connecté à **Supabase** pour la gestion des données en temps réel.
-* **PWA** : Installable sur mobile sans passer par un App Store.
+* **Frontend**: HTML5, CSS3 (Variables, Flexbox, Grid), Vanilla JavaScript.
+* **Mapping**: OpenStreetMap integration for deal and location visualization.
+* **Backend / Data**: Powered by **Supabase** for real-time data management.
+* **PWA**: Fully installable on mobile devices without an App Store.
 
 ## 📥 Installation (PWA)
 
-DealSpot peut être installé directement sur votre écran d'accueil :
-1. Allez sur [dealspott.vercel.app](https://dealspott.vercel.app/)
-2. Cliquez sur **"Installer DealSpot"** dans le menu ou via les options de votre navigateur.
+DealSpot can be installed directly on your home screen:
+1. Visit [dealspott.vercel.app](https://dealspott.vercel.app/)
+2. Click on **"Install DealSpot"** in the menu or use your browser's "Add to Home Screen" option.
 
 ---
-© 2025 DealSpot - Par la communauté, pour la communauté.
+© 2025 DealSpot - By the community, for the community.
