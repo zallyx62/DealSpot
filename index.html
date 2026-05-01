@@ -188,6 +188,42 @@ input[type=range].dist-slider::-webkit-slider-thumb{-webkit-appearance:none;widt
 .pf-name{font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pf-brand{font-size:11px;color:var(--tx2);margin-top:1px}
 .pf-ok{font-size:11px;font-weight:700;color:var(--gr)}
+/* ═══ LISTE DE COURSES ═══ */
+.sl-budget-card{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(59,130,246,.06));border:1px solid rgba(16,185,129,.25);border-radius:18px;padding:14px 16px;margin-bottom:14px}
+.sl-budget-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sl-budget-icon{font-size:24px;flex-shrink:0}
+.sl-budget-info{flex:1;min-width:0}
+.sl-budget-label{font-size:10px;font-weight:800;color:var(--gr);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+.sl-budget-vals{font-size:15px;font-weight:800;color:var(--tx)}
+.sl-budget-bar{height:7px;border-radius:4px;background:var(--bd2);overflow:hidden;margin-top:8px}
+.sl-budget-fill{height:100%;border-radius:4px;transition:width .5s,background .3s}
+.sl-budget-edit{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--gd);border:none;color:var(--gr);font-family:'Sora',sans-serif;cursor:pointer}
+.sl-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.sl-stat{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px;text-align:center}
+.sl-stat-v{font-size:16px;font-weight:800;color:var(--tx);line-height:1.2}
+.sl-stat-l{font-size:10px;color:var(--tx3);margin-top:2px;font-weight:600}
+.sl-item{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:10px;transition:opacity .25s,background .15s;position:relative}
+.sl-item.checked{opacity:.5;background:var(--card2)}
+.sl-check{width:26px;height:26px;border-radius:50%;border:2px solid var(--bd2);background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:13px;transition:all .2s;color:transparent}
+.sl-check.on{border-color:var(--gr);background:var(--gr);color:#fff}
+.sl-item-emoji{font-size:22px;flex-shrink:0;line-height:1}
+.sl-item-info{flex:1;min-width:0}
+.sl-item-name{font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .2s}
+.sl-item.checked .sl-item-name{text-decoration:line-through;color:var(--tx3)}
+.sl-item-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.sl-item-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.sl-item-price{font-size:13px;font-weight:800;color:var(--ac)}
+.sl-del{font-size:11px;color:var(--tx3);cursor:pointer;padding:3px 7px;border-radius:7px;border:1px solid var(--bd);background:none;font-family:'Sora',sans-serif;transition:all .15s}
+.sl-del:active{color:var(--re);border-color:var(--re)}
+.sl-quick{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px}
+.sl-quick::-webkit-scrollbar{display:none}
+.sl-qchip{flex-shrink:0;padding:5px 10px;border-radius:20px;background:var(--adim);border:1px solid rgba(245,158,11,.3);color:var(--ac);font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.sl-qchip:active{background:var(--ac);color:#000;border-color:var(--ac)}
+.sl-section-hd{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 8px;display:flex;align-items:center;gap:6px}
+.sl-section-hd::before,.sl-section-hd::after{content:'';flex:1;height:1px;background:var(--bd)}
+.sl-add-btn{display:flex;align-items:center;gap:8px;width:100%;padding:12px 14px;background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04));border:1.5px dashed rgba(16,185,129,.4);border-radius:13px;font-size:13px;font-weight:700;color:var(--gr);cursor:pointer;font-family:'Sora',sans-serif;justify-content:center;margin-bottom:12px;transition:background .15s}
+.sl-add-btn:active{background:var(--gd)}
+.sl-empty-list{display:flex;flex-direction:column;align-items:center;padding:40px 24px;text-align:center;gap:10px}
 /* ═══ PRICE SORT BAR ═══ */
 .price-sort-bar{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
 .price-sort-bar::-webkit-scrollbar{display:none}
@@ -643,6 +679,45 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       <div class="sh"><h2>🏆 Missions du Jour</h2><span class="badge ba" id="mDone">0/3</span></div>
       <div id="misList"></div>
     </div>
+    <!-- TAB 5: LISTE DE COURSES -->
+    <div class="tab" id="tab-5">
+      <div class="sh"><h2>🛒 Liste de Courses</h2><span class="badge ba" style="cursor:pointer" onclick="openModal('addListModal')">+ Article</span></div>
+      <!-- Budget -->
+      <div class="sl-budget-card" id="slBudgetCard">
+        <div class="sl-budget-row">
+          <div class="sl-budget-icon">💳</div>
+          <div class="sl-budget-info">
+            <div class="sl-budget-label">Budget de courses</div>
+            <div class="sl-budget-vals" id="slBudgetVals">0,00 € <span style="color:var(--tx3);font-weight:500">/ pas de budget</span></div>
+          </div>
+          <button class="sl-budget-edit" onclick="promptBudget()">✏️ Définir</button>
+        </div>
+        <div class="sl-budget-bar"><div class="sl-budget-fill" id="slBudgetFill" style="width:0%;background:var(--gr)"></div></div>
+      </div>
+      <!-- Statistiques rapides -->
+      <div class="sl-stats">
+        <div class="sl-stat"><div class="sl-stat-v" id="slStatItems">0</div><div class="sl-stat-l">Articles</div></div>
+        <div class="sl-stat"><div class="sl-stat-v" id="slStatDone" style="color:var(--gr)">0</div><div class="sl-stat-l">Cochés</div></div>
+        <div class="sl-stat"><div class="sl-stat-v" id="slStatTotal" style="color:var(--ac)">0€</div><div class="sl-stat-l">Total estimé</div></div>
+      </div>
+      <!-- Suggestions depuis Mémoire de Prix -->
+      <div id="slQuickWrap" style="display:none;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:6px;display:flex;align-items:center;gap:6px">⚡ Ajouter depuis ta Mémoire de Prix</div>
+        <div class="sl-quick" id="slQuickChips"></div>
+      </div>
+      <!-- Bouton ajouter rapide -->
+      <button class="sl-add-btn" onclick="openModal('addListModal')">
+        <span style="font-size:20px">+</span> Ajouter un article
+      </button>
+      <!-- Actions -->
+      <div class="prix-actions">
+        <button class="export-btn" onclick="clearCheckedItems()" style="background:var(--gd);border-color:var(--gr);color:var(--gr)">✓ Effacer cochés</button>
+        <button class="export-btn" onclick="shareShoppingList()">↗️ Partager</button>
+        <button class="export-btn" onclick="clearAllItems()">🗑️ Tout vider</button>
+      </div>
+      <!-- Liste d'articles -->
+      <div id="listItems"></div>
+    </div>
     <!-- TAB 4: ANTI-FLEMME -->
     <div class="tab" id="tab-4">
       <div class="ctr-row">
@@ -703,6 +778,10 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   <div class="ni" onclick="goTab(4)">
     <svg viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/></svg>
     <span>Anti-Flemme</span>
+  </div>
+  <div class="ni" onclick="goTab(5)" id="listNavBtn">
+    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <span>Courses</span>
   </div>
 </div>
 <div class="app-footer">
@@ -771,6 +850,19 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
     <div class="fg"><label>Lieu / Adresse *</label><input class="fi" id="dPl" placeholder="Ex: Monoprix République, Paris" maxlength="100" autocomplete="off"/></div>
     <div class="fg"><label>Description</label><input class="fi" id="dDs" placeholder="Détails, conditions, durée…" maxlength="300" autocomplete="off"/></div>
     <button class="sbtn" onclick="submitDeal()">Publier 🎯</button>
+  </div>
+</div>
+<!-- MODAL: ADD LIST ITEM -->
+<div class="moverlay" id="addListModal" onclick="cmbg(event,'addListModal')" role="dialog" aria-modal="true" aria-label="Ajouter un article">
+  <div class="mbox">
+    <div class="mhead"><button class="mback" onclick="closeModal('addListModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>🛒 Ajouter un article</h3></div>
+    <div class="fg"><label>Nom de l'article *</label><input class="fi" id="liNm" placeholder="Ex: Lait demi-écrémé 1L" maxlength="80" autocomplete="off"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="fg"><label>Quantité</label><input class="fi" id="liQty" type="number" min="1" max="99" value="1" placeholder="1" inputmode="numeric"/></div>
+      <div class="fg"><label>Prix estimé (€)</label><input class="fi" id="liPx" type="number" step="0.01" min="0" max="9999" placeholder="0.00" inputmode="decimal"/></div>
+    </div>
+    <div class="fg"><label>Émoji article</label><input class="fi" id="liEm" placeholder="🛒" maxlength="4"/></div>
+    <button class="sbtn" onclick="addListItem()">+ Ajouter à la liste</button>
   </div>
 </div>
 <!-- MODAL: ADD PLACE -->
@@ -1328,7 +1420,9 @@ const S={
   antSav: lget('antSav',0),
   user:   lget('user',  null),
   theme:  lget('theme', 'dark'),
-  supDis: lget('supDis',false)
+  supDis: lget('supDis',false),
+  list:   lget('list',  []),
+  budget: lget('budget',0)
 };
 function sv(k){lset(k,S[k]);}
 
@@ -1706,7 +1800,7 @@ function dismissSwipeHint(){
   lset('swipeHintDone',true);
 }
 function goTab(idx){
-  if(idx<0||idx>4)return;
+  if(idx<0||idx>5)return;
   const prev=G('tab-'+curTab);if(prev)prev.scrollTop=0;
   curTab=idx;
   // Masquer le swipe hint dès le premier swipe
@@ -1714,7 +1808,7 @@ function goTab(idx){
   track.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';
   track.style.transform='translateX(-'+idx*100+'%)';
   const navItems=document.querySelectorAll('#nav .ni');
-  const tabMap=[0,1,3,4];
+  const tabMap=[0,1,3,4,5];
   navItems.forEach((n,i)=>n.classList.toggle('active',tabMap[i]===idx));
   document.querySelectorAll('#dotsWrap .dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
   if(idx===0)renderDeals();
@@ -1726,8 +1820,9 @@ function goTab(idx){
   else if(idx===2)renderPrices();
   else if(idx===3)renderMissions();
   else if(idx===4)renderAnti();
+  else if(idx===5)renderList();
 }
-function initDots(){const dw=G('dotsWrap');if(!dw)return;dw.innerHTML=['Radar','Carte','Prix','Missions','Anti-Flemme'].map((_,i)=>`<div class="dot ${i===0?'on':''}"></div>`).join('');}
+function initDots(){const dw=G('dotsWrap');if(!dw)return;dw.innerHTML=['Radar','Carte','Prix','Missions','Anti-Flemme','Courses'].map((_,i)=>`<div class="dot ${i===0?'on':''}"></div>`).join('');}
 area.addEventListener('touchstart',e=>{if(document.querySelector('.moverlay.open'))return;tsX=e.touches[0].clientX;tsY=e.touches[0].clientY;dragging=false;},{passive:true});
 area.addEventListener('touchmove',e=>{
   if(document.querySelector('.moverlay.open'))return;
@@ -1735,10 +1830,10 @@ area.addEventListener('touchmove',e=>{
   if(!dragging){if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>12)dragging=true;else if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){dragging=false;return;}}
   if(dragging){track.style.transition='none';track.style.transform='translateX(calc(-'+curTab*100+'% + '+dx+'px))';}
 },{passive:true});
-area.addEventListener('touchend',e=>{if(!dragging)return;dragging=false;const dx=e.changedTouches[0].clientX-tsX,thr=area.offsetWidth*0.2;if(dx<-thr&&curTab<4)goTab(curTab+1);else if(dx>thr&&curTab>0)goTab(curTab-1);else goTab(curTab);},{passive:true});
+area.addEventListener('touchend',e=>{if(!dragging)return;dragging=false;const dx=e.changedTouches[0].clientX-tsX,thr=area.offsetWidth*0.2;if(dx<-thr&&curTab<5)goTab(curTab+1);else if(dx>thr&&curTab>0)goTab(curTab-1);else goTab(curTab);},{passive:true});
 area.addEventListener('mousedown',e=>{if(document.querySelector('.moverlay.open'))return;mdX=e.clientX;mouseD=true;});
 area.addEventListener('mousemove',e=>{if(!mouseD||document.querySelector('.moverlay.open'))return;const dx=e.clientX-mdX;if(Math.abs(dx)>8){track.style.transition='none';track.style.transform='translateX(calc(-'+curTab*100+'% + '+dx+'px))';}});
-area.addEventListener('mouseup',e=>{if(!mouseD)return;mouseD=false;const dx=e.clientX-mdX,thr=area.offsetWidth*0.2;if(dx<-thr&&curTab<4)goTab(curTab+1);else if(dx>thr&&curTab>0)goTab(curTab-1);else goTab(curTab);});
+area.addEventListener('mouseup',e=>{if(!mouseD)return;mouseD=false;const dx=e.clientX-mdX,thr=area.offsetWidth*0.2;if(dx<-thr&&curTab<5)goTab(curTab+1);else if(dx>thr&&curTab>0)goTab(curTab-1);else goTab(curTab);});
 area.addEventListener('mouseleave',()=>{if(mouseD){mouseD=false;goTab(curTab);}});
 
 // ═══ SEARCH
@@ -2741,7 +2836,7 @@ async function syncDeals(){
 // ═══ KEYBOARD
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){const o=document.querySelector('.moverlay.open');if(o){o.classList.remove('open');settOpen=false;}}
-  if(!document.querySelector('.moverlay.open')&&!srchVis){if(e.key==='ArrowLeft'&&curTab>0)goTab(curTab-1);if(e.key==='ArrowRight'&&curTab<4)goTab(curTab+1);}
+  if(!document.querySelector('.moverlay.open')&&!srchVis){if(e.key==='ArrowLeft'&&curTab>0)goTab(curTab-1);if(e.key==='ArrowRight'&&curTab<5)goTab(curTab+1);}
   // Piège de focus dans les modals ouverts (accessibilité)
   if(e.key==='Tab'){
     const modal=document.querySelector('.moverlay.open');
@@ -3136,7 +3231,7 @@ function initLongPress(){
 function scrollToTop(){const t=G('tab-'+curTab);if(t)t.scrollTo({top:0,behavior:'smooth'});}
 (function initScrollTop(){
   const btn=G('scrollTop');if(!btn)return;
-  [0,1,2,3,4].forEach(i=>{
+  [0,1,2,3,4,5].forEach(i=>{
     const t=G('tab-'+i);if(!t)return;
     t.addEventListener('scroll',()=>{
       if(curTab!==i)return;
@@ -3286,6 +3381,246 @@ function closeScanner(){
     try{_html5QrScanner.stop().catch(()=>{});}catch(e){}
     _html5QrScanner=null;
   }
+}
+
+// ═══════════════════════════════════════════════════
+// MODULE 6 — LISTE DE COURSES
+// ═══════════════════════════════════════════════════
+
+// Rendu complet de la liste de courses
+function renderList(){
+  const list=S.list||[];
+  const budget=S.budget||0;
+
+  // Statistiques
+  const total=list.reduce((acc,item)=>acc+(parseFloat(item.price)||0)*Math.max(1,parseInt(item.qty)||1),0);
+  const done=list.filter(i=>i.checked).length;
+  const totalDone=list.filter(i=>i.checked).reduce((acc,item)=>acc+(parseFloat(item.price)||0)*Math.max(1,parseInt(item.qty)||1),0);
+
+  if(G('slStatItems'))G('slStatItems').textContent=list.length;
+  if(G('slStatDone'))G('slStatDone').textContent=done;
+  if(G('slStatTotal'))G('slStatTotal').textContent=total.toFixed(2)+'€';
+
+  // Budget bar
+  const bv=G('slBudgetVals'),bf=G('slBudgetFill');
+  if(bv){
+    if(budget>0){
+      const pct=Math.min(100,(total/budget)*100);
+      const over=total>budget;
+      bv.innerHTML=`<span style="color:${over?'var(--re)':'var(--tx)'}">${total.toFixed(2)} €</span> / <span style="color:var(--ac);cursor:pointer" onclick="promptBudget()">${budget.toFixed(2)} €</span>`;
+      if(bf){bf.style.width=pct+'%';bf.style.background=over?'var(--re)':pct>80?'var(--ac)':'var(--gr)';}
+    } else {
+      bv.innerHTML=`<span style="color:var(--tx)">${total.toFixed(2)} €</span> <span style="color:var(--tx3);font-weight:500;font-size:12px">/ <span style="cursor:pointer;color:var(--ac);font-weight:700" onclick="promptBudget()">Définir budget</span></span>`;
+      if(bf)bf.style.width='0%';
+    }
+  }
+
+  // Chips depuis la mémoire de prix (suggestions rapides)
+  const qw=G('slQuickWrap'),qc=G('slQuickChips');
+  if(qw&&qc&&S.prices&&S.prices.length){
+    const trackedIds=new Set(list.map(i=>i.priceRef));
+    const suggestions=S.prices.filter(p=>!trackedIds.has(p.id)).slice(0,8);
+    if(suggestions.length){
+      qw.style.display='block';
+      qc.innerHTML=suggestions.map(p=>{
+        const lastP=p.history&&p.history.length?p.history[p.history.length-1].v:null;
+        return `<div class="sl-qchip" onclick="quickAddFromMemory(${parseInt(p.id)})">${esc(p.emoji||'📦')} ${esc(p.name.slice(0,18))}${lastP?' · '+lastP.toFixed(2)+'€':''}</div>`;
+      }).join('');
+    } else {
+      qw.style.display='none';
+    }
+  } else if(qw){qw.style.display='none';}
+
+  // Rendu des articles
+  const el=G('listItems');if(!el)return;
+  if(!list.length){
+    el.innerHTML=`<div class="sl-empty-list">
+      <div style="font-size:56px;line-height:1">🛒</div>
+      <div style="font-size:15px;font-weight:700;color:var(--tx)">Ta liste est vide !</div>
+      <div style="font-size:12px;color:var(--tx3);line-height:1.6;max-width:260px">Ajoute des articles à acheter ou importe depuis ta Mémoire de Prix pour suivre ton budget en temps réel.</div>
+    </div>`;
+    return;
+  }
+
+  // Séparer: articles non cochés / cochés
+  const pending=list.filter(i=>!i.checked);
+  const checked=list.filter(i=>i.checked);
+  let html='';
+  if(pending.length){
+    html+=pending.map(item=>listItemH(item)).join('');
+  }
+  if(checked.length){
+    html+=`<div class="sl-section-hd">✓ Déjà dans le panier (${checked.length})</div>`;
+    html+=checked.map(item=>listItemH(item)).join('');
+  }
+  el.innerHTML=html;
+}
+
+function listItemH(item){
+  const price=parseFloat(item.price)||0;
+  const qty=Math.max(1,parseInt(item.qty)||1);
+  const lineTotal=price*qty;
+  const priceStr=lineTotal>0?lineTotal.toFixed(2)+' €':'';
+  const qtyStr=qty>1?` × ${qty}`:'';
+  const shopStr=item.shop?` · ${esc(item.shop)}`:'';
+  return `<div class="sl-item ${item.checked?'checked':''}" id="sli-${item.id}">
+    <div class="sl-check ${item.checked?'on':''}" onclick="toggleListItem(${parseInt(item.id)})">${item.checked?'✓':''}</div>
+    <div class="sl-item-emoji">${esc(item.emoji||'🛒')}</div>
+    <div class="sl-item-info">
+      <div class="sl-item-name ${item.checked?'done':''}">${esc(item.name)}${qtyStr}</div>
+      ${shopStr||item.note?`<div class="sl-item-sub">${esc((item.shop||'')+(item.note?` · ${item.note}`:''))}</div>`:''}
+    </div>
+    <div class="sl-item-right">
+      ${priceStr?`<div class="sl-item-price">${priceStr}</div>`:''}
+      <button class="sl-del" onclick="deleteListItem(${parseInt(item.id)})">🗑️</button>
+    </div>
+  </div>`;
+}
+
+function addListItem(){
+  const name=sanitize(G('liNm')?.value||'',80).trim();
+  if(!name||name.length<1){toast('❌ Nom de l\'article requis');return;}
+  const qty=Math.max(1,Math.min(99,parseInt(G('liQty')?.value)||1));
+  const price=parseFloat(G('liPx')?.value)||0;
+  if(price<0||price>9999){toast('❌ Prix invalide');return;}
+  const rawEmoji=sanitize(G('liEm')?.value.trim()||'🛒',4);
+  const emoji=rawEmoji||'🛒';
+  const item={
+    id:Date.now(),
+    name,qty,
+    price:price>0?parseFloat(price.toFixed(2)):0,
+    emoji,
+    checked:false,
+    added:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'})
+  };
+  S.list=S.list||[];
+  S.list.unshift(item);
+  sv('list');
+  closeModal('addListModal');
+  ['liNm','liPx','liEm'].forEach(id=>{const el=G(id);if(el)el.value='';});
+  const qtyEl=G('liQty');if(qtyEl)qtyEl.value='1';
+  renderList();
+  toast('🛒 Article ajouté !');
+  haptic&&haptic('success');
+}
+
+function quickAddFromMemory(priceId){
+  const p=S.prices.find(x=>x.id===priceId);if(!p)return;
+  const lastPrice=p.history&&p.history.length?p.history[p.history.length-1].v:0;
+  S.list=S.list||[];
+  const existing=S.list.find(i=>i.priceRef===priceId&&!i.checked);
+  if(existing){
+    existing.qty=(existing.qty||1)+1;
+    sv('list');renderList();
+    toast(`🛒 ${esc(p.name)} × ${existing.qty}`);
+    haptic&&haptic('light');
+    return;
+  }
+  const item={
+    id:Date.now(),
+    name:p.name,
+    qty:1,
+    price:lastPrice,
+    emoji:p.emoji||'📦',
+    shop:p.shop,
+    checked:false,
+    priceRef:priceId,
+    added:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'})
+  };
+  S.list.unshift(item);
+  sv('list');
+  renderList();
+  toast('🛒 '+esc(p.name)+' ajouté !');
+  haptic&&haptic('light');
+}
+
+function toggleListItem(id){
+  const item=(S.list||[]).find(i=>i.id===id);if(!item)return;
+  item.checked=!item.checked;
+  sv('list');
+  renderList();
+  if(item.checked){
+    haptic&&haptic('success');
+    // Vérifier si tout est coché → confetti !
+    const pending=(S.list||[]).filter(i=>!i.checked);
+    if(!pending.length&&S.list.length>2){
+      setTimeout(()=>{launchConfetti(1800);toast('🎉 Courses terminées !');},200);
+    }
+  }
+}
+
+function deleteListItem(id){
+  S.list=(S.list||[]).filter(i=>i.id!==id);
+  sv('list');renderList();
+  haptic&&haptic('light');
+}
+
+function clearCheckedItems(){
+  const before=(S.list||[]).length;
+  S.list=(S.list||[]).filter(i=>!i.checked);
+  const removed=before-S.list.length;
+  if(!removed){toast('ℹ️ Aucun article coché');return;}
+  sv('list');renderList();
+  toast(`🗑️ ${removed} article${removed>1?'s':''} supprimé${removed>1?'s':''}`);
+  haptic&&haptic('light');
+}
+
+function clearAllItems(){
+  if(!(S.list||[]).length){toast('ℹ️ La liste est déjà vide');return;}
+  S.list=[];sv('list');renderList();
+  toast('🗑️ Liste vidée');
+  haptic&&haptic('medium');
+}
+
+function promptBudget(){
+  // Saisie inline dans la card budget
+  const card=G('slBudgetCard');if(!card)return;
+  const existing=card.querySelector('.budget-inline-form');
+  if(existing){existing.remove();return;}
+  const form=document.createElement('div');
+  form.className='budget-inline-form';
+  form.style.cssText='display:flex;gap:8px;margin-top:10px;align-items:center';
+  const currentBudget=S.budget||0;
+  form.innerHTML=`<input type="number" step="0.5" min="0" max="99999" placeholder="Budget (€)..." value="${currentBudget>0?currentBudget:''}" style="flex:1;padding:8px 10px;background:var(--inp);border:1.5px solid var(--gr);border-radius:9px;font-size:13px;font-family:Sora,sans-serif;color:var(--tx);outline:none" inputmode="decimal"/><button style="padding:8px 14px;background:var(--gr);border:none;border-radius:9px;font-size:12px;font-weight:700;font-family:Sora,sans-serif;color:#fff;cursor:pointer">OK</button><button style="padding:8px 10px;background:var(--card2);border:1px solid var(--bd);border-radius:9px;font-size:12px;font-weight:600;font-family:Sora,sans-serif;color:var(--tx3);cursor:pointer">✕</button>`;
+  const inp=form.querySelector('input');
+  const okBtn=form.querySelectorAll('button')[0];
+  const cancelBtn=form.querySelectorAll('button')[1];
+  const save=()=>{
+    const v=parseFloat(inp.value)||0;
+    if(v<0){toast('❌ Budget invalide');return;}
+    S.budget=v;sv('budget');form.remove();renderList();
+    toast(v>0?`💳 Budget défini : ${v.toFixed(2)} €`:'💳 Budget supprimé');
+    haptic&&haptic('success');
+  };
+  okBtn.addEventListener('click',save);
+  cancelBtn.addEventListener('click',()=>form.remove());
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')save();if(e.key==='Escape')form.remove();});
+  card.appendChild(form);
+  setTimeout(()=>inp.focus(),50);
+}
+
+function shareShoppingList(){
+  const list=S.list||[];
+  if(!list.length){toast('ℹ️ La liste est vide');return;}
+  const pending=list.filter(i=>!i.checked);
+  const done=list.filter(i=>i.checked);
+  const total=list.reduce((acc,i)=>acc+(parseFloat(i.price)||0)*(parseInt(i.qty)||1),0);
+  let text='🛒 Ma liste de courses DealSpot\n\n';
+  if(pending.length){
+    text+=pending.map(i=>`☐ ${i.emoji||''} ${i.name}${i.qty>1?' ×'+i.qty:''}${i.price?' ('+((parseFloat(i.price)||0)*(i.qty||1)).toFixed(2)+'€)':''}`).join('\n');
+  }
+  if(done.length){
+    text+='\n\n✓ Déjà dans le panier :\n';
+    text+=done.map(i=>`✓ ${i.emoji||''} ${i.name}`).join('\n');
+  }
+  if(total>0)text+=`\n\n💳 Total estimé : ${total.toFixed(2)} €`;
+  text+='\n\nPartagé depuis DealSpot 🎯';
+  if(navigator.share){
+    navigator.share({title:'Ma liste de courses',text}).catch(()=>{});
+  } else {
+    navigator.clipboard?.writeText(text).then(()=>toast('📋 Liste copiée !'),()=>toast('❌ Copie non disponible'));
+  }
+  haptic&&haptic('light');
 }
 
 (function init(){
