@@ -21,8 +21,8 @@
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-<!-- Barcode scanner -->
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<!-- Barcode scanner — ⚠️ TODO prod : ajouter integrity="sha384-..." après avoir calculé le hash SRI de ce fichier -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" crossorigin="anonymous"></script>
 <!-- Google AdSense — pub réelle -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1381945888605291" crossorigin="anonymous"></script>
 <style>
@@ -1262,7 +1262,13 @@ function exportPricesCSV(){
     const trend=vals.length>=2?(curr<vals[vals.length-2]?'Baisse':curr>vals[vals.length-2]?'Hausse':'Stable'):'N/A';
     rows.push([p.name,p.shop,curr.toFixed(2),minV.toFixed(2),maxV.toFixed(2),h.length,trend]);
   });
-  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  // Protection injection de formule CSV (Excel/LibreOffice interprète =, +, -, @ en début de cellule)
+  const csvEscape=v=>{
+    const str=String(v);
+    const safe=/^[=+\-@\t\r\n]/.test(str)?'\''+str:str;
+    return '"'+safe.replace(/"/g,'""')+'"';
+  };
+  const csv=rows.map(r=>r.map(csvEscape).join(',')).join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -1311,7 +1317,10 @@ const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'appl
 async function sbGet(t,q){try{const r=await fetch(SB_URL+'/rest/v1/'+t+'?'+(q||''),{headers:SBH});return r.ok?r.json():null;}catch{return null;}}
 async function sbPost(t,d){try{await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:SBH,body:JSON.stringify(d)});}catch{}}
 async function sbSignUp(e,p){try{const r=await fetch(SB_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();return r.ok?{data:d}:{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
-async function sbSignIn(e,p){try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();if(r.ok){lset('_sess',d);return{data:d};}return{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
+async function sbSignIn(e,p){try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();if(r.ok){
+  // Calculer et stocker l'expiration (expires_in est en secondes)
+  if(d.expires_in&&!d.expires_at)d.expires_at=Math.floor(Date.now()/1000)+d.expires_in;
+  lset('_sess',d);return{data:d};}return{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
 async function sbSignOut(){try{const s=lget('_sess',null);if(s?.access_token)await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});}catch{}lset('_sess',null);}
 async function sbGetSession(){
   const s=lget('_sess',null);
@@ -1320,7 +1329,20 @@ async function sbGetSession(){
   if(!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(s.access_token)){
     lset('_sess',null);return null;
   }
-  try{const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});if(r.ok)return s;lset('_sess',null);return null;}catch{return null;}}
+  // SÉCURITÉ: vérifier l'expiration du token avant appel réseau
+  if(s.expires_at&&s.expires_at*1000<Date.now()){
+    lset('_sess',null);return null;
+  }
+  try{
+    const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});
+    if(r.ok){
+      // Retourner les données utilisateur réelles depuis l'API
+      const userData=await r.json();
+      return{session:s,user:userData};
+    }
+    lset('_sess',null);return null;
+  }catch{return null;}
+}
 function sbOAuth(p){
   const allowed=['google','facebook','apple'];
   if(!allowed.includes(p)){toast('❌ Provider non autorisé');return;}
@@ -1759,10 +1781,12 @@ function reportRev(btn){
   toast('🚩 Avis signalé — merci !');
 }
 // Signalement deal
+// Signalement deal
 function reportDeal(id){
-  // SÉCURITÉ: limiter les signalements anonymes avec un rate-limit côté client
-  if(!canPostRev('report:deal:'+id))return;
-  sbPost('reports',{type:'deal',deal_id:id,ts:Date.now()});
+  // SÉCURITÉ: limiter les signalements par deal individuel (pas global)
+  const key='report:deal:'+parseInt(id);
+  if(!canSubmit(key,30000))return; // 30s par deal
+  sbPost('reports',{type:'deal',deal_id:parseInt(id),ts:Date.now()});
   toast('🚩 Bon plan signalé — merci à toi !');
 }
 
@@ -2550,21 +2574,18 @@ function updPrice(id){
     cardEl.appendChild(form);
     setTimeout(()=>inp.focus(),50);
   } else {
-    // Fallback si la carte n'est pas trouvée
-    const nv=parseFloat(prompt('Nouveau prix (€) ?'));
-    if(!nv||nv<=0)return;
-    const today=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
-    p.history.push({v:parseFloat(nv.toFixed(2)),d:today});
-    sv('prices');renderPrices();toast('💰 Prix mis à jour !');
+    // Fallback si la carte n'est pas trouvée (ne pas utiliser prompt() — bloqué dans certains contextes)
+    toast('❌ Impossible de mettre à jour ce prix — rafraîchis la page');
   }
 }
 function submitPrice(){
+  if(!canSubmit('price',4000))return;
   const name=sanitize(G('prNm').value,100).trim(),shop=sanitize(G('prSh').value,100).trim();
   const rawPv=G('prVl').value;
   const pv=parseFloat(rawPv);
   const rawEmoji=sanitize(G('prEm').value.trim()||'📦',4);
-  // SÉCURITÉ: valider que l'emoji est un caractère emoji ou ASCII simple (pas d'injection)
-  const emoji=rawEmoji.length>0&&rawEmoji.length<=4?rawEmoji:'📦';
+  // SÉCURITÉ: valider que l'emoji ne contient pas de script ou de balise cachée
+  const emoji=/[<>"'`\\]/.test(rawEmoji)?'📦':rawEmoji.length>0?rawEmoji:'📦';
   if(!name||!shop){toast('❌ Nom et magasin requis');return;}
   if(name.length<2){toast('❌ Nom trop court');return;}
   if(isNaN(pv)||pv<=0||pv>99999){toast('❌ Prix invalide (entre 0,01 et 99 999 €)');return;}
@@ -2756,6 +2777,8 @@ function closeAd(){const ov=G('adOverlay');if(ov)ov.classList.remove('show');if(
 
 // ═══ MODALS
 function openModal(id){
+  // SÉCURITÉ: valider l'id avant tout usage dans le DOM
+  if(!/^[a-zA-Z0-9_-]+$/.test(id))return;
   const el=document.getElementById(id);if(!el)return;
   el.classList.add('open');
   if(id==='settingsModal'){settOpen=true;renderSettAuth();applyTheme(S.theme);}
@@ -2768,6 +2791,8 @@ function openModal(id){
   });
 }
 function closeModal(id){
+  // SÉCURITÉ: valider que l'id est bien un identifiant alphanumérique (évite l'injection dans querySelector)
+  if(!/^[a-zA-Z0-9_-]+$/.test(id))return;
   const el=document.getElementById(id);if(!el)return;
   el.classList.remove('open');
   if(id==='settingsModal')settOpen=false;
@@ -3186,11 +3211,6 @@ function applySearch(q){
   onSearch(q);hideSrchHistory();
 }
 function clearSrchHistory(){lset('srchHist',[]);hideSrchHistory();}
-function removeSrchHist(e,q){
-  e.stopPropagation();
-  let hist=lget('srchHist',[]).filter(h=>h!==q);
-  lset('srchHist',hist);showSrchHistory();
-}
 // Nouvelle version par index (plus sûre, évite les collisions de valeur)
 function removeSrchHistByIndex(i){
   let hist=lget('srchHist',[]);
@@ -3478,13 +3498,14 @@ function listItemH(item){
 }
 
 function addListItem(){
+  if(!canSubmit('listItem',1500))return;
   const name=sanitize(G('liNm')?.value||'',80).trim();
   if(!name||name.length<1){toast('❌ Nom de l\'article requis');return;}
   const qty=Math.max(1,Math.min(99,parseInt(G('liQty')?.value)||1));
   const price=parseFloat(G('liPx')?.value)||0;
   if(price<0||price>9999){toast('❌ Prix invalide');return;}
   const rawEmoji=sanitize(G('liEm')?.value.trim()||'🛒',4);
-  const emoji=rawEmoji||'🛒';
+  const emoji=/[<>"'`\\]/.test(rawEmoji)||!rawEmoji?'🛒':rawEmoji;
   const item={
     id:Date.now(),
     name,qty,
@@ -3674,8 +3695,16 @@ function shareShoppingList(){
     // AdSense
     setTimeout(()=>{try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}},1000);
 
-    // Session Supabase
-    sbGetSession().then(sess=>{if(sess)handleAuthUser({user:{id:'',email:'',user_metadata:{},app_metadata:{provider:'email'}}});});
+    // Session Supabase — restaurer l'utilisateur depuis l'API (données réelles, pas un objet vide)
+    sbGetSession().then(result=>{
+      if(result?.user){
+        handleAuthUser({user:result.user});
+      } else {
+        // Fallback offline : restaurer depuis le stockage local si disponible
+        const storedUser=lget('user',null);
+        if(storedUser?.id){S.user=storedUser;updateUserBtn();renderSettAuth();}
+      }
+    });
     // OAuth redirect — nettoyer le hash immédiatement pour éviter l'exposition du token dans l'historique
     if(location.hash.includes('access_token')){
       // Nettoyer le hash AVANT tout traitement (empêche le token d'apparaître dans les logs/referrers)
@@ -3686,7 +3715,7 @@ function shareShoppingList(){
         // Valider le format JWT (3 segments base64 séparés par des points)
         if(tk&&/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(tk)){
           lset('_sess',{access_token:tk});
-          sbGetSession().then(s=>{if(s)handleAuthUser(s);});
+          sbGetSession().then(result=>{if(result?.user)handleAuthUser({user:result.user});});
         }
       }catch(e){console.warn('[Auth] Erreur parsing token OAuth:',e);}
     }
