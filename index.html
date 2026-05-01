@@ -3,8 +3,16 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<!-- Open Graph — aperçu lien : texte uniquement, pas d'image -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="DealSpot — Les bons plans près de chez toi"/>
+<meta property="og:description" content="Trouve, partage et économise sur les meilleurs bons plans autour de toi. Gratuit, sans pub, par et pour ta communauté."/>
+<meta property="og:locale" content="fr_FR"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="DealSpot — Les bons plans près de chez toi"/>
+<meta name="twitter:description" content="Trouve, partage et économise sur les meilleurs bons plans autour de toi. Gratuit, sans pub, par et pour ta communauté."/>
 <!-- Sécurité : Content Security Policy -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org https://world.openfoodfacts.org https://api.open-meteo.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.openstreetmap.org; connect-src 'self' https://*.supabase.co https://overpass-api.de https://overpass.kumi.systems https://overpass.openstreetmap.fr https://www.openstreetmap.org https://world.openfoodfacts.org https://api.open-meteo.com https://nominatim.openstreetmap.org; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=(), payment=(), usb=()"/>
@@ -1423,28 +1431,34 @@ function canPostRev(key){
 }
 // ═══ SUPABASE REST (sans SDK — 0 dépendance CDN bloquable)
 // ⚠️ SB_KEY = clé anon Supabase (publique par design). ACTIVER RLS sur toutes les tables !
+// 🔒 SÉCURITÉ: _sess stocké en sessionStorage (pas localStorage) pour limiter l'exposition XSS
+function _getSess(){try{return JSON.parse(sessionStorage.getItem('ds6_sess')||'null');}catch{return null;}}
+function _setSess(v){try{if(v)sessionStorage.setItem('ds6_sess',JSON.stringify(v));else sessionStorage.removeItem('ds6_sess');}catch{}}
 // Voir : Supabase Dashboard → Authentication → Policies
 const SB_URL='https://vwapbxglpxcmvgcfkxbt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3YXBieGdscHhjbXZnY2ZreGJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTYyOTksImV4cCI6MjA5MjU3MjI5OX0.3OVOrzOYiik_cA8uQQaHRXBy_V9FZRpwfsJPv0V7Lng';
 const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
 async function sbGet(t,q){try{const r=await fetch(SB_URL+'/rest/v1/'+t+'?'+(q||''),{headers:SBH});return r.ok?r.json():null;}catch{return null;}}
-async function sbPost(t,d){try{await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:SBH,body:JSON.stringify(d)});}catch{}}
+async function sbPost(t,d){
+  if(!canSubmit('sbPost_'+t,3000))return; // 🔒 anti-flood Supabase
+  try{await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:SBH,body:JSON.stringify(d)});}catch{}
+}
 async function sbSignUp(e,p){try{const r=await fetch(SB_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();return r.ok?{data:d}:{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
 async function sbSignIn(e,p){try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();if(r.ok){
   // Calculer et stocker l'expiration (expires_in est en secondes)
   if(d.expires_in&&!d.expires_at)d.expires_at=Math.floor(Date.now()/1000)+d.expires_in;
-  lset('_sess',d);return{data:d};}return{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
-async function sbSignOut(){try{const s=lget('_sess',null);if(s?.access_token)await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});}catch{}lset('_sess',null);}
+  _setSess(d);return{data:d};}return{error:d};}catch{return{error:{message:'Erreur réseau'}};}}
+async function sbSignOut(){try{const s=_getSess();if(s?.access_token)await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});}catch{}_setSess(null);}
 async function sbGetSession(){
-  const s=lget('_sess',null);
+  const s=_getSess();
   if(!s?.access_token)return null;
   // SÉCURITÉ: valider le format JWT avant tout usage (3 segments base64url)
   if(!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(s.access_token)){
-    lset('_sess',null);return null;
+    _setSess(null);return null;
   }
   // SÉCURITÉ: vérifier l'expiration du token avant appel réseau
   if(s.expires_at&&s.expires_at*1000<Date.now()){
-    lset('_sess',null);return null;
+    _setSess(null);return null;
   }
   try{
     const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+s.access_token}});
@@ -1453,7 +1467,7 @@ async function sbGetSession(){
       const userData=await r.json();
       return{session:s,user:userData};
     }
-    lset('_sess',null);return null;
+    _setSess(null);return null;
   }catch{return null;}
 }
 function sbOAuth(p){
@@ -2067,11 +2081,12 @@ function dealCardH(d){
   const t=TC[d.type]||TC.autre;const revs=d.reviews||[];
   const ordered=[...revs.filter(r=>r.src!=='google'),...revs.filter(r=>r.src==='google')];
   const avg=avgS(revs),nc=revs.length,ps=pStars['d'+d.id]||0;
+  const did=parseInt(d.id); // 🔒 validation entier strict pour les onclick
   const distBadge=(userLocated&&d._km!=null&&d._km<9999)?`<span style="display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:${d._km<5?'var(--gd)':'var(--adim)'};color:${d._km<5?'var(--gr)':'var(--ac)'};margin-top:4px">📍 ${fmtDist(d._km)}</span>`:'';
   const rmSet=getReminderSet(d.id);
   const rmCls=rmSet?'set':'';
   const rmLbl=rmSet?'⏰ Rappel actif':'⏰ Rappelle-moi';
-  return `<div class="dc"><div class="dh"><div class="dic" style="background:${t.b}">${t.i}</div><div class="din"><div class="dtt">${hl(d.title)}</div><div class="dpl">📍 ${hl(d.place)}</div>${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}${distBadge}${avg>0?`<div style="margin-top:4px">${starsH(avg,nc,true)}</div>`:''}</div></div><div class="df"><div class="da"><div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${d.id})">❤️ ${d.likes}</div><div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${d.id})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div><div class="abtn sh" onclick="shareDeal(${d.id})">↗️ Partager</div><div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${d.id})">💬 ${nc} avis</div><div class="abtn rm ${rmCls}" id="rmbtn-${d.id}" onclick="toggleRemindPicker(${d.id})">${rmLbl}</div></div><span class="dtm">${esc(d.time)}</span></div><div class="remind-picker" id="rp-${d.id}"><div class="rp-title">Dans combien de temps ?</div><div class="rp-opts"><button class="rp-opt" onclick="setReminder(${d.id},60,'1h')">1h</button><button class="rp-opt" onclick="setReminder(${d.id},180,'3h')">3h</button><button class="rp-opt" onclick="setReminder(${d.id},480,'8h')">8h</button><button class="rp-opt" onclick="setReminder(${d.id},1440,'demain')">Demain matin</button><button class="rp-opt" style="color:var(--re)" onclick="cancelReminder(${d.id})">✕ Annuler</button></div></div><div class="revs" id="rs-d-${d.id}">${ordered.map(r=>revH(r,d.id)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-d-${d.id}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${d.id},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-d-${d.id}" rows="2" placeholder="${S.user?'Ton avis…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'} maxlength="500"></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span><button class="rsnd" onclick="postRev('d',${d.id})">Publier</button></div></div></div></div>`;
+  return `<div class="dc"><div class="dh"><div class="dic" style="background:${t.b}">${t.i}</div><div class="din"><div class="dtt">${hl(d.title)}</div><div class="dpl">📍 ${hl(d.place)}</div>${d.desc?`<div class="dds">${hl(d.desc)}</div>`:''}${distBadge}${avg>0?`<div style="margin-top:4px">${starsH(avg,nc,true)}</div>`:''}</div></div><div class="df"><div class="da"><div class="abtn ${d.liked?'lk':''}" onclick="likeDeal(${did})">❤️ ${d.likes}</div><div class="abtn ${d.saved?'sv':''}" onclick="saveDeal(${did})">${d.saved?'🔖 Sauvé':'🔖 Sauvegarder'}</div><div class="abtn sh" onclick="shareDeal(${did})">↗️ Partager</div><div class="abtn ${nc>0?'rv':''}" onclick="togRevs('d',${did})">💬 ${nc} avis</div><div class="abtn rm ${rmCls}" id="rmbtn-${did}" onclick="toggleRemindPicker(${did})">${rmLbl}</div></div><span class="dtm">${esc(d.time)}</span></div><div class="remind-picker" id="rp-${did}"><div class="rp-title">Dans combien de temps ?</div><div class="rp-opts"><button class="rp-opt" onclick="setReminder(${did},60,'1h')">1h</button><button class="rp-opt" onclick="setReminder(${did},180,'3h')">3h</button><button class="rp-opt" onclick="setReminder(${did},480,'8h')">8h</button><button class="rp-opt" onclick="setReminder(${did},1440,'demain')">Demain matin</button><button class="rp-opt" style="color:var(--re)" onclick="cancelReminder(${did})">✕ Annuler</button></div></div><div class="revs" id="rs-d-${did}">${ordered.map(r=>revH(r,did)).join('')}<div class="riw"><div class="rlbl">Laisser un avis</div><div class="spick" id="sp-d-${did}">${[1,2,3,4,5].map(i=>`<span class="sp ${i<=ps?'on':''}" onclick="setStar('d',${did},${i})">⭐</span>`).join('')}</div><textarea class="rta" id="ri-d-${did}" rows="2" placeholder="${S.user?'Ton avis…':'Connecte-toi pour commenter'}" ${S.user?'':'disabled'} maxlength="500"></textarea><div class="rrw"><span style="font-size:11px;color:var(--tx3)">${nc} avis${avg>0?' · '+avg.toFixed(1)+'/5':''}</span><button class="rsnd" onclick="postRev('d',${did})">Publier</button></div></div></div></div>`;
 }
 function togRevs(ctx,id){const rs=G('rs-'+ctx+'-'+id);if(rs)rs.classList.toggle('open');}
 function setStar(ctx,id,n){pStars[ctx+id]=n;const sp=G('sp-'+ctx+'-'+id);if(sp)sp.querySelectorAll('.sp').forEach((s,i)=>s.classList.toggle('on',i<n));}
@@ -3769,6 +3784,11 @@ function shareShoppingList(){
     text+=done.map(i=>`✓ ${i.emoji||''} ${i.name}`).join('\n');
   }
   if(total>0)text+=`\n\n💳 Total estimé : ${total.toFixed(2)} €`;
+  // 💡 Suggestion: encoder la liste dans un lien partageable
+  try{
+    const compact=pending.map(i=>encodeURIComponent(i.name)).join(',');
+    if(compact.length<800){text+=`\n\n🔗 ${window.location.origin}${window.location.pathname}?list=${compact}`;}
+  }catch{}
   text+='\n\nPartagé depuis DealSpot 🎯';
   if(navigator.share){
     navigator.share({title:'Ma liste de courses',text}).catch(()=>{});
@@ -3992,11 +4012,37 @@ function renderComparateur(){
         const tk=p.get('access_token');
         // Valider le format JWT (3 segments base64 séparés par des points)
         if(tk&&/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(tk)){
-          lset('_sess',{access_token:tk});
+          _setSess({access_token:tk});
           sbGetSession().then(result=>{if(result?.user)handleAuthUser({user:result.user});});
         }
       }catch(e){console.warn('[Auth] Erreur parsing token OAuth:',e);}
     }
+
+    // 💡 SUGGESTION: Importer une liste partagée via URL param ?list=
+    try{
+      const urlParams=new URLSearchParams(window.location.search);
+      const sharedList=urlParams.get('list');
+      if(sharedList&&sharedList.length<900){
+        const items=sharedList.split(',').map(s=>decodeURIComponent(s).trim()).filter(s=>s&&s.length<80&&s.length>0);
+        if(items.length>0&&items.length<=30){
+          const existing=S.list||[];
+          const newItems=items.filter(name=>!existing.some(i=>i.name.toLowerCase()===name.toLowerCase()));
+          if(newItems.length>0){
+            if(confirm(`Ajouter ${newItems.length} article${newItems.length>1?'s':''} partagé${newItems.length>1?'s':''} à ta liste ?`)){
+              newItems.forEach(name=>{S.list.push({id:Date.now()+Math.random(),name:sanitize(name,60),qty:1,price:0,emoji:'🛒',checked:false});});
+              sv('list');renderList();goTab(5);toast('🛒 Liste importée !');haptic&&haptic('success');
+            }
+          }
+          // Nettoyer l'URL sans rechargement
+          history.replaceState(null,'',window.location.pathname);
+        }
+      }
+    }catch{}
+    // 💡 SUGGESTION: Avertissement si localStorage > 80%
+    try{
+      let total=0;for(let k in localStorage){if(localStorage.hasOwnProperty(k))total+=localStorage[k].length*2;}
+      if(total>4000000)toast('⚠️ Stockage presque plein. Pense à archiver ou vider certaines données.');
+    }catch{}
 
     setTimeout(()=>syncDeals(),2000);
     setInterval(()=>syncDeals(),25000);
