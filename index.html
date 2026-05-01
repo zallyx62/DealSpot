@@ -744,6 +744,29 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         <div class="insights-grid" id="insightsList"></div>
       </div>
     </div>
+    <!-- TAB 4: ANTI-FLEMME -->
+    <div class="tab" id="tab-4">
+      <div class="ctr-row">
+        <div class="ctr"><div class="ctr-v" id="antiCnt">0</div><div class="ctr-l">Fois utilisé</div></div>
+        <div class="ctr"><div class="ctr-v" style="color:var(--gr)" id="antiSav">0 €</div><div class="ctr-l">Économies estimées</div></div>
+      </div>
+      <div class="ah">
+        <span class="af" id="antiFace">😩</span>
+        <h2>T'as la flemme ?</h2>
+        <p>Une mini-action de 2 minutes pour sortir du blocage.</p>
+        <button class="abig" onclick="triggerAnti()">Je n'ai pas envie 😪</button>
+      </div>
+      <div id="antiResp"></div>
+      <!-- Conseil du Jour -->
+      <div class="conseil-card" id="conseilCard" onclick="nextConseil()" title="Cliquer pour un nouveau conseil" style="margin-top:12px">
+        <div class="conseil-icon" id="conseilIcon">💡</div>
+        <div class="conseil-body">
+          <div class="conseil-label">💰 Conseil du jour</div>
+          <div class="conseil-text" id="conseilText">Chargement…</div>
+          <div class="conseil-next">Appuie pour suivant →</div>
+        </div>
+      </div>
+    </div>
     <!-- TAB 5: LISTE DE COURSES -->
     <div class="tab" id="tab-5">
       <div class="sh"><h2>🛒 Liste de Courses</h2><span class="badge ba" style="cursor:pointer" onclick="openModal('addListModal')">+ Article</span></div>
@@ -789,29 +812,6 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         <div id="listHistoryItems"></div>
       </div>
       <div style="text-align:center;margin-top:8px"><span style="font-size:11px;color:var(--tx3);cursor:pointer" onclick="toggleListHistory()" id="histToggleBtn">📂 Voir l'historique →</span></div>
-    </div>
-    <!-- TAB 4: ANTI-FLEMME -->
-    <div class="tab" id="tab-4">
-      <div class="ctr-row">
-        <div class="ctr"><div class="ctr-v" id="antiCnt">0</div><div class="ctr-l">Fois utilisé</div></div>
-        <div class="ctr"><div class="ctr-v" style="color:var(--gr)" id="antiSav">0 €</div><div class="ctr-l">Économies estimées</div></div>
-      </div>
-      <div class="ah">
-        <span class="af" id="antiFace">😩</span>
-        <h2>T'as la flemme ?</h2>
-        <p>Une mini-action de 2 minutes pour sortir du blocage.</p>
-        <button class="abig" onclick="triggerAnti()">Je n'ai pas envie 😪</button>
-      </div>
-      <div id="antiResp"></div>
-      <!-- Conseil du Jour -->
-      <div class="conseil-card" id="conseilCard" onclick="nextConseil()" title="Cliquer pour un nouveau conseil" style="margin-top:12px">
-        <div class="conseil-icon" id="conseilIcon">💡</div>
-        <div class="conseil-body">
-          <div class="conseil-label">💰 Conseil du jour</div>
-          <div class="conseil-text" id="conseilText">Chargement…</div>
-          <div class="conseil-next">Appuie pour suivant →</div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -1947,7 +1947,7 @@ function goTab(idx){
   track.style.transition='transform .32s cubic-bezier(.4,0,.2,1)';
   track.style.transform='translateX(-'+idx*100+'%)';
   const navItems=document.querySelectorAll('#nav .ni');
-  const tabMap=[0,1,3,4,5];
+  const tabMap=[0,1,-1,-1,4,5];
   navItems.forEach((n,i)=>n.classList.toggle('active',tabMap[i]===idx));
   document.querySelectorAll('#dotsWrap .dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
   if(idx===0)renderDeals();
