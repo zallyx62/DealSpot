@@ -42,4 +42,10 @@ DealSpot can be installed directly on your home screen:
 2. Click on **"Install DealSpot"** in the menu or use your browser's "Add to Home Screen" option.
 
 ---
+
+## 📩 Contact & Feedback
+
+If you have questions, suggestions, or just want to say hi, feel free to open a [New Issue](https://github.com/zallyx62/DealSpot/issues/new) or join the conversation in [GitHub Discussions](https://github.com/zallyx62/DealSpot/discussions)!
+
+---
 © 2025 DealSpot - By the community, for the community.
