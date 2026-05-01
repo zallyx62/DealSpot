@@ -28,6 +28,7 @@
 <style>
 html[data-theme="dark"]{--bg:#080D1A;--sf:#0F1623;--card:#161F30;--card2:#1C2840;--bd:#243048;--bd2:#2E3D5C;--tx:#F1F5F9;--tx2:#CBD5E1;--tx3:#94A3B8;--inp:#0F1623;--mbg:#111827;--ov:rgba(0,0,0,.88)}
 html[data-theme="light"]{--bg:#F0F4FF;--sf:#FFF;--card:#FFF;--card2:#F1F5F9;--bd:#E2E8F0;--bd2:#CBD5E1;--tx:#0F172A;--tx2:#374151;--tx3:#64748B;--inp:#F8FAFC;--mbg:#FFF;--ov:rgba(0,0,0,.6)}
+html[data-theme="oled"]{--bg:#000;--sf:#000;--card:#0A0A0A;--card2:#111;--bd:#1A1A1A;--bd2:#222;--tx:#F1F5F9;--tx2:#CBD5E1;--tx3:#94A3B8;--inp:#0A0A0A;--mbg:#000;--ov:rgba(0,0,0,.95)}
 :root{--ac:#F59E0B;--ac2:#FCD34D;--adim:rgba(245,158,11,.12);--gr:#10B981;--gd:rgba(16,185,129,.14);--re:#EF4444;--rd:rgba(239,68,68,.13);--bl:#3B82F6;--bld:rgba(59,130,246,.13);--nh:56px;--nb:68px;--r:14px;--r2:20px}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 html,body{height:100%;overflow:hidden;font-family:'Sora',sans-serif;background:var(--bg);color:var(--tx);transition:background .3s,color .3s}
@@ -502,6 +503,60 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
 #loadScreen p{font-size:14px;color:var(--tx2);font-weight:500}
 /* Map placeholder when Leaflet not loaded */
 #leafletMap{height:200px;width:100%;background:linear-gradient(135deg,#0F2027,#203A43,#2C5364);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+/* ═══ SOLDES COUNTDOWN ═══ */
+.soldes-banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(245,158,11,.08));border:1px solid rgba(239,68,68,.3);border-radius:16px;padding:11px 14px;margin-bottom:12px;cursor:pointer}
+.soldes-banner:active{background:rgba(239,68,68,.1)}
+.soldes-emoji{font-size:22px;flex-shrink:0}
+.soldes-body{flex:1;min-width:0}
+.soldes-label{font-size:10px;font-weight:800;color:var(--re);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+.soldes-text{font-size:12px;font-weight:700;color:var(--tx);line-height:1.4}
+.soldes-sub{font-size:10px;color:var(--tx3);margin-top:2px}
+.soldes-countdown{font-size:18px;font-weight:900;color:var(--re);flex-shrink:0;min-width:36px;text-align:center;line-height:1.2}
+.soldes-countdown span{display:block;font-size:9px;font-weight:600;color:var(--tx3);text-align:center}
+/* ═══ RÉSUMÉ WIDGET ═══ */
+.summary-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.summary-pill{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 8px;text-align:center;cursor:pointer;transition:background .15s}
+.summary-pill:active{background:var(--card2)}
+.summary-pill-v{font-size:15px;font-weight:800;color:var(--tx);line-height:1.2}
+.summary-pill-l{font-size:10px;color:var(--tx3);margin-top:2px;font-weight:600}
+/* ═══ INSIGHTS HEBDO ═══ */
+.insights-card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r2);padding:14px;margin-bottom:12px}
+.insights-hd{font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.insight-item{background:var(--card2);border-radius:12px;padding:10px;text-align:center}
+.insight-v{font-size:18px;font-weight:800;line-height:1.2}
+.insight-l{font-size:10px;color:var(--tx3);margin-top:2px;font-weight:600}
+/* ═══ CARTE DE FIDÉLITÉ ═══ */
+.wallet-card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--bd);border-radius:20px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.wallet-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:var(--ac);opacity:.07;pointer-events:none}
+.wallet-card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.wallet-card-icon{font-size:28px;flex-shrink:0}
+.wallet-card-store{font-size:13px;font-weight:800;color:var(--tx)}
+.wallet-card-sub{font-size:10px;color:var(--tx3);margin-top:1px}
+.wallet-barcode-num{font-family:monospace;font-size:18px;font-weight:700;letter-spacing:2px;color:var(--tx);background:var(--inp);border-radius:8px;padding:8px 10px;text-align:center;margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wallet-bars{display:flex;align-items:flex-end;gap:1px;height:32px;margin-bottom:6px;padding:0 4px}
+.wallet-bar{border-radius:1px 1px 0 0;background:var(--tx)}
+.wallet-actions{display:flex;gap:8px}
+.wallet-del{font-size:11px;color:var(--tx3);cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--bd);background:none;font-family:'Sora',sans-serif;transition:all .15s}
+.wallet-del:active{color:var(--re);border-color:var(--re)}
+.wallet-empty{text-align:center;padding:32px 20px;color:var(--tx3)}
+.wallet-empty .wi{font-size:40px;margin-bottom:8px}
+/* ═══ HISTORIQUE LISTES ═══ */
+.hist-list-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.hist-list-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.hist-list-date{font-size:11px;font-weight:700;color:var(--ac)}
+.hist-list-total{font-size:11px;font-weight:800;color:var(--gr)}
+.hist-list-items{font-size:11px;color:var(--tx3);line-height:1.5}
+.hist-list-del{font-size:10px;color:var(--tx3);cursor:pointer;padding:2px 7px;border-radius:7px;border:1px solid var(--bd);background:none;font-family:'Sora',sans-serif}
+.hist-list-del:active{color:var(--re);border-color:var(--re)}
+/* ═══ COMPARATEUR MAGASIN ═══ */
+.comp-store-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.comp-store-name{font-size:13px;font-weight:800;color:var(--tx);margin-bottom:6px}
+.comp-product-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd)}
+.comp-product-row:last-child{border-bottom:none}
+.comp-product-name{font-size:11px;color:var(--tx2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.comp-product-price{font-size:12px;font-weight:800}
+.comp-best{color:var(--gr)}.comp-worst{color:var(--re)}.comp-mid{color:var(--tx)}
 </style>
 </head>
 <body>
@@ -541,14 +596,11 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   <div id="tabsTrack">
     <!-- TAB 0: RADAR -->
     <div class="tab" id="tab-0">
-      <!-- Conseil du Jour -->
-      <div class="conseil-card" id="conseilCard" onclick="nextConseil()" title="Cliquer pour un nouveau conseil">
-        <div class="conseil-icon" id="conseilIcon">💡</div>
-        <div class="conseil-body">
-          <div class="conseil-label">💰 Conseil du jour</div>
-          <div class="conseil-text" id="conseilText">Chargement…</div>
-          <div class="conseil-next">Appuie pour suivant →</div>
-        </div>
+      <!-- Widget résumé -->
+      <div class="summary-row" id="summaryRow">
+        <div class="summary-pill" onclick="goTab(5)"><div class="summary-pill-v" id="sumBudget">—</div><div class="summary-pill-l">💳 Budget restant</div></div>
+        <div class="summary-pill" onclick="goTab(5)"><div class="summary-pill-v" id="sumItems">0</div><div class="summary-pill-l">🛒 Articles</div></div>
+        <div class="summary-pill" onclick="openModal('favModal')"><div class="summary-pill-v" id="sumFavs">0</div><div class="summary-pill-l">⭐ Favoris</div></div>
       </div>
       <!-- Filtre distance -->
       <div class="dist-filter" id="distFilterWrap" style="display:none">
@@ -578,11 +630,13 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       </div>
       <div class="fbar" id="filterBar">
         <div class="chip on" onclick="filterDeals(this,'all')">Tout</div>
+        <div class="chip" onclick="filterDeals(this,'today')">📅 Aujourd'hui</div>
         <div class="chip" onclick="filterDeals(this,'promo')">🏷️ Promo</div>
         <div class="chip" onclick="filterDeals(this,'gratuit')">🎁 Gratuit</div>
         <div class="chip" onclick="filterDeals(this,'event')">📅 Événement</div>
         <div class="chip" onclick="filterDeals(this,'food')">🍕 Nourriture</div>
         <div class="chip" onclick="filterDeals(this,'service')">🔧 Service</div>
+        <div class="chip" onclick="filterDeals(this,'occasion')">📦 Occasion</div>
       </div>
       <div id="dealList"></div>
     </div>
@@ -638,6 +692,12 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       <div class="prix-actions">
         <button class="export-btn" onclick="exportPricesCSV()" aria-label="Exporter en CSV">📊 Exporter CSV</button>
         <button class="export-btn" style="background:var(--gd);border-color:var(--gr);color:var(--gr)" onclick="checkAllPriceAlerts()" aria-label="Vérifier toutes les alertes">🔔 Vérifier alertes</button>
+        <button class="export-btn" style="background:rgba(139,92,246,.12);border-color:#8B5CF6;color:#8B5CF6" onclick="toggleComparateur()" aria-label="Comparer par magasin">🏪 Par magasin</button>
+      </div>
+      <!-- Comparateur magasin -->
+      <div id="comparateurWrap" style="display:none">
+        <div class="sh"><h2 style="font-size:14px">🏪 Comparateur Magasins</h2><span class="badge ba" style="cursor:pointer" onclick="toggleComparateur()">✕ Fermer</span></div>
+        <div id="comparateurList"></div>
       </div>
       <div class="ph">
         <div class="phl">Économies détectées ce mois</div>
@@ -678,6 +738,11 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       <div class="str-row" id="strRow"></div>
       <div class="sh"><h2>🏆 Missions du Jour</h2><span class="badge ba" id="mDone">0/3</span></div>
       <div id="misList"></div>
+      <!-- Insights hebdo -->
+      <div class="insights-card" style="margin-top:8px">
+        <div class="insights-hd">📊 Cette semaine</div>
+        <div class="insights-grid" id="insightsList"></div>
+      </div>
     </div>
     <!-- TAB 5: LISTE DE COURSES -->
     <div class="tab" id="tab-5">
@@ -714,9 +779,16 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         <button class="export-btn" onclick="clearCheckedItems()" style="background:var(--gd);border-color:var(--gr);color:var(--gr)">✓ Effacer cochés</button>
         <button class="export-btn" onclick="shareShoppingList()">↗️ Partager</button>
         <button class="export-btn" onclick="clearAllItems()">🗑️ Tout vider</button>
+        <button class="export-btn" style="background:rgba(139,92,246,.12);border-color:#8B5CF6;color:#8B5CF6" onclick="archiveList()">📂 Archiver</button>
       </div>
       <!-- Liste d'articles -->
       <div id="listItems"></div>
+      <!-- Historique listes -->
+      <div id="listHistorySection" style="display:none;margin-top:8px">
+        <div class="sh"><h2 style="font-size:14px">📂 Listes archivées</h2><span class="badge ba" style="cursor:pointer" onclick="toggleListHistory()">✕</span></div>
+        <div id="listHistoryItems"></div>
+      </div>
+      <div style="text-align:center;margin-top:8px"><span style="font-size:11px;color:var(--tx3);cursor:pointer" onclick="toggleListHistory()" id="histToggleBtn">📂 Voir l'historique →</span></div>
     </div>
     <!-- TAB 4: ANTI-FLEMME -->
     <div class="tab" id="tab-4">
@@ -731,6 +803,15 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         <button class="abig" onclick="triggerAnti()">Je n'ai pas envie 😪</button>
       </div>
       <div id="antiResp"></div>
+      <!-- Conseil du Jour -->
+      <div class="conseil-card" id="conseilCard" onclick="nextConseil()" title="Cliquer pour un nouveau conseil" style="margin-top:12px">
+        <div class="conseil-icon" id="conseilIcon">💡</div>
+        <div class="conseil-body">
+          <div class="conseil-label">💰 Conseil du jour</div>
+          <div class="conseil-text" id="conseilText">Chargement…</div>
+          <div class="conseil-next">Appuie pour suivant →</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -791,6 +872,20 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
   <span>·</span>
   <span>© 2025 DealSpot</span>
 </div>
+<!-- MODAL: WALLET -->
+<div class="moverlay" id="walletModal" onclick="cmbg(event,'walletModal')" role="dialog" aria-modal="true" aria-label="Cartes de fidélité">
+  <div class="mbox">
+    <div class="mhead"><button class="mback" onclick="closeModal('walletModal')" aria-label="Fermer"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"/></svg></button><h3>💳 Cartes de fidélité</h3></div>
+    <div id="walletList"></div>
+    <div style="margin-top:12px">
+      <div class="sh" style="margin-bottom:8px"><h2 style="font-size:14px;color:var(--tx2)">Ajouter une carte</h2></div>
+      <div class="fg"><label>Nom du magasin *</label><input class="fi" id="wStore" placeholder="Ex: Lidl, Carrefour, Sephora…" maxlength="50" autocomplete="off"/></div>
+      <div class="fg"><label>Numéro de carte *</label><input class="fi" id="wNum" placeholder="Ex: 1234567890123" maxlength="30" inputmode="numeric" autocomplete="off"/></div>
+      <div class="fg"><label>Émoji magasin</label><input class="fi" id="wEmoji" placeholder="🛒" maxlength="4"/></div>
+      <button class="sbtn" onclick="addWalletCard()">+ Ajouter la carte</button>
+    </div>
+  </div>
+</div>
 <!-- SCANNER OVERLAY -->
 <div id="scanOverlay">
   <div class="scan-head">
@@ -843,6 +938,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         <div class="tc" data-type="event" onclick="selT(this,'deal')"><div class="tci">📅</div><span class="tcl">Événement</span></div>
         <div class="tc" data-type="food" onclick="selT(this,'deal')"><div class="tci">🍕</div><span class="tcl">Nourriture</span></div>
         <div class="tc" data-type="service" onclick="selT(this,'deal')"><div class="tci">🔧</div><span class="tcl">Service</span></div>
+        <div class="tc" data-type="occasion" onclick="selT(this,'deal')"><div class="tci">📦</div><span class="tcl">Occasion</span></div>
         <div class="tc" data-type="autre" onclick="selT(this,'deal')"><div class="tci">💡</div><span class="tcl">Autre</span></div>
       </div>
     </div>
@@ -936,6 +1032,23 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
         </div>
       </div>
 
+      <!-- OLED -->
+      <div class="sett-card tap" onclick="toggleOLED()">
+        <div class="sett-card-icon">⚫</div>
+        <div class="sett-card-label">Mode OLED</div>
+        <div class="sett-card-sub">Noir pur, économise la batterie sur AMOLED</div>
+        <div style="margin-top:4px"><span id="oledLabel" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--bd2);color:var(--tx3);display:inline-block">Désactivé</span></div>
+      </div>
+
+      <!-- Carte de fidélité -->
+      <div class="sett-card tap full" onclick="closeModal('settingsModal');openModal('walletModal')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="sett-card-icon">💳</div>
+          <div style="flex:1"><div class="sett-card-label">Cartes de fidélité</div><div class="sett-card-sub">Stocke tes codes-barres fidélité — affiche-les en caisse</div></div>
+          <div style="font-size:18px;color:var(--tx3)">›</div>
+        </div>
+      </div>
+
       <!-- Notifications -->
       <div class="sett-card tap" onclick="requestNotifPerm()">
         <div class="sett-card-icon">🔔</div>
@@ -969,7 +1082,7 @@ html[data-theme="light"] .pst{background:rgba(0,0,0,.05)}
       <div class="sett-card">
         <div class="sett-card-icon">ℹ️</div>
         <div class="sett-card-label">À propos</div>
-        <div class="sett-card-sub">DealSpot v1.0<br/>Par tous, pour tous.</div>
+        <div class="sett-card-sub">DealSpot v2.6<br/>Par tous, pour tous.</div>
       </div>
 
     </div>
@@ -1444,12 +1557,14 @@ const S={
   theme:  lget('theme', 'dark'),
   supDis: lget('supDis',false),
   list:   lget('list',  []),
-  budget: lget('budget',0)
+  budget: lget('budget',0),
+  wallet: lget('wallet',[]),
+  listHistory: lget('listHistory',[])
 };
 function sv(k){lset(k,S[k]);}
 
 // ═══ CONFIGS
-const TC={promo:{i:'🏷️',b:'rgba(245,158,11,.15)'},gratuit:{i:'🎁',b:'rgba(16,185,129,.15)'},event:{i:'📅',b:'rgba(59,130,246,.15)'},food:{i:'🍕',b:'rgba(239,68,68,.15)'},service:{i:'🔧',b:'rgba(139,92,246,.15)'},autre:{i:'💡',b:'rgba(148,163,184,.15)'}};
+const TC={promo:{i:'🏷️',b:'rgba(245,158,11,.15)'},gratuit:{i:'🎁',b:'rgba(16,185,129,.15)'},event:{i:'📅',b:'rgba(59,130,246,.15)'},food:{i:'🍕',b:'rgba(239,68,68,.15)'},service:{i:'🔧',b:'rgba(139,92,246,.15)'},occasion:{i:'📦',b:'rgba(249,115,22,.15)'},autre:{i:'💡',b:'rgba(148,163,184,.15)'}};
 const CC={wc:{i:'🚻',l:'Toilettes',c:'#3B82F6'},eau:{i:'💧',l:'Fontaines',c:'#06B6D4'},wifi:{i:'📶',l:'Wi-Fi',c:'#8B5CF6'},prise:{i:'🔌',l:'Prises',c:'#F59E0B'},parking:{i:'🅿️',l:'Parking',c:'#10B981'},culte:{i:'⛪',l:'Lieux de culte',c:'#A78BFA'},ecole:{i:'🎓',l:'Écoles',c:'#FB923C'},sante:{i:'🏥',l:'Santé',c:'#F43F5E'},service:{i:'🏦',l:'Services',c:'#14B8A6'},autre:{i:'📍',l:'Autre',c:'#94A3B8'}};
 const LVS=[{n:'Débutant Éco',x:100},{n:'Chasseur Malin',x:250},{n:'Pro DealSpot',x:500},{n:'Économiste Pro',x:1000},{n:'Légende DealSpot',x:9999}];
 const MIS=[{id:'m1',i:'🏷️',c:'#F59E0B',t:'Signale un bon plan',d:'Aide la communauté à économiser',x:25,cta:'Signaler →'},{id:'m2',i:'💰',c:'#10B981',t:'Enregistre un prix',d:'Note le prix d\'un produit du quotidien',x:20,cta:'Enregistrer →'},{id:'m3',i:'🗺️',c:'#3B82F6',t:'Ajoute un lieu utile',d:'Fontaine, Wi-Fi, toilettes…',x:15,cta:'Ajouter →'}];
@@ -1920,10 +2035,15 @@ function onGeoError(err){
 
 // ═══ MODULE 1: RADAR (tri par proximité)
 function filterDeals(el,f){curFilter=f;document.querySelectorAll('#filterBar .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderDeals();}
+function isTodayDeal(d){
+  if(d.id>1000000000000){return Date.now()-d.id<86400000;}
+  const t=d.time||'';
+  return t.includes("À l'instant")||/Il y a \d+h/.test(t);
+}
 function renderDeals(){
   // Skeleton au tout premier render (liste vide ET pas encore localisé)
   if(!S.deals.length&&!userLocated){showSkeleton('dealList',4);return;}
-  let list=curFilter==='all'?S.deals.slice():S.deals.filter(d=>d.type===curFilter);
+  let list=curFilter==='all'?S.deals.slice():curFilter==='today'?S.deals.filter(d=>isTodayDeal(d)):S.deals.filter(d=>d.type===curFilter);
   if(srchQ)list=list.filter(d=>d.title.toLowerCase().includes(srchQ)||d.place.toLowerCase().includes(srchQ)||(d.desc||'').toLowerCase().includes(srchQ));
   // Calcul distances si géoloc active
   if(userLocated){
@@ -2607,6 +2727,7 @@ function renderMissions(){
   G('mDone')&&(G('mDone').textContent=S.mDone.length+'/3');
   const fc={m1:'var(--ac)',m2:'var(--gr)',m3:'var(--bl)'};
   G('misList').innerHTML=MIS.map(m=>{const done=S.mDone.includes(m.id);return `<div class="mcard ${done?'dn':''}" onclick="completeMis('${m.id}')"><div class="mch2"><div class="mci" style="background:${m.c}22">${m.i}</div><div class="mcb"><div class="mct">${m.t}</div><div class="mcd">${m.d}</div><div class="mcp"><div class="mcf" style="width:${done?100:0}%;background:${fc[m.id]||'var(--ac)'}"></div></div></div></div><div class="mcft"><span class="mcx">+${m.x} XP</span>${done?'<span class="badge bg">Complétée ✓</span>':`<span style="font-size:11px;color:var(--bl);font-weight:600">${m.cta}</span>`}</div></div>`;}).join('');
+  renderInsights();
 }
 function completeMis(id){
   if(S.mDone.includes(id))return;S.mDone.push(id);sv('mDone');
@@ -2620,7 +2741,7 @@ function completeMis(id){
     else haptic('success');
   }
   const day=new Date().getDay();if(!S.streak.includes(day)){S.streak.push(day);sv('streak');}
-  if(curTab===3)renderMissions();
+  if(curTab===3){renderMissions();renderInsights();}
 }
 
 // ═══ MODULE 5: ANTI-FLEMME
@@ -2709,12 +2830,22 @@ function updateUserBtn(){
 // ═══ THEME
 function applyTheme(t){
   document.documentElement.dataset.theme=t;S.theme=t;sv('theme');
-  const tog=G('togTheme');if(tog)tog.className='tog'+(t==='dark'?' on':'');
-  const lbl=G('themeLabel');if(lbl)lbl.textContent=t==='dark'?'Sombre':'Clair';
+  const tog=G('togTheme');
+  if(tog)tog.className='tog'+(t==='dark'||t==='oled'?' on':'');
+  const lbl=G('themeLabel');if(lbl)lbl.textContent=t==='dark'?'Sombre':t==='oled'?'Sombre':'Clair';
+  const oledLbl=G('oledLabel');
+  if(oledLbl){oledLbl.textContent=t==='oled'?'Activé':'Désactivé';oledLbl.style.background=t==='oled'?'#000':'var(--bd2)';oledLbl.style.color=t==='oled'?'var(--ac)':'var(--tx3)';}
   const mc=document.querySelector('meta[name="theme-color"]');
-  if(mc)mc.content=t==='dark'?'#080D1A':'#F0F4FF';
+  if(mc)mc.content=t==='dark'?'#080D1A':t==='oled'?'#000000':'#F0F4FF';
 }
-function toggleTheme(){applyTheme(S.theme==='dark'?'light':'dark');}
+function toggleTheme(){
+  const next=S.theme==='dark'?'light':S.theme==='oled'?'light':'dark';
+  applyTheme(next);
+}
+function toggleOLED(){
+  applyTheme(S.theme==='oled'?'dark':'oled');
+  toast(S.theme==='oled'?'⚫ Mode OLED activé !':'🌗 Mode OLED désactivé');
+}
 // Écoute les changements du thème système
 const _sysDark=window.matchMedia('(prefers-color-scheme: dark)');
 function applySystemTheme(e){
@@ -2784,6 +2915,8 @@ function openModal(id){
   if(id==='settingsModal'){settOpen=true;renderSettAuth();applyTheme(S.theme);}
   if(id==='authModal')renderAuthModal();
   if(id==='favModal')renderFavs();
+  if(id==='walletModal')renderWallet();
+  if(id==='walletModal')renderWallet();
   // Focus le premier élément interactif pour l'accessibilité (piège de focus)
   requestAnimationFrame(()=>{
     const focusable=el.querySelector('button,.mback,input,textarea,select,[tabindex]:not([tabindex="-1"])');
@@ -3409,6 +3542,7 @@ function closeScanner(){
 
 // Rendu complet de la liste de courses
 function renderList(){
+  renderSummaryWidget();
   const list=S.list||[];
   const budget=S.budget||0;
 
@@ -3644,6 +3778,148 @@ function shareShoppingList(){
   haptic&&haptic('light');
 }
 
+// ═══════════════════════════════════════════════════
+// v2.6 — WIDGET RÉSUMÉ (RADAR)
+// ═══════════════════════════════════════════════════
+function renderSummaryWidget(){
+  const list=S.list||[];const budget=S.budget||0;
+  const total=list.reduce((a,i)=>a+(parseFloat(i.price)||0)*(parseInt(i.qty)||1),0);
+  const remaining=budget>0?(budget-total):null;
+  const favs=S.deals.filter(d=>d.saved).length;
+  const pending=list.filter(i=>!i.checked).length;
+  const bEl=G('sumBudget'),iEl=G('sumItems'),fEl=G('sumFavs');
+  if(bEl){bEl.textContent=remaining!=null?(remaining>=0?'+'+remaining.toFixed(0)+'€':remaining.toFixed(0)+'€'):'—';bEl.style.color=remaining!=null?(remaining<0?'var(--re)':remaining<budget*0.2?'var(--ac)':'var(--gr)'):'var(--tx)';}
+  if(iEl)iEl.textContent=pending;
+  if(fEl)fEl.textContent=favs;
+}
+
+// ═══════════════════════════════════════════════════
+// v2.6 — INSIGHTS HEBDO
+// ═══════════════════════════════════════════════════
+function renderInsights(){
+  const el=G('insightsList');if(!el)return;
+  let priceSaved=0,priceDrops=0;
+  (S.prices||[]).forEach(p=>{const h=p.history;if(h.length<2)return;const curr=h[h.length-1].v,prev=h[h.length-2].v;if(curr<prev){priceDrops++;priceSaved+=+(prev-curr).toFixed(2);}});
+  const favCount=S.deals.filter(d=>d.saved).length;
+  const data=[
+    {v:priceSaved>0?priceSaved.toFixed(2)+'€':'0€',l:'Économisés (prix)',c:'var(--gr)'},
+    {v:priceDrops,l:'Baisses détectées',c:'var(--gr)'},
+    {v:favCount,l:'Deals favoris',c:'var(--ac)'},
+    {v:S.xp+' XP',l:'XP total gagné',c:'var(--ac)'},
+  ];
+  el.innerHTML=data.map(d=>`<div class="insight-item"><div class="insight-v" style="color:${d.c}">${esc(String(d.v))}</div><div class="insight-l">${d.l}</div></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// v2.6 — CARTE DE FIDÉLITÉ (WALLET)
+// ═══════════════════════════════════════════════════
+function renderWallet(){
+  const el=G('walletList');if(!el)return;
+  const cards=S.wallet||[];
+  if(!cards.length){el.innerHTML='<div class="wallet-empty"><div class="wi">💳</div><p style="font-size:13px;color:var(--tx2);margin-top:4px">Aucune carte.<br>Ajoute ta première carte de fidélité !</p></div>';return;}
+  el.innerHTML=cards.map((c,i)=>{
+    const bars=genBarcodeVisual(c.number);
+    return `<div class="wallet-card"><div class="wallet-card-top"><div class="wallet-card-icon">${esc(c.emoji||'💳')}</div><div><div class="wallet-card-store">${esc(c.store)}</div><div class="wallet-card-sub">Carte de fidélité · Ajoutée le ${esc(c.added||'')}</div></div></div><div class="wallet-bars">${bars}</div><div class="wallet-barcode-num">${esc(c.number)}</div><div class="wallet-actions"><button class="wallet-del" onclick="deleteWalletCard(${i})">🗑️ Supprimer</button><button class="wallet-del" style="color:var(--ac);border-color:var(--ac)" onclick="copyWalletNum(${i})">📋 Copier</button></div></div>`;
+  }).join('');
+}
+function genBarcodeVisual(num){
+  const s=String(num).replace(/\D/g,'').padStart(13,'0').slice(0,13);
+  let h='';
+  const W=[3,2,1,3,1,2,3,2,1,2,3,1,2];const H=[100,65,85,50,95,70,80,55,100,75,60,90,45];
+  for(let i=0;i<s.length;i++){const d=parseInt(s[i]);const w=W[i%W.length];const ht=H[(i+d)%H.length];h+=`<div class="wallet-bar" style="height:${ht}%;width:${w}px;margin-right:${i%4===3?3:1}px"></div>`;if(d>4)h+=`<div class="wallet-bar" style="height:${Math.max(30,ht-35)}%;width:1px;margin-right:1px"></div>`;}
+  return h;
+}
+function addWalletCard(){
+  if(!canSubmit('wallet',2000))return;
+  const store=sanitize(G('wStore')?.value||'',50).trim();
+  const number=sanitize(G('wNum')?.value||'',30).trim().replace(/\s/g,'');
+  const rawEmoji=sanitize(G('wEmoji')?.value.trim()||'💳',4);
+  const emoji=/[<>"'`\\]/.test(rawEmoji)||!rawEmoji?'💳':rawEmoji;
+  if(!store||store.length<2){toast('❌ Nom du magasin requis');return;}
+  if(!number||number.length<4){toast('❌ Numéro trop court (4 min)');return;}
+  S.wallet=S.wallet||[];
+  if(S.wallet.length>=20){toast('❌ Max 20 cartes');return;}
+  S.wallet.push({store,number,emoji,added:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'})});
+  sv('wallet');
+  ['wStore','wNum','wEmoji'].forEach(id=>{const el=G(id);if(el)el.value='';});
+  renderWallet();toast('💳 Carte ajoutée !');haptic&&haptic('success');
+}
+function deleteWalletCard(i){S.wallet.splice(i,1);sv('wallet');renderWallet();toast('🗑️ Carte supprimée');haptic&&haptic('light');}
+function copyWalletNum(i){const c=(S.wallet||[])[i];if(!c)return;navigator.clipboard?.writeText(c.number).then(()=>toast('📋 Numéro copié !'),()=>toast('❌ Copie non disponible'));}
+
+// ═══════════════════════════════════════════════════
+// v2.6 — HISTORIQUE LISTES DE COURSES
+// ═══════════════════════════════════════════════════
+function archiveList(){
+  const list=S.list||[];
+  if(!list.length){toast('ℹ️ La liste est vide');return;}
+  const total=list.reduce((a,i)=>a+(parseFloat(i.price)||0)*(parseInt(i.qty)||1),0);
+  const archive={
+    id:Date.now(),
+    date:new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
+    items:list.map(i=>({name:i.name,qty:i.qty||1,price:i.price||0,emoji:i.emoji||'🛒',checked:i.checked})),
+    total:parseFloat(total.toFixed(2)),count:list.length
+  };
+  S.listHistory=S.listHistory||[];
+  S.listHistory.unshift(archive);
+  if(S.listHistory.length>10)S.listHistory=S.listHistory.slice(0,10);
+  sv('listHistory');S.list=[];sv('list');renderList();
+  toast('📂 Liste archivée !');haptic&&haptic('success');
+}
+let listHistoryVisible=false;
+function toggleListHistory(){
+  listHistoryVisible=!listHistoryVisible;
+  const section=G('listHistorySection'),btn=G('histToggleBtn');
+  if(section)section.style.display=listHistoryVisible?'block':'none';
+  if(btn)btn.textContent=listHistoryVisible?'✕ Masquer l\'historique':'📂 Voir l\'historique →';
+  if(listHistoryVisible)renderListHistory();
+}
+function renderListHistory(){
+  const el=G('listHistoryItems');if(!el)return;
+  const hist=S.listHistory||[];
+  if(!hist.length){el.innerHTML='<p style="font-size:12px;color:var(--tx3);text-align:center;padding:16px">Aucune liste archivée.</p>';return;}
+  el.innerHTML=hist.map((a,i)=>{
+    const preview=a.items.slice(0,4).map(it=>`${esc(it.emoji||'🛒')} ${esc(it.name)}`).join(', ')+(a.items.length>4?'…':'');
+    return `<div class="hist-list-card"><div class="hist-list-hd"><span class="hist-list-date">${esc(a.date)}</span><span class="hist-list-total">${a.total>0?a.total.toFixed(2)+' €':a.count+' articles'}</span></div><div class="hist-list-items">${preview}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="hist-list-del" onclick="restoreArchive(${i})">↩️ Restaurer</button><button class="hist-list-del" onclick="deleteArchive(${i})">🗑️ Supprimer</button></div></div>`;
+  }).join('');
+}
+function restoreArchive(i){
+  const a=(S.listHistory||[])[i];if(!a)return;
+  S.list=a.items.map(it=>({id:Date.now()+Math.random(),name:it.name,qty:it.qty||1,price:it.price||0,emoji:it.emoji||'🛒',checked:false}));
+  sv('list');renderList();toast('↩️ Liste restaurée !');haptic&&haptic('success');
+}
+function deleteArchive(i){
+  (S.listHistory||[]).splice(i,1);sv('listHistory');renderListHistory();toast('🗑️ Archive supprimée');
+}
+
+// ═══════════════════════════════════════════════════
+// v2.6 — COMPARATEUR MAGASIN
+// ═══════════════════════════════════════════════════
+let comparateurOpen=false;
+function toggleComparateur(){
+  comparateurOpen=!comparateurOpen;
+  const wrap=G('comparateurWrap');
+  if(wrap)wrap.style.display=comparateurOpen?'block':'none';
+  if(comparateurOpen)renderComparateur();
+}
+function renderComparateur(){
+  const el=G('comparateurList');if(!el)return;
+  const prices=S.prices||[];
+  if(!prices.length){el.innerHTML='<div class="empty"><div class="ei">📦</div><p>Ajoute des produits depuis plusieurs magasins pour comparer.</p></div>';return;}
+  const byStore={};
+  prices.forEach(p=>{const shop=p.shop||'Inconnu';if(!byStore[shop])byStore[shop]=[];const curr=p.history&&p.history.length?p.history[p.history.length-1].v:null;if(curr!==null)byStore[shop].push({name:p.name,curr,emoji:p.emoji||'📦'});});
+  const productPrices={};
+  prices.forEach(p=>{const curr=p.history&&p.history.length?p.history[p.history.length-1].v:null;if(curr===null)return;if(!productPrices[p.name]){productPrices[p.name]={min:curr,max:curr};}else{if(curr<productPrices[p.name].min)productPrices[p.name].min=curr;if(curr>productPrices[p.name].max)productPrices[p.name].max=curr;}});
+  const stores=Object.keys(byStore).sort();
+  if(!stores.length){el.innerHTML='<p style="text-align:center;color:var(--tx3);padding:20px;font-size:12px">Ajoute des produits depuis plusieurs magasins.</p>';return;}
+  el.innerHTML=stores.map(shop=>{
+    const prods=byStore[shop];
+    const rows=prods.map(p=>{const pp=productPrices[p.name];const cls=pp&&p.curr===pp.min?'comp-best':pp&&p.curr===pp.max&&pp.min!==pp.max?'comp-worst':'comp-mid';const badge=pp&&pp.min!==pp.max&&p.curr===pp.min?' 🏆':'';return `<div class="comp-product-row"><span class="comp-product-name">${esc(p.emoji)} ${esc(p.name)}</span><span class="comp-product-price ${cls}">${p.curr.toFixed(2)} €${badge}</span></div>`;}).join('');
+    const total=prods.reduce((a,p)=>a+p.curr,0);
+    return `<div class="comp-store-card"><div class="comp-store-name">🏪 ${esc(shop)} <span style="font-size:11px;font-weight:500;color:var(--tx3)">(${prods.length} produit${prods.length>1?'s':''})</span></div>${rows}<div style="text-align:right;margin-top:6px;font-size:11px;font-weight:700;color:var(--ac)">Panier suivi : ${total.toFixed(2)} €</div></div>`;
+  }).join('');
+}
+
 (function init(){
   try{
     // Restaurer dernière position GPS connue
@@ -3662,6 +3938,8 @@ function shareShoppingList(){
     renderConseil();
     // Restaurer météo du cache si disponible
     restoreWeather();
+    // Nouvelles features v2.6
+    renderSummaryWidget();
 
     // Feature 7 : onboarding premier lancement
     initOnboarding();
